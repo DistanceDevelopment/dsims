@@ -1,0 +1,23 @@
+library(dssd)
+library(dsims)
+#devtools::load_all()
+region <- make.region()
+plot(region)
+pop.desc <- make.population.description(region)
+detect <- make.detectability()
+
+pop <- generate.population(object = pop.desc, 
+                           detectability = detect, 
+                           region = region)
+
+plot(region)
+plot(pop)
+
+design <- make.design()
+survey <- generate.transects(design)
+
+plot(survey, add = T)
+
+
+test <- sp::SpatialPointsDataFrame(pop@population[,2:1], data = pop@population[,c(1,4,5)])
+test2 <- sf::st_as_sf(test)

@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1569496616091.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "35FAF2E6",
+    "lastKnownWriteTime" : 1569511117,
+    "last_content_update" : 1569511117964,
+    "path" : "~/Documents/GitHub/dsims/dsims/R/generate.pop.D.R",
+    "project_path" : "R/generate.pop.D.R",
+    "properties" : {
+        "cursorPosition" : "7,16",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

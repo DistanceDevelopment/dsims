@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1569495386602.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "EDA64A24",
+    "lastKnownWriteTime" : 1569504876,
+    "last_content_update" : 1569504876558,
+    "path" : "~/Documents/GitHub/dsims/dsims/R/get.surface.constant.R",
+    "project_path" : "R/get.surface.constant.R",
+    "properties" : {
+        "cursorPosition" : "24,47",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

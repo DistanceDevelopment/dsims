@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1569492062993.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "A3D508E5",
+    "lastKnownWriteTime" : 1569511016,
+    "last_content_update" : 1569511016180,
+    "path" : "~/Documents/GitHub/dsims/dsims/R/Population.Description.R",
+    "project_path" : "R/Population.Description.R",
+    "properties" : {
+        "cursorPosition" : "127,26",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
