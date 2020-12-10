@@ -7,7 +7,11 @@ get.surface.gam <- function(region, x.space, y.space, gam.model, buffer){
   }
   #Creates a density surface with a constant value across the whole survey region
   #Create a rectangular grid over the entire region
-  bbox <- sf::st_bbox(region@region)
+  temp.region <- region@region
+  #Need to remove crs as going to work with sp objects
+  sf::st_crs(temp.region) <- NA
+  #Get bounding box and create a grid of points across whole area
+  bbox <- sf::st_bbox(temp.region)
   region.width <- bbox[["xmax"]]-bbox[["xmin"]]
   region.height <- bbox[["ymax"]]-bbox[["ymin"]]
   no.x.ints <- ceiling((region.width+2*buffer)/x.space)
@@ -22,10 +26,10 @@ get.surface.gam <- function(region, x.space, y.space, gam.model, buffer){
 
   # Create buffered regions rather than jittering the grid points
   density.surfaces <- list()
-  sf.column <- attr(region@region, "sf_column")
-  for(strat in seq(along = region@region[[sf.column]])){
+  sf.column <- attr(temp.region, "sf_column")
+  for(strat in seq(along = temp.region[[sf.column]])){
     #Extract polygons and gaps for current strata
-    strata.sp <- as(region@region[[sf.column]][strat], "Spatial")
+    strata.sp <- as(temp.region[[sf.column]][strat], "Spatial")
     # Add positive buffer region
     buffered.strata <- rgeos::gBuffer(strata.sp, width = x.space)
     inside <- pts[buffered.strata,]
