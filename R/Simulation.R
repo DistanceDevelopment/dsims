@@ -62,6 +62,7 @@
 #' }
 #' @keywords classes
 #' @rdname Simulation-class
+#' @importClassesFrom dssd Region
 #' @seealso \code{\link{make.simulation}}
 setClass("Simulation", representation(reps = "numeric",
                                       single.transect.set = "logical",

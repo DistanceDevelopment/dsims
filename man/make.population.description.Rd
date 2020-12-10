@@ -4,9 +4,13 @@
 \alias{make.population.description}
 \title{Creates a Population.Description object}
 \usage{
-make.population.description(region.obj = make.region(),
-  density.obj = make.density(), covariates = list(), N = numeric(0),
-  fixed.N = TRUE)
+make.population.description(
+  region.obj = make.region(),
+  density.obj = make.density(),
+  covariates = list(),
+  N = numeric(0),
+  fixed.N = TRUE
+)
 }
 \arguments{
 \item{region.obj}{the Region object in which this population exists (see \link{make.region}).}

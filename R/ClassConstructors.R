@@ -62,7 +62,11 @@ make.density <- function(region.obj = make.region(), density.surface = list(), x
   # Check the user has supplied the correct number of consants
   if(length(constant) > 0){
     if(no.strata > 0 & length(constant) != length(region.obj@strata.name)){
-      stop("The length of the constant vector does not correspond to the number of strata", call. = FALSE)
+      if(length(constant) == 1){
+        constant <- rep(constant, length(region.obj@strata.name))
+      }else{
+        stop("The length of the constant vector does not correspond to the number of strata", call. = FALSE)
+      }
     }
   }else{
     if(no.strata == 0){

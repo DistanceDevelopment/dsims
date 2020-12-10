@@ -4,8 +4,13 @@
 \alias{make.detectability}
 \title{Creates a Detectablility object}
 \usage{
-make.detectability(key.function = "hn", scale.param = 25,
-  shape.param = numeric(0), cov.param = list(), truncation = 50)
+make.detectability(
+  key.function = "hn",
+  scale.param = 25,
+  shape.param = numeric(0),
+  cov.param = list(),
+  truncation = 50
+)
 }
 \arguments{
 \item{key.function}{specifies shape of the detection function (either
