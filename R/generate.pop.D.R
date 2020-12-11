@@ -5,8 +5,11 @@ generate.pop.D <- function(population.description, region.obj){
 #Density object grid (not from a fixed population size)
   density.obj <- population.description@density
   first <- TRUE
+  #Extract region and remove crs as we will work with spatial shapes
+  temp.region <- region.obj@region
+  sf::st_crs(temp.region) <- NA
   #Get sf column
-  sf.column <- attr(region.obj@region, "sf_column")
+  sf.column <- attr(temp.region, "sf_column")
   for(strat in seq(along = density.obj@density.surface)){
     n.cells <- nrow(density.obj@density.surface[[strat]])
     densities <- density.obj@density.surface[[strat]][["density"]]
@@ -29,7 +32,7 @@ generate.pop.D <- function(population.description, region.obj){
       #find which x,y coords are within the region
       pts <- sp::SpatialPoints(data.frame(x = grid.locations$x.coord, y = grid.locations$y.coord))
       #Extract shape for current strata
-      strata.sp <- as(region@region[[sf.column]][strat], "Spatial")
+      strata.sp <- as(temp.region[[sf.column]][strat], "Spatial")
       inside <- pts[strata.sp,]
       pop.locations <- as.data.frame(inside@coords)
       #Record strata ID
