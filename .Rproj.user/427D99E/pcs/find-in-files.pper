@@ -1,11 +1,11 @@
 {
     "dialog-state" : {
-        "caseSensitive" : false,
+        "caseSensitive" : true,
         "filePatterns" : [
         ],
         "path" : "",
         "projectRelative" : true,
-        "query" : "SpatialPoints",
+        "query" : "ddf.data.obj",
         "regex" : false
     }
 }
