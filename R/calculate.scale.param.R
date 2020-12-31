@@ -8,7 +8,7 @@ calculate.scale.param <- function(pop.data, detectability, region){
 #   region - a region object
 # RETURN:
 #   modified population dataframe
-  
+
   # Get number of strata
   strata.no <- ifelse(length(region@strata.name) == 0, 1, length(region@strata.name))
   if(strata.no == 1){
@@ -60,11 +60,11 @@ calculate.scale.param <- function(pop.data, detectability, region){
   }
   # Divide data up by strata
   # Find number of strata
-  strata.ids <- unique(pop.data$strata)
+  strata.ids <- unique(pop.data$Region.Label)
   # Divide population data up by strata
   list.data <- list()
   for(strat in seq(along = strata.ids)){
-    strata.data <- pop.data[pop.data$strata == strata.ids[strat],] 
+    strata.data <- pop.data[pop.data$Region.Label == strata.ids[strat],]
     temp.data <- strata.data
     # Find if any are factor level covariates
     if(any(cov.factor)){
@@ -77,7 +77,7 @@ calculate.scale.param <- function(pop.data, detectability, region){
           # Subset table for strata
           factor.tab <- factor.tab[factor.tab$strata == strata.names[strata.ids[strat]],]
         }
-        
+
         for(level in seq(along = factor.tab$level)){
           cov.name <- detect.cov.names[index[fac]]
           factor.level <- paste(cov.name, ".", factor.tab$level[level], sep = "")
@@ -92,7 +92,7 @@ calculate.scale.param <- function(pop.data, detectability, region){
     }
     # Now deal with non factor covariates
     if(any(!cov.factor)){
-      index <- which(!cov.factor)  
+      index <- which(!cov.factor)
       cov.names <- detect.cov.names[index]
       temp.data <- strata.data[,cov.names]
       # Get param vector

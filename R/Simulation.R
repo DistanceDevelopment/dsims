@@ -129,3 +129,25 @@ setValidity("Simulation",
 
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
+#' @rdname generate.population-methods
+#' @export
+setMethod(
+  f="generate.population",
+  signature="Simulation",
+  definition=function(object, ...){
+    population <- generate.population(object = object@population.description, detectability = object@detectability, region.obj = object@region)
+    return(population)
+  }
+)
+
+#' @rdname generate.transects-methods
+#' @export
+setMethod(
+  f="generate.transects",
+  signature="Simulation",
+  definition=function(object, region = NULL){
+    region <- object@region
+    transect <- generate.transects(object@design, region = region)
+    return(transect)
+  }
+)

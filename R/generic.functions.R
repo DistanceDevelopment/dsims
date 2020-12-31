@@ -1,5 +1,6 @@
 #' @import methods
-#' @import mrds
+#' @import Distance
+#' @importFrom dssd generate.transects
 NULL
 
 #' S4 generic method to generate an instance of a population
@@ -22,26 +23,6 @@ NULL
 #' @rdname generate.population-methods
 setGeneric("generate.population", function(object, ...){standardGeneric ("generate.population")})
 
-#' S4 generic method to generate a region table
-#'
-#' This function is called internally to generate a region table required to
-#' estimate abundance /  density via the Hortvitz-Thompson estimator.
-#'
-#' @param object an object of a class inheriting from Survey
-#' @param region an object of class Region
-#' @return an object of class Region.Table
-#' @rdname create.region.table-methods
-setGeneric(name = "create.region.table", def = function(object, region){standardGeneric ("create.region.table")})
-
-#' S4 generic method to generate a sample table
-#'
-#' This function is called internally to generates a sample table required to
-#' estimate abundance /  density via the Hortvitz-Thompson estimator.
-#'
-#' @param object an object of a class inheriting from Survey
-#' @return an object of class Sample.Table
-#' @rdname create.sample.table-methods
-setGeneric(name = "create.sample.table", def = function(object){standardGeneric ("create.sample.table")})
 
 #' S4 generic method to simulate a survey
 #'

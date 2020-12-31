@@ -19,7 +19,7 @@ generate.pop.N <- function(population.description, region.obj){
       pop.locations <- data.frame()
       while(nrow(pop.locations) < N[strat] && counter < 10){
         #Generate some animal locations
-        inside <- get.animal.locations(density.obj, temp.region, strat)
+        inside <- get.animal.locations(density.obj, temp.region, N[strat], strat)
         if(nrow(pop.locations) == 0){
           pop.locations <- as.data.frame(inside@coords[1:min(N[strat],nrow(inside@coords)),])
         }else{
@@ -30,11 +30,11 @@ generate.pop.N <- function(population.description, region.obj){
         #Increment counter so we leave loop after 10 iterations even if we still don't have enough animals
         counter <- counter + 1
       }
-      if(pop.locations < N[strat]){
+      if(nrow(pop.locations) < N[strat]){
         warning(paste("DSsim is unable to generate the requested population size for strata ", strat, ". We recommend you check the spacing of the density grid is appropriate, it may need reducing. Population size requested = ", N[strat], ", Population size generated = ", nrow(pop.locations),".", sep = ""), call. = FALSE)
       }
       # Add strata ID
-      pop.locations$strata <- rep(strat, nrow(pop.locations))
+      pop.locations$Region.Label <- rep(strat, nrow(pop.locations))
       # Accumulate all location
       if(nrow(all.pop.locations) == 0){
         all.pop.locations <- pop.locations
@@ -47,13 +47,11 @@ generate.pop.N <- function(population.description, region.obj){
 }
 
 
-
-
-get.animal.locations <- function(density.obj, temp.region, strat){
+get.animal.locations <- function(density.obj, temp.region, Nj, strat){
   n.cells <- nrow(density.obj@density.surface[[strat]])
   probs <- density.obj@density.surface[[strat]][["density"]]/sum(density.obj@density.surface[[strat]][["density"]])
   #sample more animals than required as some will fall outside the survey region
-  samp <- suppressWarnings(sample(x = 1:n.cells, size = 2*N[strat], replace = TRUE, prob = probs))
+  samp <- suppressWarnings(sample(x = 1:n.cells, size = 2*Nj, replace = TRUE, prob = probs))
   grid.locations <- density.obj@density.surface[[strat]][samp,]
   #generate random locations within grid cell
   rx <- runif(nrow(grid.locations), -density.obj@x.space/2, density.obj@x.space/2)

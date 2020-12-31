@@ -3,6 +3,7 @@ Depends:
     dssd
 Imports:
     mrds,
+    Distance,
     sf,
     sp
 Type: Package
@@ -32,9 +33,15 @@ Collate:
     'Simulation.R'
     'ClassConstructors.R'
     'Population.R'
+    'Survey.R'
+    'Survey.LT.R'
+    'Survey.PT.R'
+    'calc.perp.dists.R'
     'calculate.scale.param.R'
     'check.covariates.R'
     'generate.pop.D.R'
     'generate.pop.N.R'
     'get.surface.constant.R'
     'get.surface.gam.R'
+    'simulate.detections.R'
+    'single.sim.loop.R'

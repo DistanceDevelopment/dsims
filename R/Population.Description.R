@@ -137,14 +137,15 @@ setMethod(
     }
     N <- nrow(all.pop.locations)
     # Make population data.frame
-    population.dataframe <- cbind(object = seq_along(all.pop.locations$x), all.pop.locations)
+    population.dataframe <- cbind(individual = seq_along(all.pop.locations$x), all.pop.locations)
     # Add covariate values
     if(length(object@covariates) > 0){
       population.dataframe <- add.covariate.values(population.dataframe, object@covariates)
     }
     # Add scale parameter values
     if(N > 0){
-      population.dataframe <- calculate.scale.param(population.dataframe, detectability, region)
+      population.dataframe <- calculate.scale.param(population.dataframe,
+                                                    detectability, region)
     }
     # Make population object
     population <- new(Class = "Population", region = object@region.name, strata.names = region@region.name, N = N, D = N/region@area, population = population.dataframe, detectability = detectability)
