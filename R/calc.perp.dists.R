@@ -79,14 +79,17 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
                              cov.areas = covered.areas)
   #Build up into a single data.frame
   sub.pop.size <- 0
+  first <- TRUE
   new.dataframe <- NULL
   for(i in seq(along = all.poss.detects)){
     if(!is.null(all.poss.detects[[i]]) && nrow(all.poss.detects[[i]]) > 0){
-      sub.pop.size <- sub.pop.size + nrow(all.poss.detects[[i]])
-      if(is.null(new.dataframe)){
+      if(first){
         new.dataframe <- all.poss.detects[[i]]
+        sub.pop.size <- sub.pop.size + nrow(all.poss.detects[[i]])
+        first <- FALSE
       }else{
         new.dataframe <- rbind(new.dataframe, all.poss.detects[[i]])
+        sub.pop.size <- sub.pop.size + nrow(all.poss.detects[[i]])
       }
     }
   }
