@@ -14,7 +14,8 @@ General Testing:
 
 Input testing:
 
--
+- Copy all imput testing across
+- Test single versus multiple strata
 
 Special specific testing:
 
