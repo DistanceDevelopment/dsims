@@ -23,5 +23,9 @@ Special specific testing:
 
 - Check that dsims correctly re-numbers sightings of the same object detected from 2 different transects. Most extreme test case here would be largely overlapping covered areas and a uniform detection probability of 1.
 
+- Check what happens when running simulation in serial and parallel and loading the data from file... I think there might be an output conflict to the console stream between the progress counter and a message about analysing datasets.
+
+
+
 
 
