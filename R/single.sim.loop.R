@@ -53,8 +53,7 @@ single.sim.loop <- function(i, object, save.data, load.data, data.path = charact
   #Load or generate survey data
   if(load.data){
     #load data
-    load(paste(data.path,"dataset_",i,".robj", sep = ""))
-    cat("\r Analysing dataset: ", i, "\r")
+    load(paste(data.path,"dataset_",i,".robj", sep = "")) s
     dist.data <- dist.data$dist.data
     dists.in.covered <- dist.data$dists.in.covered
   }else{
