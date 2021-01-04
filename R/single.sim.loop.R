@@ -56,14 +56,14 @@ single.sim.loop <- function(i, object, save.data, load.data, data.path = charact
     load(paste(data.path,"dataset_",i,".robj", sep = ""))
     cat("\r Analysing dataset: ", i, "\r")
     dist.data <- dist.data$dist.data
-    dists.in.covered <- dist.data$n.in.covered
+    dists.in.covered <- dist.data$dists.in.covered
   }else{
     #simulate survey
     survey.data <- create.survey.results(object = survey)
     dist.data <- survey.data$dist.data
-    dists.in.covered <- survey.data$n.in.covered
+    dists.in.covered <- survey.data$dists.in.covered
     if(save.data){
-      dist.data <- list(ddf = ddf.data, n.in.covered = dists.in.covered)
+      dist.data <- list(ddf = ddf.data, dists.in.covered = dists.in.covered)
       save(dist.data, file = paste(data.path,"dataset_",i,".robj", sep = ""))
     }
   }

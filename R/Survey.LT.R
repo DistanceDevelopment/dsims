@@ -52,8 +52,6 @@ setMethod(
     line.transect <- object@transect
     # Find possible detection distances
     poss.distances <- calc.perp.dists(population, line.transect)
-    # Record how many were in the covered region
-    n.in.covered <- nrow(poss.distances)
     # Simulate detections
     dist.data <- simulate.detections(poss.distances, object@population@detectability)
     # Get the covariate names
@@ -71,7 +69,7 @@ setMethod(
     # }else{
     #   return(list(ddf.data = ddf.data.obj, n.in.covered = n.in.covered))
     # }
-    return(list(dist.data = dist.data, n.in.covered = n.in.covered))
+    return(list(dist.data = dist.data, dists.in.covered = poss.distances))
   }
 )
 

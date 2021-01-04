@@ -56,7 +56,10 @@ setGeneric(name = "create.survey.results", def = function(object, ...){standardG
 #' Extracts distance data from a Survey.Results object
 #'
 #' @param object an object of class LT.Survey.Results
-#' @return a data.frame describing the distance data
+#' @return a list containing a data.frame of distance data and a vector of all
+#' the possible detection distances. The latter can be used to calculate the
+#' number of animals / clusters in the covered area for truncation distances
+#' equal to or less than those used in the design.
 #' @export
 #' @rdname get.distance.data-methods
 #' @seealso \code{\link{create.survey.results}}
