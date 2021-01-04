@@ -47,7 +47,7 @@ setValidity("Survey.LT",
 setMethod(
   f="create.survey.results",
   signature="Survey.LT",
-  definition=function(object, dht.tables = FALSE, ...){
+  definition=function(object, ...){
     population <- object@population
     line.transect <- object@transect
     # Find possible detection distances

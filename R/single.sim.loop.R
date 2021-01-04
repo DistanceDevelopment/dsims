@@ -59,7 +59,7 @@ single.sim.loop <- function(i, object, save.data, load.data, data.path = charact
     dists.in.covered <- dist.data$n.in.covered
   }else{
     #simulate survey
-    survey.data <- create.survey.results(object = survey, dht.tables = TRUE, region = object@region)
+    survey.data <- create.survey.results(object = survey)
     dist.data <- survey.data$dist.data
     dists.in.covered <- survey.data$n.in.covered
     if(save.data){

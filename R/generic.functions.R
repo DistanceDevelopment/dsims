@@ -49,7 +49,7 @@ setGeneric("generate.population", function(object, ...){standardGeneric ("genera
 #' plot(survey.results)
 #' }
 #'
-setGeneric(name = "create.survey.results", def = function(object, dht.tables = FALSE, ...){standardGeneric ("create.survey.results")})
+setGeneric(name = "create.survey.results", def = function(object, ...){standardGeneric ("create.survey.results")})
 
 #' S4 generic method to extract distance data
 #'
