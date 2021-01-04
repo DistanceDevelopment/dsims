@@ -19,6 +19,8 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
     available_ind <- which(rgeos::gIntersects(sp.pop, sp.ca, byid=TRUE))
     #get the points in the region
     sub.pop <- sp.pop[available_ind,]
+    #Extract just the dataframe
+    sub.pop <- sub.pop@data
     #Find start and end point [note may be a multilinestring]
     if("LINESTRING" %in% class(samp)){
       start.X <- samp[1]
@@ -47,17 +49,9 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
     #Add perp distances
     if(nrow(sub.pop) > 0){
       #Make new dataset
-      new.data <- data.frame(individual = sub.pop$individual,
-                             x = sub.pop$x,
-                             y = sub.pop$y,
-                             Region.Label = sub.pop$Region.Label,
-                             Sample.Label = rep(samplers$transect[i], nrow(sub.pop)),
-                             distance = perp.dists,
-                             available = rep(TRUE, nrow(sub.pop)),
-                             scale.param = sub.pop$scale.param)
-      if("shape.param" %in% names(sub.pop)){
-        new.data <- cbind(new.data, sub.pop$shape.param)
-      }
+      new.data <- cbind(sub.pop,
+                        Sample.Label = rep(samplers$transect[i], nrow(sub.pop)),
+                        distance = perp.dists)
     }else{
       new.data <- NULL
     }

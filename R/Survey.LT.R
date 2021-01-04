@@ -58,8 +58,8 @@ setMethod(
     dist.data <- simulate.detections(poss.distances, object@population@detectability)
     # Get the covariate names
     all.col.names <- names(object@population@population)
-    cov.param.names <- all.col.names[!all.col.names %in% c("object", "x", "y", "strata", "scale.param", "shape.param", "individual")]
-    dist.data <- dist.data[,c("object", "individual", "transect.ID", "distance", "x", "y", cov.param.names)]
+    cov.param.names <- all.col.names[!all.col.names %in% c("object", "x", "y", "Region.Label", "Sample.Label", "scale.param", "shape.param", "individual")]
+    dist.data <- dist.data[,c("object", "individual", "Region.Label", "Sample.Label", "distance", "x", "y", cov.param.names)]
     #ddf.data.obj <- new(Class = "Single.Obs.DDF.Data", data = dist.data)
     # if(dht.tables){
     #   region.table <- create.region.table(object, ...)
