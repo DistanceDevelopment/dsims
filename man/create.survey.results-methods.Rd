@@ -5,17 +5,17 @@
 \alias{create.survey.results,Survey.LT-method}
 \title{S4 generic method to simulate a survey}
 \usage{
-create.survey.results(object, dht.tables = FALSE, ...)
+create.survey.results(object, ...)
 
-\S4method{create.survey.results}{Survey.LT}(object, dht.tables = FALSE, ...)
+\S4method{create.survey.results}{Survey.LT}(object, region = NULL)
 }
 \arguments{
 \item{object}{an object of class Simulation}
 
+\item{...}{allows a region object to be passed in}
+
 \item{dht.tables}{logical value indicating whether or the data
 tables for Hortvitz-Thompson estimation are required.}
-
-\item{...}{allows a region object to be passed in}
 }
 \value{
 an object of class LT.Survey.Results
@@ -33,7 +33,7 @@ fitting models to this data.
 }
 \examples{
 \dontrun{
-survey.results <- create.survey.results(simulation, dht.table = TRUE)
+survey.results <- create.survey.results(simulation, region = NULL)
 
 plot(survey.results)
 }

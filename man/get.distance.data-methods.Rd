@@ -10,7 +10,10 @@ get.distance.data(object)
 \item{object}{an object of class LT.Survey.Results}
 }
 \value{
-a data.frame describing the distance data
+a list containing a data.frame of distance data and a vector of all
+the possible detection distances. The latter can be used to calculate the
+number of animals / clusters in the covered area for truncation distances
+equal to or less than those used in the design.
 }
 \description{
 Extracts distance data from a Survey.Results object

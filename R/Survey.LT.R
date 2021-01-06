@@ -47,7 +47,7 @@ setValidity("Survey.LT",
 setMethod(
   f="create.survey.results",
   signature="Survey.LT",
-  definition=function(object, ...){
+  definition=function(object, region = NULL){
     population <- object@population
     line.transect <- object@transect
     # Find possible detection distances
@@ -58,17 +58,20 @@ setMethod(
     all.col.names <- names(object@population@population)
     cov.param.names <- all.col.names[!all.col.names %in% c("object", "x", "y", "Region.Label", "Sample.Label", "scale.param", "shape.param", "individual")]
     dist.data <- dist.data[,c("object", "individual", "Region.Label", "Sample.Label", "distance", "x", "y", cov.param.names)]
-    #ddf.data.obj <- new(Class = "Single.Obs.DDF.Data", data = dist.data)
-    # if(dht.tables){
-    #   region.table <- create.region.table(object, ...)
-    #   sample.table <- create.sample.table(object)
-    #   obs.table <- data.frame(object = dist.data$object, Sample.Label = dist.data$transect.ID)
-    #   obs.table <- merge(obs.table, sample.table@sample.table, by = "Sample.Label")[,c("object","Sample.Label","Region.Label")]
-    #   obs.table.obj <- new(Class = "Obs.Table", data = obs.table)
-    #   return(list(ddf.data = ddf.data.obj, obs.table = obs.table.obj, sample.table = sample.table, region.table = region.table, n.in.covered = n.in.covered))
-    # }else{
-    #   return(list(ddf.data = ddf.data.obj, n.in.covered = n.in.covered))
-    # }
+    # Add in the transect lengths
+    sample.table <- data.frame(Region.Label = transects@samplers$strata,
+                               Sample.Label = transects@samplers$transect,
+                               Effort = sf::st_length(transects@samplers))
+    # If the region is supplied then add in the survey region Area
+    if(!is.null(region)){
+      region.table <- data.frame(Region.Label = region@strata.name,
+                                 Area = region@area)
+      sample.table <- dplyr::left_join(sample.table, region.table, by = "Region.Label")
+    }
+    dist.data <- dplyr::full_join(dist.data, sample.table, by = c("Sample.Label", "Region.Label"))
+    # Order by transect id
+    index <- order(dist.data$Sample.Label)
+    dist.data <- dist.data[index,]
     return(list(dist.data = dist.data, dists.in.covered = poss.distances))
   }
 )

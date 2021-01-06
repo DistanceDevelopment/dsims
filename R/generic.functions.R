@@ -44,7 +44,7 @@ setGeneric("generate.population", function(object, ...){standardGeneric ("genera
 #' @rdname create.survey.results-methods
 #' @examples
 #' \dontrun{
-#' survey.results <- create.survey.results(simulation, dht.table = TRUE)
+#' survey.results <- create.survey.results(simulation, region = NULL)
 #'
 #' plot(survey.results)
 #' }
