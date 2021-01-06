@@ -25,6 +25,8 @@ Special specific testing:
 
 - Check what happens when running simulation in serial and parallel and loading the data from file... I think there might be an output conflict to the console stream between the progress counter and a message about analysing datasets.
 
+- Test what happens for the flat file data format when there are no detections on some transects
+
 
 
 
