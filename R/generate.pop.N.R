@@ -34,7 +34,7 @@ generate.pop.N <- function(population.description, region.obj){
         warning(paste("DSsim is unable to generate the requested population size for strata ", strat, ". We recommend you check the spacing of the density grid is appropriate, it may need reducing. Population size requested = ", N[strat], ", Population size generated = ", nrow(pop.locations),".", sep = ""), call. = FALSE)
       }
       # Add strata ID
-      pop.locations$Region.Label <- rep(strat, nrow(pop.locations))
+      pop.locations$Region.Label <- rep(region.obj@strata.name[strat], nrow(pop.locations))
       # Accumulate all location
       if(nrow(all.pop.locations) == 0){
         all.pop.locations <- pop.locations
