@@ -19,5 +19,5 @@ equal to or less than those used in the design.
 Extracts distance data from a Survey.Results object
 }
 \seealso{
-\code{\link{create.survey.results}}
+\code{\link{run.survey}}
 }

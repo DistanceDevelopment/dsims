@@ -42,10 +42,10 @@ setValidity("Survey.LT",
 
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
-#' @rdname create.survey.results-methods
+#' @rdname run.survey-methods
 #' @export
 setMethod(
-  f="create.survey.results",
+  f="run.survey",
   signature="Survey.LT",
   definition=function(object, region = NULL){
     population <- object@population
@@ -72,7 +72,9 @@ setMethod(
     # Order by transect id
     index <- order(dist.data$Sample.Label)
     dist.data <- dist.data[index,]
-    return(list(dist.data = dist.data, dists.in.covered = poss.distances))
+    object@dist.data <- dist.data
+    object@dists.in.covered <- poss.distances$distance
+    return(object)
   }
 )
 

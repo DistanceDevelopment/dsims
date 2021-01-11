@@ -31,25 +31,20 @@ setGeneric("generate.population", function(object, ...){standardGeneric ("genera
 #' object of class LT.Survey.Results which contains a population, a set of
 #' transects, distance data and if requested region, sample and obs tables.
 #'
-#' This object can be displayed using \code{plot()} or the distance data
-#' extracted using \code{get.distance.data()}. You can then investigate
-#' fitting models to this data.
 #'
 #' @param object an object of class Simulation
-#' @param dht.tables logical value indicating whether or the data
-#' tables for Hortvitz-Thompson estimation are required.
 #' @param ... allows a region object to be passed in
 #' @return an object of class LT.Survey.Results
 #' @export
-#' @rdname create.survey.results-methods
+#' @rdname run.survey-methods
 #' @examples
 #' \dontrun{
-#' survey.results <- create.survey.results(simulation, region = NULL)
+#' survey <- run.survey(simulation)
 #'
-#' plot(survey.results)
+#' plot(survey)
 #' }
 #'
-setGeneric(name = "create.survey.results", def = function(object, ...){standardGeneric ("create.survey.results")})
+setGeneric(name = "run.survey", def = function(object, ...){standardGeneric ("run.survey")})
 
 #' S4 generic method to extract distance data
 #'
@@ -62,7 +57,7 @@ setGeneric(name = "create.survey.results", def = function(object, ...){standardG
 #' equal to or less than those used in the design.
 #' @export
 #' @rdname get.distance.data-methods
-#' @seealso \code{\link{create.survey.results}}
+#' @seealso \code{\link{run.survey}}
 setGeneric(name = "get.distance.data", def = function(object){standardGeneric ("get.distance.data")})
 
 #' S4 generic method to add a hotspot to the density grid
@@ -114,14 +109,13 @@ setGeneric(name = "run", def = function(object, run.parallel = FALSE, max.cores 
 #' DDf.Data. The data argument may be of either class for an object argument
 #' of class Simulation.
 #'
-#' @param object an object of class Simulation or DDF.Analysis
-#' @param data an object of class Survey.Results or DDF.Data
+#' @param object an object of class Survey
+#' @param analysis an object of class DS.Analysis
 #' @param ... optional arguments including the following:
-#' @param dht logical whether density should be estimated after fitting the model
 #' @return a list containing an S3 ddf object and optionally an S3 dht object relating to the model with the minimum criteria.
 #' @export
-#' @rdname run.analysis-methods
-setGeneric(name = "run.analysis", def = function(object, data, ...){standardGeneric ("run.analysis")})
+#' @rdname analyse.data-methods
+setGeneric(name = "analyse.data", def = function(survey, analysis, ...){standardGeneric ("analyse.data")})
 
 
 if (!isGeneric("plot")){

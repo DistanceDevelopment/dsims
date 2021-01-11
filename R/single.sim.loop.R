@@ -53,17 +53,14 @@ single.sim.loop <- function(i, object, save.data, load.data, data.path = charact
   #Load or generate survey data
   if(load.data){
     #load data
-    load(paste(data.path,"dataset_",i,".robj", sep = ""))
-    dist.data <- dist.data$dist.data
-    dists.in.covered <- dist.data$dists.in.covered
+    load(paste(data.path,"survey_",i,".robj", sep = ""))
+    dists.in.covered <- survey@dists.in.covered
   }else{
     #simulate survey
-    survey.data <- create.survey.results(object = survey)
-    dist.data <- survey.data$dist.data
-    dists.in.covered <- survey.data$dists.in.covered
+    survey <- run.survey(object = survey)
+    dists.in.covered <- survey@dists.in.covered
     if(save.data){
-      dist.data <- list(ddf = ddf.data, dists.in.covered = dists.in.covered)
-      save(dist.data, file = paste(data.path,"dataset_",i,".robj", sep = ""))
+      save(survey, file = paste(data.path,"survey_",i,".robj", sep = ""))
     }
   }
   #Find how many animals were in the covered region
@@ -74,7 +71,7 @@ single.sim.loop <- function(i, object, save.data, load.data, data.path = charact
   }
   #analyse survey if there are data to analyse
   if(nrow(ddf.data@ddf.dat[!is.na(ddf.data@ddf.dat$distance),]) >= 20){
-    ddf.results <- run.analysis(object, ddf.data)
+    ddf.results <- run.analysis(survey)
     warnings <- ddf.results$warnings
     num.successful.models <- ddf.results$num.successful.models
     ddf.results <- ddf.results$best.model
