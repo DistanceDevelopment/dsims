@@ -45,7 +45,7 @@
 #'  "Simulation")}: generates a single instance of a population.}
 #'  \item{\code{generate.transects}}{\code{signature = (object =
 #'  "Simulation")}: generates a single set of transects.}
-#'  \item{\code{create.survey.results}}{\code{signature = (object =
+#'  \item{\code{run.survey}}{\code{signature = (object =
 #'  "Simulation")}: carries out the simulation process as far as generating
 #'  the distance data and returns an object containing the population,
 #'  transects and data.}

@@ -2,6 +2,7 @@
 #' @include Population.Description.R
 #' @include Detectability.R
 #' @include Density.R
+#' @include DS.Analysis.R
 
 #' @title Creates a Density object
 #' @description
@@ -237,32 +238,49 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
   return(detectability)
 }
 
-#' @title Creates a list of DDF.Analysis objects
+#' @title Creates an Analysis object
 #' @description
-#' This method creates a list of DDF.Analysis objects each of which describes
-#' a model to fit to the distance data. The simulation will fit each of these
+#' This method creates an Analysis objects which describes a one or more
+#' models to fit to the distance data. The simulation will fit each of these
 #' models to the data generated in the simulation and select the model with
 #' the minimum criteria value.
 #'
-#' @details By default this function creates a half-normal detection
-#'  function model \code{dsmodel = list(~cds(key = "hn",
-#'  formula = ~1))} with a truncation distance of 75.
+#' @details
 #'
-#' @param dsmodel list of distance sampling model formula specifying the detection function (see \code{?ddf} for further details)
-#' @param mrmodel not yet implemented
-#' @param method character only "ds" normal distance sampling currently implemented
-#' @param criteria character model selection criteria (AIC, AICc, BIC) - only AIC implemented at present.
-#' @param analysis.strata Dataframe with two columns ("design.id" and
-#' "analysis.id"). The former gives the strata names as defined in the
-#' design (i.e. the region object) the second specifies how they should
-#' be grouped (into less strata) for the analyses
-#' @param truncation numeric truncation distance for analyses
-#' @param binned.data logical whether the data should be analsed in bins
-#' @param cutpoints gives the cutpoints of the binned data
-#' @return list of objects of class DDF.Analysis
+#' @param dsmodel list of distance sampling model formula specifying the detection function
+#'  (see \code{?ds} for further details)
+#' @param key key function to use; "hn" gives half-normal (default), "hr" gives hazard-rate
+#'  and "unif" gives uniform. Note that if uniform key is used, covariates cannot be
+#'  included in the model.
+#' @param adjustment a way of providing information about the adjustment term options. A
+#' list of options for adjustment parameters. In the case of multiple models this should
+#' be a list of option lists, one for each model. Note adjustment terms can only be
+#' included when there are no covariates in the model. The adjustment options include:
+#' adjustment - "cos" (recommended), "herm" or "poly", order - the order of the adjustment
+#' terms and scale - either "width" or "scale". See details for more information.
+#' @param truncation either truncation distance (numeric, e.g. 5) or percentage (as a
+#' string, e.g. "15%"). Can be supplied as a list with elements left and right if left
+#' truncation is required (e.g. list(left=1,right=20) or list(left="1%",right="15%") or
+#' even list(left="1",right="15%")). By default for exact distances the maximum observed
+#' distance is used as the right truncation. When the data is binned, the right truncation
+#' is the largest bin end point. Default left truncation is set to zero.
+#' @param cutpoints if the data are binned, this vector gives the cutpoints of the bins.
+#'  Ensure that the first element is 0 (or the left truncation distance) and the last
+#'  is the distance to the end of the furthest bin. (Default NULL, no binning.) Note
+#'  that if data has columns distbegin and distend then these will be used as bins if cutpoints is not specified. If both are specified, cutpoints has precedence.
+#' @param er.var encounter rate variance estimator to use when abundance estimates are
+#'  required. Defaults to "R2" for line transects and "P3" for point transects. See dht2
+#'  for more information and if more complex options are required.
+#' @param control.opts A list of control options: method - optimisation method,
+#'  initial.values - a list of names starting values, see mrds
+#' @param group.strata Dataframe with two columns ("design.id" and "analysis.id"). The
+#' former gives the strata names as defined in the design (i.e. the region object) the
+#' second specifies how they should be grouped (into less strata) for the analyses
+#' @param criteria character model selection criteria (AIC, AICc, BIC)
+#' @return an object of class DS.Analysis
 #' @export
 #' @author Laura Marshall
-#' @seealso \code{ddf} in \code{library(mrds)}
+#' @seealso \code{ds} in \code{library(Distance)}
 #' @examples
 #' # A simple half-normal "ds" model can be created using the default values
 #' ddf.analyses <- make.ddf.analysis.list()
@@ -272,16 +290,25 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #'  formula = ~1),~cds(key = "hr", formula = ~1)), method = "ds",
 #'  criteria = "AIC")
 #'
-make.ddf.analysis.list <- function(dsmodel = list(~cds(key = "hn", formula = ~1)), mrmodel = NULL, method = "ds", criteria = "AIC", analysis.strata = data.frame(), truncation = 50, binned.data = FALSE, cutpoints = numeric(0)){
-  ddf.analyses <- list()
-  if(method == "ds"){
-    for(a in seq(along = dsmodel)){
-      ddf.analyses[[a]] <- new(Class = "DS.Analysis", dsmodel = dsmodel[[a]], criteria = criteria, analysis.strata, truncation = truncation, binned.data = binned.data, cutpoints = cutpoints)
-    }
-  }else{
-    stop("Double observer methods are not yet implemented", call. = FALSE)
+make.ds.analysis <- function(dsmodel = list(~1),
+                             key = "hn",
+                             adjustment = list(),
+                             truncation = 50,
+                             cutpoints = numeric(0),
+                             er.var = "R2",
+                             control.opts = list(),
+                             group.strata = data.frame(),
+                             criteria = "AIC"){
+  # Do some pre-creation input checking / formatting
+  if(!("list" %in% class(truncation))){
+    truncation <- list(truncation)
   }
-  return(ddf.analyses)
+  if(!("list" %in% class(dsmodel))){
+    dsmodel <- list(dsmodel)
+  }
+  # Create class instance
+  ds.analysis <- new(Class = "DS.Analysis", dsmodel = dsmodel, key = key, adjustment = adjustment, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria)
+  return(ds.analysis)
 }
 
 #' @title Creates a Simulation object
@@ -386,7 +413,7 @@ make.ddf.analysis.list <- function(dsmodel = list(~cds(key = "hn", formula = ~1)
 #'  population.description.obj = pop.description,
 #'  detectability.obj = detect, ddf.analyses.list = ddf.analyses)
 #'
-#' survey.results <- create.survey.results(my.simulation, dht.table = TRUE)
+#' survey <- run.survey(my.simulation)
 #'
 #' plot(survey.results)
 #'

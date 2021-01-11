@@ -27,6 +27,7 @@ LazyData: true
 RoxygenNote: 7.1.1
 Collate: 
     'generic.functions.R'
+    'DS.Analysis.R'
     'Density.R'
     'Population.Description.R'
     'Detectability.R'

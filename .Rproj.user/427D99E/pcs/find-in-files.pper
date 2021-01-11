@@ -5,7 +5,7 @@
         ],
         "path" : "",
         "projectRelative" : true,
-        "query" : "ddf.data.obj",
+        "query" : "create.survey.results",
         "regex" : false
     }
 }
