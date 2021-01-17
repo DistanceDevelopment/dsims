@@ -1,4 +1,5 @@
 #' @include generic.functions.R
+#' @include Survey.R
 
 #' @title Class "DS.Analysis"
 #'
@@ -39,15 +40,14 @@
 #' @keywords classes
 #' @export
 setClass(Class = "DS.Analysis", representation(dsmodel = "list",
-                                                key = "character",
-                                                adjustment = "list",
-                                                truncation = "list",
-                                                cutpoints = "numeric",
-                                                er.var = "character",
-                                                control.opts = "list",
-                                                group.strata = "data.frame",
-                                                criteria = "character",
-                                                fitted.models = "list"))
+                                               key = "character",
+                                               adjustment = "list",
+                                               truncation = "list",
+                                               cutpoints = "numeric",
+                                               er.var = "character",
+                                               control.opts = "list",
+                                               group.strata = "data.frame",
+                                               criteria = "character"))
 
 setMethod(
   f="initialize",
@@ -77,9 +77,157 @@ setValidity("DS.Analysis",
               #make sure these are characters not factors
               object@group.strata$design.id <- as.character(object@group.strata$design.id)
               object@group.strata$analysis.id <- as.character(object@group.strata$analysis.id)
+              #Check that the adjustment list is either empty or has adjustment, order and scale and are the correct length
               return(TRUE)
             }
 )
 
 # GENERIC METHODS DEFINITIONS --------------------------------------------
+
+#' @rdname analyse.data-methods
+#' @param point logical indicating whether it is a point transect survey
+#' @param warnings a list of warnings and how many times they arose
+#' @export
+setMethod(
+  f="analyse.data",
+  signature=c("DS.Analysis", "Survey"),
+  definition=function(analysis, data.obj, warnings = list(), ...){
+    # Get distance data
+    dist.data <- data.obj@dist.data
+    # Check what kind of survey it is
+    transect <- switch(class(survey),
+                       Survey.LT = "line",
+                       Survey.PT = "point")
+    #Call analyse.data on model and dataset
+    analysis <- analyse.data(analysis, dist.data, transect = transect)
+    return(analysis)
+  }
+)
+
+
+
+#' @rdname analyse.data-methods
+#' @param point logical indicating whether it is a point transect survey
+#' @param warnings a list of warnings and how many times they arose
+#' @export
+#' @importFrom Distance ds
+setMethod(
+  f="analyse.data",
+  signature=c("DS.Analysis", "data.frame"),
+  definition=function(analysis, data.obj, warnings = list(), ...){
+    dist.data <- data.obj
+    # deal with ... arguments
+    args <- list(...)
+    if(!"transect" %in% names(args)){
+      #assume it is a line transect if it is missing
+      transect <- "line"
+    }else{
+      transect <- args$transect
+    }
+    # deal with adjustment arguments
+    if(length(analysis@adjustment) == 0){
+      adjustment <- NULL
+      order <- NULL
+      scale <- NULL
+      max.adjustments <- 0
+    }else{
+      adjustment <- analysis@adjustment$adjustment
+      order <- analysis@adjustment$order
+      scale <- analysis@adjustment$scale
+      max.adjustments <- analysis@adjustment$max.adjustments
+    }
+    # deal with control arguments
+    if("monotonicity" %in% names(analysis@control.opts)){
+      monotonicity <- analysis@control.opts$monotonicity
+    }else{
+      monotonicity <- ifelse(analysis@dsmodel == ~1, "strict", "none")
+    }
+    if("method" %in% names(analysis@control.opts)){
+      method <- analysis@control.opts$method
+    }else{
+      method <- "nlminb"
+    }
+    if("initial.values" %in% names(analysis@control.opts)){
+      initial.values <- analysis@control.opts$initial.values
+    }else{
+      initial.values <- NULL
+    }
+    if(length(analysis@truncation[[1]] == 1)){
+      truncation <- analysis@truncation[[1]]
+    }else{
+      truncation <- analysis@truncation
+    }
+    # Data Prep
+    # if binned analysis add distbegin and distend cols
+    if(length(analysis@cutpoints) > 0){
+      # bin data
+      dist.data <- dist.data[dist.data$distance <= max(object@cutpoints),]
+      dist.data <- create.bins(dist.data, cutpoints = object@cutpoints)
+    }
+    # Make sure there is a detected column
+    #if(is.null(dist.data$detected)){
+    #  dist.data$detected <- rep(1, nrow(dist.data))
+    #}
+
+
+    # Fit models
+    models <- list()
+    IC <- numeric()
+    for(i in seq(along = analysis@dsmodel)){
+      # Set W to null
+      W <- NULL
+      # Try to fit model
+      models[[i]] <- suppressMessages(
+        withCallingHandlers(tryCatch(Distance::ds(data = dist.data,
+                                                     truncation = truncation,
+                                                     transect = transect,
+                                                     formula = analysis@dsmodel[[i]],
+                                                     key = analysis@key[i],
+                                                     adjustment = adjustment,
+                                                     order = order,
+                                                     scale = scale,
+                                                     cutpoints = NULL, #analysis@cutpoints,
+                                                     monotonicity = monotonicity,
+                                                     er.var = analysis@er.var,
+                                                     method = method,
+                                                     initial.values = initial.values,
+                                                     max.adjustments = max.adjustments),
+                                                  error=function(e)e),
+                                         warning=function(w){W <<- w; invokeRestart("muffleWarning")}))
+      #check if there was an error, warning or non-convergence
+      if(any(class(models[[i]]) == "error")){
+        warnings <- message.handler(warnings, paste("Error: ", models[[i]]$message, " (Model number: ", i, ")", sep = ""))
+        models[[i]] <- NA
+      }else if(models[[i]]$ddf$ds$converge != 0){
+        warnings <- message.handler(warnings, paste("The following model failed to converge: ", i, sep = ""))
+        models[[i]] <- NA
+      }else if(any(predict(models[[i]])$fitted < 0)){
+        warnings <- message.handler(warnings, paste("Negative predictions for model ", i,", excluding these results."), sep = "")
+        ddf.result <- NA
+      }
+      if(!is.null(W)){
+        warnings <- message.handler(warnings, paste(W, " (Model call: ", as.character(object@dsmodel)[2], ")", sep = ""))
+      }
+      if(class(models[[i]]) == "dsmodel"){
+        IC[i] <- switch(analysis@criteria,
+                        "AIC" = AIC(models[[i]])$AIC,
+                        "BIC" = BIC(models[[i]]))
+      }
+    } #Fit next model
+    #Find model with the minimum information criteria
+    if(length(IC) > 0){
+      min.IC <- min(IC, na.rm = TRUE)
+      index <- which(IC == min.IC)
+      min.model <- models[[index]]
+    }else{
+      warnings <- message.handler(warnings, "None of the models converged for this dataset.")
+      return(list(model = NULL, warnings = warnings))
+    }
+    # Return model and warnings
+    return(list(model = min.model, warnings = warnings))
+  }
+)
+
+
+
 

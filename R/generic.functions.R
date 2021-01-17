@@ -105,17 +105,17 @@ setGeneric(name = "run", def = function(object, run.parallel = FALSE, max.cores 
 #' is provided to allow the user to perform diagnostics of the analyses used
 #' in the simulation. The data argument can be obtained by a call to
 #' \code{simulate.survey(object, dht.table = TRUE)}. Note if the first object
-#' supplied is of class DDf.Analysis then the second argument must be of class
+#' supplied is of class DS.Analysis then the second argument must be of class
 #' DDf.Data. The data argument may be of either class for an object argument
 #' of class Simulation.
 #'
-#' @param object an object of class Survey
 #' @param analysis an object of class DS.Analysis
+#' @param data.obj an object of class Survey or a dataframe
 #' @param ... optional arguments including the following:
 #' @return a list containing an S3 ddf object and optionally an S3 dht object relating to the model with the minimum criteria.
 #' @export
 #' @rdname analyse.data-methods
-setGeneric(name = "analyse.data", def = function(survey, analysis, ...){standardGeneric ("analyse.data")})
+setGeneric(name = "analyse.data", def = function(analysis, data.obj, ...){standardGeneric ("analyse.data")})
 
 
 if (!isGeneric("plot")){
