@@ -4,7 +4,7 @@ single.sim.loop <- function(i, object, save.data, load.data, data.path = charact
   # Input: i - integer representing the loop number
   #        object - an object of class Simulation
   #
-  # Output: the updated Simulation object
+  # Output: list of simulation results and warnings
   #
   # Display/write to file the progress of the simulation
   if(counter){

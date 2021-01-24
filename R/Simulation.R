@@ -16,18 +16,13 @@
 #'  times the simulation should be repeated.
 #' @slot single.transect.set Object of class \code{"logical"}; if
 #'  \code{TRUE} the same set of transects are used in each repetition.
-#' @slot double.observer Object of class \code{"logical"}; whether
-#'  a double observer protocol is being used. Not currently implemented.
-#' @slot region Object of class \code{"Region"}; the survey region.
 #' @slot design Object of class \code{"Survey.Design"}; the
 #'  survey design.
 #' @slot population.description Object of class \code{"Population.Description"};
 #' the population.description.
 #' @slot detectability Object of class \code{"Detectability"}; a
 #'  description of the detectability of the population.
-#' @slot ddf.analyses Object of class \code{"list"}; a list of
-#'  objects of class DDF.Analysis. These are fitted and the one with the
-#'  minimum criteria is selected and used in predicting N and D.
+#' @slot ds.analysis Object of class \code{"DS.Analysis"}
 #' @slot ddf.param.ests Object of class \code{"array"}; stores the
 #'  parameters associated with the detection function.
 #' @slot results A \code{"list"} of \code{"arrays"}; stores
@@ -49,15 +44,7 @@
 #'  "Simulation")}: carries out the simulation process as far as generating
 #'  the distance data and returns an object containing the population,
 #'  transects and data.}
-#'  \item{\code{run.analysis}}{\code{signature = c(object =
-#'  "Simulation", data = "LT.Survey.Results")}: returns the ddf analysis
-#'  results from the models in the simulation fitted to the data in the
-#'  LT.Survey.Results object.}
-#'  \item{\code{run.analysis}}{\code{signature = c(object =
-#'  "Simulation", data = "DDF.Data")}: returns the ddf analysis
-#'  results from the models in the simulation fitted to the data in the
-#'  DDF.Data object.}
-#'  \item{\code{run}}{\code{signature = (object = "Simulation")}: runs
+#'  \item{\code{run.simulation}}{\code{signature = (simulation = "Simulation")}: runs
 #'  the whole simulation for the specified number of repetitions.}
 #' }
 #' @keywords classes
@@ -66,12 +53,10 @@
 #' @seealso \code{\link{make.simulation}}
 setClass("Simulation", representation(reps = "numeric",
                                       single.transect.set = "logical",
-                                      double.observer = "logical",
-                                      region = "Region",
                                       design = "Survey.Design",
                                       population.description = "Population.Description",
                                       detectability = "Detectability",
-                                      ddf.analyses = "list",
+                                      ds.analyses = "DS.Analysis",
                                       ddf.param.ests = "array",
                                       results = "list",
                                       warnings = "list"))
@@ -83,12 +68,10 @@ setMethod(
     #Set slots
     .Object@reps            <- reps
     .Object@single.transect.set <- single.transect.set
-    .Object@double.observer <- double.observer
-    .Object@region          <- region
     .Object@design          <- design
     .Object@population.description <- population.description
     .Object@detectability   <- detectability
-    .Object@ddf.analyses    <- ddf.analyses
+    .Object@ds.analysis    <- ds.analysis
     .Object@results         <- results
     .Object@warnings        <- list()
     #Check object is valid
@@ -100,29 +83,10 @@ setMethod(
 
 setValidity("Simulation",
             function(object){
-              if(object@double.observer){
-                warning("Double observer simulations not supported at present", call. = TRUE, immediate. = TRUE)
-                return(FALSE)
-              }
-              design <- object@design
-              if(class(design) == "PT.Nested.Design"){
-                if(object@detectability@truncation > object@ddf.analyses[[1]]@truncation){
-                  warning("Please be aware that your truncation distance for analysis is less than that used to generate the data (defined in detectability). This will introduce bias into your estimates.", call. = FALSE, immediate. = TRUE)
-                }
-              }
-              transects.from.file <- ifelse(length(design@path) == 1, TRUE, FALSE)
-              if(transects.from.file & !object@single.transect.set){
-                no.files <- length(design@filenames)
-                if(object@reps > no.files){
-                  message("You have specified a higher number of repetitions than you have provided transect shapefiles at: ", design@path)
-                  return(FALSE)
-                }
-              }else if(!transects.from.file){
-                if(!(class(object@design) %in% c("PT.Nested.Design", "PT.Systematic.Design", "LT.Systematic.Design"))){
-                  message("The generation of transects is only implemented in R for nested and systematic point transect designs as well as systematic parallel line transect designs.")
-                  return(FALSE)
-                }
-              }
+              #if(object@double.observer){
+              #  warning("Double observer simulations not supported at present", call. = TRUE, immediate. = TRUE)
+              #  return(FALSE)
+              #}
               return(TRUE)
             }
 )
@@ -135,19 +99,54 @@ setMethod(
   f="generate.population",
   signature="Simulation",
   definition=function(object, ...){
-    population <- generate.population(object = object@population.description, detectability = object@detectability, region.obj = object@region)
+    population <- generate.population(object = object@population.description,
+                                      detectability = object@detectability,
+                                      region.obj = object@design@region)
     return(population)
   }
 )
 
+#' @name generate.transects
+#' @description Calls the generate.transects method inside dssd on the
+#' design object inside the simulation. It then returns a single set
+#' of transects created based on the design.
+#' @seealso \code{?dssd::generate.transects}
 #' @rdname generate.transects-methods
 #' @export
 setMethod(
   f="generate.transects",
   signature="Simulation",
   definition=function(object, region = NULL){
-    region <- object@region
-    transect <- generate.transects(object@design, region = region)
+    transect <- generate.transects(object = object@design,
+                                   region = object@design@region)
     return(transect)
   }
 )
+
+#' @rdname run.survey-methods
+#' @export
+setMethod(
+  f="run.survey",
+  signature="Simulation",
+  definition=function(object){
+    # Create the population and transects for the survey
+    population <- generate.population(object)
+    transects <- generate.population(object)
+    if(class(transects) == "Line.Transect"){
+      survey <- new(Class = "Survey.LT",
+                    population = pop,
+                    transect = transects,
+                    perp.truncation = object@design@truncation)
+    }else if(class(transects) == "Point.Transect"){
+      survey <- new(Class = "Survey.PT",
+                    population = pop,
+                    transect = transects,
+                    rad.truncation = object@design@truncation)
+    }
+    # Simulate the survey
+    survey <- run.survey(survey, region = object@design@region)
+    return(survey)
+  }
+)
+
+

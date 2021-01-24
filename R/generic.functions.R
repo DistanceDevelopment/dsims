@@ -75,29 +75,6 @@ setGeneric(name = "get.distance.data", def = function(object){standardGeneric ("
 #' @seealso \code{\link{make.density}}
 setGeneric(name = "add.hotspot", def = function(object, centre, sigma, amplitude){standardGeneric ("add.hotspot")})
 
-#' S4 generic method to run a simulation
-#'
-#' Runs the simulation and returns the simulation object with results. If
-#' running in parallel and max.cores is not specified it will default to using
-#' one less than the number of cores / threads on your machine.
-#'
-#' @param object an object of class Simulation
-#' @param run.parallel logical option to use multiple processors
-#' @param max.cores integer maximum number of cores to use, if not specified then
-#' one less than the number available will be used.
-#' @param save.data logical allows the datasets from the simulation to be
-#' saved to file
-#' @param load.data logical allows the datasets to be loaded from file rather than
-#' simulated afresh.
-#' @param data.path character file path to the data files.
-#' @param counter logical can be used to turn off simulation counter when running in serial.
-#' @param progress.file character file to output progress to for Distance for Windows
-#' @param ... allows the five previous optional arguments to be specified
-#' @return an object of class simulation which now includes the results
-#' @export
-#' @rdname run-methods
-#' @seealso \code{\link{make.simulation}}
-setGeneric(name = "run", def = function(object, run.parallel = FALSE, max.cores = NA, ...){standardGeneric ("run")})
 
 #' S4 generic method to run analyses
 #'
