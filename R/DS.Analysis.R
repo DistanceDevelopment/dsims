@@ -211,6 +211,7 @@ setMethod(
       if(class(models[[i]]) == "dsmodel"){
         IC[i] <- switch(analysis@criteria,
                         "AIC" = AIC(models[[i]])$AIC,
+                        "AICc" = AICc(models[[i]]),
                         "BIC" = BIC(models[[i]]))
       }
     } #Fit next model
