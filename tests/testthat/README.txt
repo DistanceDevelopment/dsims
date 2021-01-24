@@ -11,6 +11,7 @@ General Testing:
 - Half-normal detectability - check it runs and produces half-normal shape
 - Hazard-rate detectability - check it runs and produces hazard-rate shape
 - Uniform detection function - check it runs and produces uniform detection probability
+- test that calling ds directly gives same results as calling it through generic tests
 
 Input testing:
 
@@ -26,6 +27,10 @@ Special specific testing:
 - Check what happens when running simulation in serial and parallel and loading the data from file... I think there might be an output conflict to the console stream between the progress counter and a message about analysing datasets.
 
 - Test what happens for the flat file data format when there are no detections on some transects
+
+- Test matching of strata covariates (it was looking for numbers but now looks for stratum names in the info)
+
+- Test binned data
 
 
 
