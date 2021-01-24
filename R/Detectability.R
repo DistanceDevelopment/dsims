@@ -204,8 +204,8 @@ setMethod(
             # generate y vals
             for(i in seq(along = new.scale.params)){
               y[i,,strat] <- switch(object@key.function,
-                                    "hn" = hn.detect(x,new.scale.params[i]),
-                                    "hr" = hr.detect(x,new.scale.params[i], shape.param.strat),
+                                    "hn" = exp(-x^2/(2*new.scale.params[i]^2)),
+                                    "hr" = 1-exp(-(x/new.scale.params[i])^-shape.param.strat),
                                     "uf" = rep(new.scale.params[i], length(x)))
             }
           }else{
@@ -251,9 +251,13 @@ setMethod(
             new.scale.params <- exp(log(scale.param.strat) + scale.adjustments)
             # generate y vals
             for(i in seq(along = new.scale.params)){
+              #y[i,,strat] <- switch(object@key.function,
+              #                      "hn" = hn.detect(x,new.scale.params[i]),
+              #                      "hr" = hr.detect(x,new.scale.params[i], shape.param.strat),
+              #                      "uf" = rep(new.scale.params[i], length(x)))
               y[i,,strat] <- switch(object@key.function,
-                                    "hn" = hn.detect(x,new.scale.params[i]),
-                                    "hr" = hr.detect(x,new.scale.params[i], shape.param.strat),
+                                    "hn" = exp(-x^2/(2*new.scale.params[i]^2)),
+                                    "hr" = 1-exp(-(x/new.scale.params[i])^-shape.param.strat),
                                     "uf" = rep(new.scale.params[i], length(x)))
             }
           }
@@ -329,10 +333,14 @@ setMethod(
             shape.param.strat <- shape.param[1]
           }
         }
+        #y <- switch(object@key.function,
+        #            "hn" = hn.detect(x,scale.param.strat),
+        #            "hr" = hr.detect(x,scale.param.strat, shape.param.strat),
+        #            "uf" = rep(scale.param.strat, length(x)))
         y <- switch(object@key.function,
-                    "hn" = hn.detect(x,scale.param.strat),
-                    "hr" = hr.detect(x,scale.param.strat, shape.param.strat),
-                    "uf" = rep(scale.param.strat, length(x)))
+                              "hn" = exp(-x^2/(2*scale.param.strat^2)),
+                              "hr" = 1-exp(-(x/scale.param.strat)^-shape.param.strat),
+                              "uf" = rep(nscale.param.strat, length(x)))
         lines(x, y, col = strat, lwd = 2)
       }
       legend(object@truncation, 1.2,  lty = 1, lwd = 2, col = 1:no.strata, legend = strata.names, bty = "n", box.col = "white", xjust = 1)
