@@ -140,17 +140,14 @@ setMethod(
     if("monotonicity" %in% names(analysis@control.opts)){
       monotonicity <- analysis@control.opts$monotonicity
     }else{
-      monotonicity <- ifelse(analysis@dsmodel == ~1, "strict", "none")
+      for(i in seq(along = analysis@dsmodel)){
+        monotonicity[i] <- ifelse(analysis@dsmodel[i] == ~1, "strict", "none")
+      }
     }
     if("method" %in% names(analysis@control.opts)){
       method <- analysis@control.opts$method
     }else{
       method <- "nlminb"
-    }
-    if("initial.values" %in% names(analysis@control.opts)){
-      initial.values <- analysis@control.opts$initial.values
-    }else{
-      initial.values <- NULL
     }
     if(length(analysis@truncation[[1]] == 1)){
       truncation <- analysis@truncation[[1]]
@@ -183,14 +180,13 @@ setMethod(
                                                      transect = transect,
                                                      formula = analysis@dsmodel[[i]],
                                                      key = analysis@key[i],
-                                                     adjustment = adjustment,
-                                                     order = order,
-                                                     scale = scale,
+                                                     adjustment = adjustment[i],
+                                                     order = order[i],
+                                                     scale = scale[i],
                                                      cutpoints = NULL, #analysis@cutpoints,
-                                                     monotonicity = monotonicity,
+                                                     monotonicity = monotonicity[i],
                                                      er.var = analysis@er.var,
                                                      method = method,
-                                                     initial.values = initial.values,
                                                      max.adjustments = max.adjustments),
                                                   error=function(e)e),
                                          warning=function(w){W <<- w; invokeRestart("muffleWarning")}))
@@ -206,7 +202,7 @@ setMethod(
         ddf.result <- NA
       }
       if(!is.null(W)){
-        warnings <- message.handler(warnings, paste(W, " (Model call: ", as.character(object@dsmodel)[2], ")", sep = ""))
+        warnings <- message.handler(warnings, paste(W, " (Model number: ", i, ")", sep = ""))
       }
       if(class(models[[i]]) == "dsmodel"){
         IC[i] <- switch(analysis@criteria,
@@ -216,6 +212,7 @@ setMethod(
       }
     } #Fit next model
     #Find model with the minimum information criteria
+    print(IC)
     if(length(IC) > 0){
       min.IC <- min(IC, na.rm = TRUE)
       index <- which(IC == min.IC)
@@ -225,7 +222,7 @@ setMethod(
       return(list(model = NULL, warnings = warnings))
     }
     # Return model and warnings
-    return(list(model = min.model, warnings = warnings))
+    return(list(model = models, warnings = warnings))
   }
 )
 
