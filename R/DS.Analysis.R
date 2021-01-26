@@ -140,6 +140,7 @@ setMethod(
     if("monotonicity" %in% names(analysis@control.opts)){
       monotonicity <- analysis@control.opts$monotonicity
     }else{
+      monotonicity <- character()
       for(i in seq(along = analysis@dsmodel)){
         monotonicity[i] <- ifelse(analysis@dsmodel[i] == ~1, "strict", "none")
       }
@@ -212,17 +213,17 @@ setMethod(
       }
     } #Fit next model
     #Find model with the minimum information criteria
-    print(IC)
     if(length(IC) > 0){
       min.IC <- min(IC, na.rm = TRUE)
       index <- which(IC == min.IC)
       min.model <- models[[index]]
+      min.model$ddf$model.index <- index
     }else{
       warnings <- message.handler(warnings, "None of the models converged for this dataset.")
-      return(list(model = NULL, warnings = warnings))
+      return(list(model = NULL, warnings = warnings, num.successful.models = 0))
     }
     # Return model and warnings
-    return(list(model = models, warnings = warnings))
+    return(list(model = min.model, warnings = warnings, num.successful.models = length(which(!is.na(IC)))))
   }
 )
 
