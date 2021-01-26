@@ -52,11 +52,10 @@
 #' @importClassesFrom dssd Region
 #' @seealso \code{\link{make.simulation}}
 setClass("Simulation", representation(reps = "numeric",
-                                      single.transect.set = "logical",
                                       design = "Survey.Design",
                                       population.description = "Population.Description",
                                       detectability = "Detectability",
-                                      ds.analyses = "DS.Analysis",
+                                      ds.analysis = "DS.Analysis",
                                       ddf.param.ests = "array",
                                       results = "list",
                                       warnings = "list"))
@@ -64,14 +63,13 @@ setClass("Simulation", representation(reps = "numeric",
 setMethod(
   f="initialize",
   signature="Simulation",
-  definition=function(.Object, reps = 10, single.transect.set = FALSE, double.observer = FALSE, region = make.region(), design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ddf.analyses = make.ddf.analysis.list(), results = list()){
+  definition=function(.Object, reps = 10, single.transect.set = FALSE, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis(), results = list()){
     #Set slots
     .Object@reps            <- reps
-    .Object@single.transect.set <- single.transect.set
     .Object@design          <- design
     .Object@population.description <- population.description
     .Object@detectability   <- detectability
-    .Object@ds.analysis    <- ds.analysis
+    .Object@ds.analysis     <- ds.analysis
     .Object@results         <- results
     .Object@warnings        <- list()
     #Check object is valid

@@ -6,13 +6,10 @@
 \usage{
 make.simulation(
   reps = 10,
-  single.transect.set = FALSE,
-  double.observer = FALSE,
-  region.obj = make.region(),
-  design.obj = make.design(),
-  population.description.obj = make.population.description(),
-  detectability.obj = make.detectability(),
-  ddf.analyses.list = make.ddf.analysis.list()
+  design = make.design(),
+  population.description = make.population.description(),
+  detectability = make.detectability(),
+  ds.analysis = make.ds.analysis()
 )
 }
 \arguments{

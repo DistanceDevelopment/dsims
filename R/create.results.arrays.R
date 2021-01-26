@@ -1,6 +1,6 @@
 create.results.arrays <- function(reps, region, ds.analysis, population.description){
   # Make the results arrays and store in a list
-  no.strata <- ifelse(length(region@strata.name) > 0, length(region@strata.name)+1, 1)
+  no.strata <- ifelse(length(region@strata.name) > 1, length(region@strata.name)+1, 1)
   # Check to see if the strata are grouped in the analyses
   new.strata.names <- NULL
   if(nrow(ds.analysis@group.strata) > 0){

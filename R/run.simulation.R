@@ -18,22 +18,38 @@
 #' @param ... allows the five previous optional arguments to be specified
 #' @return an object of class simulation which now includes the results
 #' @export
-#' @rdname run-methods
+#' @rdname run.simulation-methods
 #' @seealso \code{\link{make.simulation}}
 
-run.simulation <- function(object, run.parallel = FALSE, max.cores = NA, save.data = FALSE,
+run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, save.data = FALSE,
                            load.data = FALSE, data.path = character(), counter = TRUE,
                            progress.file = character(), ...){
+  #Process ... arguments
+  args <- list(...)
+  transect.path <- ifelse("transect.path" %in% names(args), args$transect.path, character(0))
+  #Check if it is a single transect set or a folder
+  if(length(transect.path) > 0){
+    stop("Uploading transects from file is not yet implemented.", call. = FALSE)
+    check.path <- unlist(strsplit(transect.path, split = "[.]"))
+    index <- length(check.path)
+    if(check.path[index] == "shp"){
+      message(paste("run.simulation has detected that you wish to use a single set of transects for the simulation. Using shapefile: ", transect.path, sep = ""))
+    }else{
+      message(paste("run.simulation has detected that you wish to use pre-existing shapefile. These will be loaded from the following directory: ", transect.path, sep = ""))
+    }
+  }else{
+    single.transect = FALSE
+  }
   #Reset results arrays
-  object@results <- create.results.arrays(object@reps,
-                                          object@design@region,
-                                          object@ds.analysis,
-                                          object@population.description)
+  simulation@results <- create.results.arrays(simulation@reps,
+                                          simulation@design@region,
+                                          simulation@ds.analysis,
+                                          simulation@population.description)
   #reset the error/warning message
-  test <- try(object@warnings, silent = TRUE)
+  test <- try(simulation@warnings, silent = TRUE)
   if(class(test) == "list"){
-    object@warnings$message <- list()
-    object@warnings$counter <- list()
+    simulation@warnings$message <- list()
+    simulation@warnings$counter <- list()
   }
   #check the data.path ends in "/"
   if(length(data.path) > 0){
@@ -72,12 +88,12 @@ run.simulation <- function(object, run.parallel = FALSE, max.cores = NA, save.da
       if(length(progress.file) > 0){
         # Set up progress file
         cat(0, file = progress.file)
-        results <- pbapply::pblapply(X = as.list(1:object@reps), FUN = single.simulation.loop, object = object, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = TRUE, progress.file = progress.file, in.parallel = TRUE)
+        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.simulation.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = TRUE, progress.file = progress.file, in.parallel = TRUE)
       }else{
-        results <- pbapply::pblapply(X= as.list(1:object@reps), FUN = single.simulation.loop, object = object, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = FALSE)
+        results <- pbapply::pblapply(X= as.list(1:simulation@reps), FUN = single.simulation.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = FALSE)
       }
     }else{
-      results <- parLapply(myCluster, X = as.list(1:object@reps), fun = single.simulation.loop, object = object, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE)
+      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.simulation.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE)
     }
     #Extract results and warnings
     sim.results <- sim.warnings <- list()
@@ -85,32 +101,32 @@ run.simulation <- function(object, run.parallel = FALSE, max.cores = NA, save.da
       sim.results[[i]] <- results[[i]]$results
       sim.warnings[[i]] <- results[[i]]$warnings
     }
-    object <- accumulate.PP.results(simulation = object, results = sim.results)
-    object@warnings <- accumulate.warnings(sim.warnings)
+    simulation <- accumulate.PP.results(simulation = simulation, results = sim.results)
+    simulation@warnings <- accumulate.warnings(sim.warnings)
     stopCluster(myCluster)
     on.exit()
   }
   if(!run.parallel){
     #otherwise loop
-    for(i in 1:object@reps){
-      results <- single.simulation.loop(i, object, save.data = save.data, load.data = load.data, data.path = data.path, counter = counter, progress.file = progress.file)
-      object@results <- results$results
-      object@warnings <- results$warnings
+    for(i in 1:simulation@reps){
+      results <- single.sim.loop(i, simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = counter, progress.file = progress.file, single.transect = FALSE, transect.path = character(0))
+      simulation@results <- results$results
+      simulation@warnings <- results$warnings
     }
   }
-  object@results <- add.summary.results(object@results, length(object@ddf.analyses))
-  object@design@file.index <- orig.file.index
+  simulation@results <- add.summary.results(simulation@results, length(simulation@ddf.analyses))
+  simulation@design@file.index <- orig.file.index
   #Process warnings
-  test <- try(object@warnings, silent = TRUE)
+  test <- try(simulation@warnings, silent = TRUE)
   if(class(test) == "list"){
-    if(length(object@warnings$message) > 0){
+    if(length(simulation@warnings$message) > 0){
       message("Summary of warnings and errors:")
-      for(i in seq(along = object@warnings$message)){
-        message(paste(object@warnings$message[[i]], " (occurred ", object@warnings$counter[[i]], " times)"))
+      for(i in seq(along = simulation@warnings$message)){
+        message(paste(simulation@warnings$message[[i]], " (occurred ", simulation@warnings$counter[[i]], " times)"))
       }
       message("-----")
     }
   }
-  return(object)
+  return(simulation)
 }
 

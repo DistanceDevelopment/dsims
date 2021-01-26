@@ -20,11 +20,6 @@ times the simulation should be repeated.}
 \item{\code{single.transect.set}}{Object of class \code{"logical"}; if
 \code{TRUE} the same set of transects are used in each repetition.}
 
-\item{\code{double.observer}}{Object of class \code{"logical"}; whether
-a double observer protocol is being used. Not currently implemented.}
-
-\item{\code{region}}{Object of class \code{"Region"}; the survey region.}
-
 \item{\code{design}}{Object of class \code{"Survey.Design"}; the
 survey design.}
 
@@ -34,9 +29,7 @@ the population.description.}
 \item{\code{detectability}}{Object of class \code{"Detectability"}; a
 description of the detectability of the population.}
 
-\item{\code{ddf.analyses}}{Object of class \code{"list"}; a list of
-objects of class DDF.Analysis. These are fitted and the one with the
-minimum criteria is selected and used in predicting N and D.}
+\item{\code{ds.analysis}}{Object of class \code{"DS.Analysis"}}
 
 \item{\code{ddf.param.ests}}{Object of class \code{"array"}; stores the
 parameters associated with the detection function.}
@@ -64,15 +57,7 @@ during runtime.}
  "Simulation")}: carries out the simulation process as far as generating
  the distance data and returns an object containing the population,
  transects and data.}
- \item{\code{run.analysis}}{\code{signature = c(object =
- "Simulation", data = "LT.Survey.Results")}: returns the ddf analysis
- results from the models in the simulation fitted to the data in the
- LT.Survey.Results object.}
- \item{\code{run.analysis}}{\code{signature = c(object =
- "Simulation", data = "DDF.Data")}: returns the ddf analysis
- results from the models in the simulation fitted to the data in the
- DDF.Data object.}
- \item{\code{run}}{\code{signature = (object = "Simulation")}: runs
+ \item{\code{run.simulation}}{\code{signature = (simulation = "Simulation")}: runs
  the whole simulation for the specified number of repetitions.}
 }
 }
