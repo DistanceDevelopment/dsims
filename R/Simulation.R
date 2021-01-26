@@ -99,7 +99,7 @@ setMethod(
   definition=function(object, ...){
     population <- generate.population(object = object@population.description,
                                       detectability = object@detectability,
-                                      region.obj = object@design@region)
+                                      region = object@design@region)
     return(population)
   }
 )

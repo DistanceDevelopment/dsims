@@ -62,52 +62,59 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   }else{
     #simulate survey
     survey <- run.survey(object = survey)
+    dist.data <- survey@dist.data
     dists.in.covered <- survey@dists.in.covered
     if(save.data){
       save(survey, file = paste(data.path,"survey_",i,".robj", sep = ""))
     }
   }
   #Find how many animals were in the covered region
-  if(length(simulation@ddf.analyses[[1]]@truncation) > 0){
-    n.in.covered <- length(which(dists.in.covered <= simulation@ddf.analyses[[1]]@truncation))
+  if(length(simulation@ds.analysis@truncation) > 0){
+    n.in.covered <- length(which(dists.in.covered <= simulation@ds.analysis@truncation))
   }else{
     n.in.covered <- length(dists.in.covered)
   }
   #analyse survey if there are data to analyse
-  if(nrow(ddf.data@ddf.dat[!is.na(ddf.data@ddf.dat$distance),]) >= 20){
-    ddf.results <- run.analysis(survey)
-    warnings <- ddf.results$warnings
-    num.successful.models <- ddf.results$num.successful.models
-    ddf.results <- ddf.results$best.model
+  if(nrow(dist.data[!is.na(dist.data$distance),]) >= 20){
+    model.results <- analyse.data(simulation@ds.analysis, survey)
+    warnings <- model.results$warnings
+    num.successful.models <- model.results$num.successful.models
+    model.results <- model.results$model
   }else{
     warning("There are too few data points (<20) to be analysed, skipping this iteration.", call. = FALSE, immediate. = TRUE)
-    ddf.results <- NULL
+    model.results <- NULL
     warnings <- simulation@warnings
   }
   #Check at least one model worked
-  if(!is.null(ddf.results)){
+  if(!is.null(model.results)){
     #Store ddf results
-    simulation@results$Detection <- store.ddf.results(simulation@results$Detection, ddf.results, i, n.in.covered, num.successful.models)
+    simulation@results$Detection <- store.ddf.results(simulation@results$Detection,
+                                                      model.results$ddf,
+                                                      i, n.in.covered,
+                                                      num.successful.models)
     #Check to see if the stratification is to be modified for analysis
-    analysis.strata <- simulation@ddf.analyses[[1]]@analysis.strata
+    analysis.strata <- simulation@ds.analysis@group.strata
     if(nrow(analysis.strata) > 0){
+      # Need to first make dht data tables (function in Distance)***
       new.tables <- modify.strata.for.analysis(analysis.strata, obs.table, sample.table, region.table)
       obs.table <- new.tables$obs.table
       sample.table <- new.tables$sample.table
       region.table <- new.tables$region.table
     }
-    #Check if there are missing distances
-    miss.dists <- any(is.na(ddf.data@ddf.dat$distance))
-    if(miss.dists){
-      # Add the missing distance observations in to ddf object
-      missing.dists <- ddf.data@ddf.dat[is.na(ddf.data@ddf.dat$distance),]
-      # NA's break dht
-      missing.dists$distance <- rep(-1, nrow(missing.dists))
-      if(is.null(missing.dists$detected)){
-        missing.dists$detected <- rep(1, nrow(missing.dists))
-      }
-      ddf.results <- add.miss.dists(missing.dists, ddf.results)
-    }
+
+    #Check if there are missing distances - NA's may be because there are transects with no observations in flat file format! This is for two type detectors and not yet implemented in design engine.
+    # miss.dists <- any(is.na(dist.data$distance))
+    # if(miss.dists){
+    #   # Add the missing distance observations in to ddf object
+    #   missing.dists <- ddf.data@ddf.dat[is.na(ddf.data@ddf.dat$distance),]
+    #   # NA's break dht
+    #   missing.dists$distance <- rep(-1, nrow(missing.dists))
+    #   if(is.null(missing.dists$detected)){
+    #     missing.dists$detected <- rep(1, nrow(missing.dists))
+    #   }
+    #   model.results <- add.miss.dists(missing.dists, model.results)
+    # }
+
     #Compute density / abundance estimates
     compute.dht = TRUE
     if(compute.dht){
@@ -116,7 +123,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
       if(inherits(simulation@design, "PT.Design")){
         dht.options$ervar <- "P3"
       }
-      dht.results <- try(dht(ddf.results, region.table@region.table, sample.table@sample.table, obs.table@obs.table, options = dht.options), silent = TRUE)
+      dht.results <- try(dht(model.results, region.table@region.table, sample.table@sample.table, obs.table@obs.table, options = dht.options), silent = TRUE)
       if(class(dht.results) == "try-error"){
         warning(paste("Problem", strsplit(dht.results[1], "Error")[[1]][2], " dht results not being recorded for iteration ", i, sep=""), call. = FALSE, immediate. = TRUE)
       }else{

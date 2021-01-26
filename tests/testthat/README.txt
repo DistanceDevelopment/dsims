@@ -32,6 +32,10 @@ Special specific testing:
 
 - Test binned data
 
+- Test grouped strata analysis
+
+- Implement and test when only some of the points record distances (not in beta version)
+
 
 
 
