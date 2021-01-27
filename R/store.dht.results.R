@@ -11,6 +11,7 @@ store.dht.results <- function(results, dht.results, i, clusters, data, obs.tab){
     }
     strata.data <- data[data$object %in% object.ids,]
     data.miss.dists <- strata.data[is.na(strata.data),]
+    data.miss.dists <- data.miss.dists[!is.na(data.miss.dists$object),]
     if(clusters){
       # Need to sum cluster sizes
       results$individuals$summary[strat,c("n.miss.dist"),i] <- sum(data.miss.dists$size)

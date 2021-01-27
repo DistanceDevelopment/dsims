@@ -26,7 +26,10 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, sav
                            progress.file = character(), ...){
   #Process ... arguments
   args <- list(...)
-  transect.path <- ifelse("transect.path" %in% names(args), args$transect.path, character(0))
+  transect.path <- character(0)
+  if("transect.path" %in% names(args)){
+    transect.path <- args$transect.path
+  }
   #Check if it is a single transect set or a folder
   if(length(transect.path) > 0){
     stop("Uploading transects from file is not yet implemented.", call. = FALSE)
@@ -60,6 +63,8 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, sav
     }
     rm(temp.path)
   }
+  # Two if(run.parallel) checks as if libraries not present will change to
+  # false before running in parallel and then run in serial
   if(run.parallel){
     if(!requireNamespace('parallel', quietly = TRUE) | !requireNamespace('pbapply', quietly = TRUE)){
       warning("Could not run in parallel, library(pbapply) or library(parallel) is not installed.", immediate. = TRUE, call. = FALSE)
@@ -109,13 +114,22 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, sav
   if(!run.parallel){
     #otherwise loop
     for(i in 1:simulation@reps){
-      results <- single.sim.loop(i, simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = counter, progress.file = progress.file, single.transect = FALSE, transect.path = character(0))
+      results <- single.sim.loop(i = i,
+                                 simulation = simulation,
+                                 save.data = save.data,
+                                 load.data = load.data,
+                                 data.path = data.path,
+                                 counter = counter,
+                                 progress.file = progress.file,
+                                 single.transect = FALSE,
+                                 transect.path = character(0),
+                                 save.transects = FALSE)
       simulation@results <- results$results
       simulation@warnings <- results$warnings
     }
   }
-  simulation@results <- add.summary.results(simulation@results, length(simulation@ddf.analyses))
-  simulation@design@file.index <- orig.file.index
+  simulation@results <- add.summary.results(results = simulation@results,
+                                            model.count = length(simulation@ds.analysis@dsmodel))
   #Process warnings
   test <- try(simulation@warnings, silent = TRUE)
   if(class(test) == "list"){

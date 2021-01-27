@@ -5,7 +5,7 @@
         ],
         "path" : "",
         "projectRelative" : true,
-        "query" : "create.survey.results",
+        "query" : "monotonicity[i] <- ifelse(analysis@dsmodel[i]",
         "regex" : false
     }
 }

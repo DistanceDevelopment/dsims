@@ -5,7 +5,7 @@
 \title{Method to run a simulation}
 \usage{
 run.simulation(
-  object,
+  simulation,
   run.parallel = FALSE,
   max.cores = NA,
   save.data = FALSE,
@@ -17,6 +17,8 @@ run.simulation(
 )
 }
 \arguments{
+\item{simulation}{an object of class Simulation}
+
 \item{run.parallel}{logical option to use multiple processors}
 
 \item{max.cores}{integer maximum number of cores to use, if not specified then
@@ -35,8 +37,6 @@ simulated afresh.}
 \item{progress.file}{character file to output progress to for Distance for Windows}
 
 \item{...}{allows the five previous optional arguments to be specified}
-
-\item{simulation}{an object of class Simulation}
 }
 \value{
 an object of class simulation which now includes the results

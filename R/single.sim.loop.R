@@ -1,6 +1,6 @@
 #' @importFrom utils flush.console
 #single.simulation.loop <- function(i, object){
-single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, progress.file = "", in.parallel = FALSE, single.transect = FALSE, transect.file = character(0), save.transects = character(0)){
+single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, progress.file = "", in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE){
   # Input: i - integer representing the loop number
   #        simulation - an simulation of class Simulation
   #
@@ -8,7 +8,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   #
   # Display/write to file the progress of the simulation
   if(counter){
-    if(progress.file == ""){
+    if(length(progress.file) == 0){
       # Write to terminal
       message("\r", i, " out of ", simulation@reps,  " reps     \r", appendLF = FALSE)
     }else{
@@ -34,13 +34,23 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     #generate population
     population <- generate.population(simulation)
     #generate transects
-    if(length(transect.file) > 0 && length(save.transects) == 0){
-      #read transect info from file (options for shapefiles and transect objects!)
-      #*** - add code to read transects from shapefile or r obj (or other?)
+    load.transects <- FALSE
+    if(length(transect.path) > 0 && !save.transects){
+      # Set flag to true
+      load.transects <- TRUE
+      stop("Loading transects from shapefile is not yet implemented.")
+      if(single.transect){
+        # read in from transect.path
+        transect.filename <- transect.path
+      }else{
+        # Get all shapefile filenames and find the correct file for iteration i
+        # transect.filename <- get.filename.i(transect.path, i)
+      }
     }else{
       transects <- generate.transects(simulation)
-      if(length(save.transects) > 0){
-        #*** - add code to write transects to R obj or shapefile or other!
+      if(save.transects){
+        stop("Saving transects to shapefile is not yet implemented.")
+        # Add code to write transects shapefile or other!
       }
     }
     #make survey object
@@ -61,9 +71,16 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
 
   }else{
     #simulate survey
-    survey <- run.survey(object = survey)
+    survey <- run.survey(object = survey, region = simulation@design@region)
     dist.data <- survey@dist.data
     dists.in.covered <- survey@dists.in.covered
+    # Need to unflatten data for some checks and functions
+    data.tables <- Distance::unflatten(dist.data)
+    dht.dists <- data.tables$data
+    region.table <- data.tables$region.table
+    sample.table <- data.tables$sample.table
+    obs.table <- data.tables$obs.table
+    # Check if we have to save the data
     if(save.data){
       save(survey, file = paste(data.path,"survey_",i,".robj", sep = ""))
     }
@@ -94,12 +111,18 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
                                                       num.successful.models)
     #Check to see if the stratification is to be modified for analysis
     analysis.strata <- simulation@ds.analysis@group.strata
+    # Set recompute dht - done as part of ds but might need redone for grouped strata
+    # or missing distances.
+    recompute.dht <- FALSE
     if(nrow(analysis.strata) > 0){
-      # Need to first make dht data tables (function in Distance)***
-      new.tables <- modify.strata.for.analysis(analysis.strata, obs.table, sample.table, region.table)
+      new.tables <- modify.strata.for.analysis(analysis.strata,
+                                               obs.table,
+                                               sample.table,
+                                               region.table)
       obs.table <- new.tables$obs.table
       sample.table <- new.tables$sample.table
       region.table <- new.tables$region.table
+      recompute.dht <- TRUE
     }
 
     #Check if there are missing distances - NA's may be because there are transects with no observations in flat file format! This is for two type detectors and not yet implemented in design engine.
@@ -113,25 +136,43 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     #     missing.dists$detected <- rep(1, nrow(missing.dists))
     #   }
     #   model.results <- add.miss.dists(missing.dists, model.results)
+    #   recompute.dht <- TRUE
     # }
 
     #Compute density / abundance estimates
-    compute.dht = TRUE
-    if(compute.dht){
+    if(recompute.dht){
+      # set dht options
       dht.options <- list()
-      # if it is a point transect design
-      if(inherits(simulation@design, "PT.Design")){
-        dht.options$ervar <- "P3"
-      }
-      dht.results <- try(dht(model.results, region.table@region.table, sample.table@sample.table, obs.table@obs.table, options = dht.options), silent = TRUE)
+      dht.options$ervar <- simulation@ds.analysis@er.var
+      dht.results <- try(dht(model.results$ddf,
+                             region.table,
+                             sample.table,
+                             obs.table,
+                             options = dht.options), silent = TRUE)
       if(class(dht.results) == "try-error"){
         warning(paste("Problem", strsplit(dht.results[1], "Error")[[1]][2], " dht results not being recorded for iteration ", i, sep=""), call. = FALSE, immediate. = TRUE)
       }else{
-        simulation@results <- store.dht.results(simulation@results, dht.results, i, simulation@population.description@size, ddf.data@ddf.dat, obs.table@obs.table)
+        simulation@results <- store.dht.results(simulation@results,
+                                                dht.results, i,
+                                                simulation@population.description@size,
+                                                dist.data, obs.table@obs.table)
       }
     }
+    else{
+      # Just store existing ds dht results
+      clusters <- "size" %in% names(dist.data)
+      simulation@results <- store.dht.results(results = simulation@results,
+                                              dht.results = model.results$dht,
+                                              i = i,
+                                              clusters = clusters,
+                                              data = dist.data,
+                                              obs.tab = obs.table)
+    }
   }
-  simulation@results$filename <- simulation@design@filenames[simulation@design@file.index]
+  # If the transects were loaded store the filename in the results
+  if(load.transects){
+    simulation@results$filename <- filename
+  }
   return(list(results = simulation@results, warnings = warnings))
 }
 
