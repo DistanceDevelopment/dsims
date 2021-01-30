@@ -15,7 +15,7 @@
 #' @param data.path character file path to the data files.
 #' @param counter logical indicates if you would like to see the progress counter.
 #' @param progress.file character file to output progress to for Distance for Windows
-#' @param ... allows the five previous optional arguments to be specified
+#' @param ... will allow further options to be implemented
 #' @return an object of class simulation which now includes the results
 #' @export
 #' @rdname run.simulation-methods

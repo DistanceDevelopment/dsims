@@ -36,7 +36,7 @@ simulated afresh.}
 
 \item{progress.file}{character file to output progress to for Distance for Windows}
 
-\item{...}{allows the five previous optional arguments to be specified}
+\item{...}{will allow further options to be implemented}
 }
 \value{
 an object of class simulation which now includes the results
