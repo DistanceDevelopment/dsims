@@ -24,8 +24,6 @@
 #' (prob). The cluster size entry in the list must be named 'size'.
 #' @slot gen.by.N Object of class \code{"logical"}; If \code{TRUE}
 #' N is fixed otherwise it is generated from a Poisson distribution.
-#' @slot D.dist Object of class \code{character}; Describes the
-#' density distribution (currently not implemented).
 #' @section Methods:
 #' \describe{
 #'  \item{\code{get.N}}{\code{signature=(object = "Population.Description")}:
@@ -41,8 +39,7 @@ setClass("Population.Description", representation(N            = "numeric",
                                                   strata.names = "character",
                                                   covariates   = "list",
                                                   size         = "logical",
-                                                  gen.by.N     = "logical",
-                                                  D.dist       = "character"))
+                                                  gen.by.N     = "logical"))
 setMethod(
   f="initialize",
   signature="Population.Description",
