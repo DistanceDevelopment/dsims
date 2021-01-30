@@ -65,7 +65,7 @@ setMethod(
       if(length(N) == 0){
         N <- rep(1000, no.strata)
       }else if(length(N) != no.strata){
-        stop("You have not supplied the correct number of constants for population size N for each strata", call. = FALSE)
+        stop("You have not supplied the correct number of constants for population size N (one for each strata).", call. = FALSE)
       }
     }
     # Check if there are clusters
@@ -79,9 +79,11 @@ setMethod(
     .Object@covariates   <- covariates
     .Object@size         <- size
     .Object@gen.by.N     <- gen.by.N
-    .Object@D.dist       <- D.dist
     #Check object is valid
-    validObject(.Object)
+    valid <- validObject(.Object, test = TRUE)
+    if(class(valid) == "character"){
+      stop(paste(valid), call. = FALSE)
+    }
     # return object
     return(.Object)
   }

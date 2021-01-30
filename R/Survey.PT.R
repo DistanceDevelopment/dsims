@@ -29,7 +29,10 @@ setMethod(
     .Object@transect          <- transect
     .Object@radial.truncation <- rad.truncation
     #Check object is valid
-    validObject(.Object)
+    valid <- validObject(.Object, test = TRUE)
+    if(class(valid) == "character"){
+      stop(paste(valid), call. = FALSE)
+    }
     # return object
     return(.Object)
   }

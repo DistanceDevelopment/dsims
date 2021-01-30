@@ -1,7 +1,7 @@
 #' @include Detectability.R
 
-#' @title Class "Population" 
-#' 
+#' @title Class "Population"
+#'
 #' @description Contains an instance of a population including a description of their detectability
 #' in the form of an object of class Detectability.
 #'
@@ -9,11 +9,11 @@
 #' @title S4 Class "Population"
 #' @slot region.obj Object of class \code{"character"}; the name of the region
 #'  object.
-#' @slot strata.names Object of class \code{"character"}; the names of the 
+#' @slot strata.names Object of class \code{"character"}; the names of the
 #'  strata.
 #' @slot N Object of class \code{"numeric"}; the number of individuals/clusters.
 #' @slot D Object of class \code{"numeric"}; the density of individuals/clusters.
-#' @slot population  Object of class \code{"data.frame"}; the locations of 
+#' @slot population  Object of class \code{"data.frame"}; the locations of
 #'  individuals/clusters and any population covariates.
 #' @slot detectability  Object of class \code{"Detectability"}; describes how
 #'  easily the individuals/clusters can be detected.
@@ -25,11 +25,11 @@
 #' @keywords classes
 #' @seealso \code{\link{make.population.description}}, \code{\link{make.detectability}}
 setClass("Population", representation(region.obj   = "character",
-                                      strata.names = "character", 
-                                      N            = "numeric", 
+                                      strata.names = "character",
+                                      N            = "numeric",
                                       D            = "numeric",
                                       population   = "data.frame",
-                                      detectability = "Detectability")) 
+                                      detectability = "Detectability"))
 setMethod(
   f="initialize",
   signature="Population",
@@ -43,9 +43,12 @@ setMethod(
     .Object@population   <- population
     .Object@detectability <- detectability
     #Check object is valid
-    validObject(.Object)
+    valid <- validObject(.Object, test = TRUE)
+    if(class(valid) == "character"){
+      stop(paste(valid), call. = FALSE)
+    }
     # return object
-    return(.Object) 
+    return(.Object)
   }
 )
 setValidity("Population",
@@ -57,14 +60,14 @@ setValidity("Population",
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
 #' Plot
-#' 
+#'
 #' Plots an S4 object of class 'Population'. Requires that the
-#' associated region has already been plotted. This function adds 
+#' associated region has already been plotted. This function adds
 #' the locations of the individuals/clusters in the population.
-#' 
+#'
 #' @param x object of class Population
 #' @param y not used
-#' @param ... other general plot parameters 
+#' @param ... other general plot parameters
 #' @rdname plot.Population-methods
 #' @importFrom graphics points
 #' @exportMethod plot
@@ -72,10 +75,10 @@ setMethod(
   f="plot",
   signature="Population",
   definition=function(x, y, ...){
-    points(x@population$x, x@population$y, col = 2, pch = 20, ...) 
+    points(x@population$x, x@population$y, col = 2, pch = 20, ...)
     invisible(x)
-  }    
-) 
+  }
+)
 
 
 
