@@ -50,17 +50,20 @@ setMethod(
 
 setValidity("Detectability",
             function(object){
+              if(length(object@key.function) > 1){
+                return("You must only supply one key function.")
+              }
               if(!object@key.function%in%c("hr","hn","uf")){
-                return("Unsupported key function")
+                return("Unsupported key function.")
               }
               if(object@key.function == "hr" & length(object@shape.param) == 0){
                 return("You have selected the hazard rate model but not supplied a shape parameter.")
               }
               for(i in seq(along = object@scale.param)){
                 if(object@scale.param[i] <= 0){
-                  return("Invalid scale parameter. Must be greater than zero.")
+                  return("Invalid scale parameter. The scale parameter must be greater than zero.")
                 }else if(object@key.function == "uf" & object@scale.param[i] > 1){
-                  return("Invalid scale parameter. Must be greater than zero and less than 1 for the uniform distribution.")
+                  return("Invalid scale parameter. The scale parameter must be greater than zero and less than or equal to 1 for the uniform distribution.")
                 }
               }
               for(i in seq(along = object@shape.param)){
