@@ -30,8 +30,25 @@ setClass("Detectability", representation(key.function    = "character",
 setMethod(
   f="initialize",
   signature="Detectability",
-  definition=function(.Object, key.function = "hn", scale.param = 25, shape.param = numeric(0), covariates = character(0), cov.param = numeric(0), truncation = 50){
+  definition=function(.Object, key.function = "hn", scale.param = 25, shape.param = numeric(0), covariates = character(0), cov.param = list(), truncation = 50){
     #Input pre-processing
+    # - this needs to be done here as cannot alter object inside validation method
+    cov.names <- names(cov.param)
+    for(cov in seq(along = cov.param)){
+      if(class(cov.param[[cov]]) == "data.frame"){
+        if(!all(names(cov.param[[cov]]) %in% c("strata", "level", "param"))){
+          index <- which(!(names(cov.param[[cov]]) %in% c("strata", "level", "param")))
+          warning(paste("The dataframe for covariate '", cov.names[cov], "' has unrecognised columns: ", names(cov.param[[cov]])[index],". These will be ignored.", sep = ""), call. = FALSE, immediate. = TRUE)
+          df.new <- cov.param[[cov]]
+          if(ncol(df.new) > 2){ # if there are 2 or less then we will not be here!
+            # removing 1 col from 2 col df results in non-named vector!
+            index <- which(names(cov.param[[cov]]) %in% c("strata", "level", "param"))
+            cov.param[[cov]] <- df.new[,index]
+          }
+        }
+      }
+    }
+
     #Set slots
     .Object@key.function <- key.function
     .Object@scale.param  <- scale.param
@@ -51,18 +68,23 @@ setMethod(
 setValidity("Detectability",
             function(object){
               if(length(object@key.function) > 1){
-                return("You must only supply one key function.")
+                warning("You must only supply one key function, only the first will be used.", call. = FALSE, immediate. = TRUE)
+                object@key.function <- object@key.function[1]
               }
               if(!object@key.function%in%c("hr","hn","uf")){
-                return("Unsupported key function.")
+                return("Unsupported key function, please select hn, hr or uf.")
               }
-              if(object@key.function == "hr" & length(object@shape.param) == 0){
+              if(object@key.function == "hr" && length(object@shape.param) == 0){
                 return("You have selected the hazard rate model but not supplied a shape parameter.")
+              }
+              if(object@key.function != "hr" && length(object@shape.param) > 0){
+                warning(paste("You have selected the ", object@key.function, " key function and supplied a shape parameter value, this will be ignored.", sep = ""), call. = FALSE, immediate. = TRUE)
+                object@shape.param <- numeric(0)
               }
               for(i in seq(along = object@scale.param)){
                 if(object@scale.param[i] <= 0){
                   return("Invalid scale parameter. The scale parameter must be greater than zero.")
-                }else if(object@key.function == "uf" & object@scale.param[i] > 1){
+                }else if(object@key.function == "uf" && object@scale.param[i] > 1){
                   return("Invalid scale parameter. The scale parameter must be greater than zero and less than or equal to 1 for the uniform distribution.")
                 }
               }
@@ -71,7 +93,7 @@ setValidity("Detectability",
                   return("Invalid shape parameter. Must be greater than or equal to zero.")
                 }
               }
-              if(length(object@scale.param) > 1 & length(object@shape.param) > 1 & length(object@scale.param) != length(object@shape.param)){
+              if(length(object@scale.param) > 0 && length(object@shape.param) > 0 && length(object@scale.param) != length(object@shape.param)){
                 return("The same number of values must be provided for both the shape and scale parameters or only one value supplied for either the shape or scale parameter.")
               }
               cov.names <- names(object@cov.param)
@@ -80,7 +102,12 @@ setValidity("Detectability",
               }
               for(cov in seq(along = object@cov.param)){
                 if(length(object@cov.param[[cov]]) == 0){
-                  return(paste("List element ", cov.names[cov], " of the cov.param list does not contain any values."), sep = "")
+                  return(paste("List element ", cov.names[cov], " of the cov.param list does not contain any values.", sep = ""))
+                }else if(class(object@cov.param[[cov]]) == "data.frame"){
+                  if(!all(c("level", "param") %in% names(object@cov.param[[cov]]))){
+                    index <- which(!(c("level", "param") %in% names(object@cov.param[[cov]])))
+                    return(paste("The dataframe for covariate '", cov.names[cov], "' has missing columns: ", c("level", "param")[index], sep = ""))
+                  }
                 }
               }
               return(TRUE)

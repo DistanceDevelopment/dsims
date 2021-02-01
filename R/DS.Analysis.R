@@ -53,6 +53,11 @@ setMethod(
   f="initialize",
   signature="DS.Analysis",
   definition=function(.Object, dsmodel, key, adjustment, truncation, cutpoints, er.var, control.opts, group.strata, criteria){
+    # Pre-processing
+    #make sure these are characters not factors
+    group.strata$design.id <- as.character(group.strata$design.id)
+    group.strata$analysis.id <- as.character(group.strata$analysis.id)
+    # Make object
     .Object@dsmodel <- dsmodel
     .Object@key <- key
     .Object@adjustment <- adjustment
@@ -74,12 +79,16 @@ setMethod(
 
 setValidity("DS.Analysis",
             function(object){
+              # Check criteria
               if(!(object@criteria %in% c("AIC", "BIC", "AICc"))){
                 return("This selection criteria is not currently supported, please select from 'AIC', 'BIC' or 'AICc'.")
               }
-              #make sure these are characters not factors
-              object@group.strata$design.id <- as.character(object@group.strata$design.id)
-              object@group.strata$analysis.id <- as.character(object@group.strata$analysis.id)
+              # Check truncation
+              if(any(unlist(lapply(object@truncation,is.character))) &&
+                 (length(object@cutpoints) > 0)){
+                return("Truncation cannot be supplied as a percentage with binned data.")
+              }
+
               #Check that the adjustment list is either empty or has adjustment, order and scale and are the correct length
               return(TRUE)
             }

@@ -261,9 +261,10 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' @param truncation either truncation distance (numeric, e.g. 5) or percentage (as a
 #' string, e.g. "15%"). Can be supplied as a list with elements left and right if left
 #' truncation is required (e.g. list(left=1,right=20) or list(left="1%",right="15%") or
-#' even list(left="1",right="15%")). By default for exact distances the maximum observed
+#' even list(left=1,right="15%")). By default for exact distances the maximum observed
 #' distance is used as the right truncation. When the data is binned, the right truncation
-#' is the largest bin end point. Default left truncation is set to zero.
+#' is the largest bin end point. Default left truncation is set to zero. Note that any
+#' value supplied as a string will be interpreted as a % even without the % symbol.
 #' @param cutpoints if the data are binned, this vector gives the cutpoints of the bins.
 #'  Ensure that the first element is 0 (or the left truncation distance) and the last
 #'  is the distance to the end of the furthest bin. (Default NULL, no binning.) Note
@@ -293,14 +294,25 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 make.ds.analysis <- function(dsmodel = list(~1),
                              key = "hn",
                              adjustment = list(),
-                             truncation = 50,
+                             truncation = numeric(0),
                              cutpoints = numeric(0),
                              er.var = "R2",
                              control.opts = list(),
                              group.strata = data.frame(),
                              criteria = "AIC"){
   # Do some pre-creation input checking / formatting
-  if(!("list" %in% class(truncation))){
+  if(length(cutpoints) > 0 && length(truncation) > 0){
+    warning("Cutpoints have been supplied so the truncation value(s) will be ignored. The largest cutpoint will be used as the right truncation value", call. = FALSE, immediate. = TRUE)
+    truncation <- numeric(0)
+  }
+  if("list" %in% class(truncation)){
+    if(!all(c("left","right") %in% names(truncation))){
+      stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
+    }
+  }else{
+    if(length(truncation) > 1){
+      stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
+    }
     truncation <- list(truncation)
   }
   if(!("list" %in% class(dsmodel))){
