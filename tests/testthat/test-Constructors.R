@@ -1,4 +1,6 @@
-library(DSsim)
+library(dsims)
+
+devtools::load_all()
 library(testthat)
 
 context("Constructor Checks")
@@ -212,6 +214,17 @@ test_that("Can create object or return correct error messages", {
                                 cutpoints = seq(0,25, length = 4),
                                 truncation = c("1","15%")),
                "Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".")
+
+  expect_error(make.ds.analysis(dsmodel = list(~1, ~size, ~size+sex),
+                                key = c("hn","zz","uf"),
+                                truncation = "5%"),
+               "All key function values should be either 'hn' or 'hr'.")
+
+  expect_error(make.ds.analysis(dsmodel = list(~1, ~size, ~size+sex),
+                                key = c("hn","hr","hr"),
+                                truncation = "5%",
+                                criteria = "QIC"),
+               "This selection criteria is not currently supported, please select from 'AIC', 'BIC' or 'AICc'.")
 
 
 
