@@ -301,10 +301,11 @@ make.ds.analysis <- function(dsmodel = list(~1),
                              group.strata = data.frame(),
                              criteria = "AIC"){
   # Do some pre-creation input checking / formatting
-  if(length(cutpoints) > 0 && length(truncation) > 0){
-    warning("Cutpoints have been supplied so the truncation value(s) will be ignored. The largest cutpoint will be used as the right truncation value", call. = FALSE, immediate. = TRUE)
-    truncation <- numeric(0)
-  }
+  # if(length(cutpoints) > 0 && length(truncation) > 0){
+  #   warning("Cutpoints have been supplied so the truncation value(s) will be ignored. The largest cutpoint will be used as the right truncation value", call. = FALSE, immediate. = TRUE)
+  #   # Doing this means left trunction is not currently possible with binned data
+  #   truncation <- numeric(0)
+  # }
   if("list" %in% class(truncation)){
     if(!all(c("left","right") %in% names(truncation))){
       stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
@@ -315,6 +316,18 @@ make.ds.analysis <- function(dsmodel = list(~1),
     }
     truncation <- list(truncation)
   }
+  # make sure that the first bin starts 0 or left
+  if(length(cutpoints) > 0){
+    if(!is.null(truncation$left)){
+      if(cutpoints[1]!=truncation$left){
+        stop("The first cutpoint must be 0 or the left truncation distance!")
+      }
+    }else if(cutpoints[1]!=0){
+      stop("The first cutpoint must be 0 or the left truncation distance!")
+    }
+  }
+
+
   if(!("list" %in% class(dsmodel))){
     dsmodel <- list(dsmodel)
   }

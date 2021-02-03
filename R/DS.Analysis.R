@@ -83,10 +83,18 @@ setValidity("DS.Analysis",
               if(!(object@criteria %in% c("AIC", "BIC", "AICc"))){
                 return("This selection criteria is not currently supported, please select from 'AIC', 'BIC' or 'AICc'.")
               }
+              if(!all(object@key %in% c("hr", "hn"))){
+                return("All key function values should be either 'hn' or 'hr'.")
+              }
               # Check truncation
               if(any(unlist(lapply(object@truncation,is.character))) &&
                  (length(object@cutpoints) > 0)){
                 return("Truncation cannot be supplied as a percentage with binned data.")
+              }
+              if("monotonicity" %in% names(object@control.opts)){
+                if(!all(object@control.opts$monotonicity %in% c("none", FALSE, "weak", "strict"))){
+                  return("monotonicity must be one of 'none', FALSE, 'weak' or 'strict'.")
+                }
               }
 
               #Check that the adjustment list is either empty or has adjustment, order and scale and are the correct length
