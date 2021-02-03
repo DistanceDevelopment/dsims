@@ -1,0 +1,155 @@
+---
+title: "Getting Started with dsims"
+author: "L Marshall"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: refs.bib
+vignette: >
+  %\VignetteIndexEntry{dsims - getting started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Distance Sampling Simulations
+
+This vignette introduces the basic procedure for setting up and running a distance sampling simulation using dsims. The dsims package uses the distance sampling survey design package dssd [@dssd-pkg] to define the design and generate the suveys (sets of transects). For futher details on defining designs please refer to the dssd vignettes.
+
+Distance Sampling techniques provide design based estimates of density and abundance for populations, the accuracy of these estimates relies on valid survey design. While general rules of thumb can help guide our design choices, simulations emulating a specific set of survey characteristics can often help us achieve more optimal results for individual studies.
+
+Simulations, for example, can help us maximise our precision across a range of possible scenarios, perhaps allocating effort in relation to a range of predicted density distributions. They can also help us investigate the possible effects of using a more efficent design but which may not have completely uniform coverage probablity across the study region. The specifics of each of these scenarios and many others will be particular to the study in question and hence why simulation can be a powerful tool in survey design.
+
+## Setting up the Region
+
+We will use the St Andrews bay as an example study area for these simulations. This is a single strata study region which has been projected into metres. We will first load the dsims package, this will also automatically load the dssd package. Next we will obtain the location of the shapefile within the dssd design package which is then passed to the \code{make.region} function to create our study area. We do not need to pass in the units as these are already defined in the shapfile projection.
+
+```{r region, fig.align='center', fig.cap="Figure 1: The study region.", fig.width=6, fig.height=4}
+library(dsims)
+shapefile.name <- system.file("extdata", "StAndrew.shp", package = "dssd")
+region <- make.region(region.name = "St Andrews bay",
+                      shape = shapefile.name)
+plot(region)
+```
+
+
+## Defining the study population
+
+### Population Density Grid
+
+The first step in defining your study population is to set up the densty grid. One way to do this is initially create a 
+
+## Coverage Grid
+
+It is good practice to create a coverage grid over your study area to assess how coverage probability varies spatially across your study area for any specified designs. For designs where there may be non-uniform converage, we advise coverage probability is assessed prior to running any simulations. However, as this step is not essential for running simulations we will omit it here and refer you to the dssd vignettes for further details. 
+
+## Defining the Design
+
+dsims working together with dssd provides a number of point and line transect designs. Further details on defining designs can be found in the dssd help and vignettes.
+
+For the purposes of these simulations we will compare two line transect designs, firstly systematically spaced parallel lines and secondly equal spaced zigzag lines. The zigzag design will be generated within a convex hull to try to minimise the off-effot transit time between the ends of transects. 
+
+The design angles for each design were selected so that the transects run perpendicular to the coast. The way the two designs are defined meant that this was 90 degrees for the parallel line design and 0 for the zigzag design. Both designs assumed a minus sampling protocol and the truncation distance was set at 500m from the transect. The spacings for each design were selected to give the same trackline lengths of around 450 km (this was assessed by running the coverage simulations for these designs \{run.coverage}). the trackline lengths can be thought of as an indicator of the cost of the survey as they give the total travel time (both on and off effort) from the beginning of the first transect to the end of the last transect.
+
+```{r designs}
+parallel.design <- make.design(region = region, 
+                               design = "systematic",
+                               spacing = 2500,
+                               edge.protocol = "minus",
+                               design.angle = 90,
+                               truncation = 500)
+
+zigzag.design <- make.design(region = region, 
+                             design = "eszigzag",
+                             spacing = 2233,
+                             edge.protocol = "minus",
+                             design.angle = 0,
+                             bounding.shape = "convex.hull",
+                             truncation = 500)
+
+
+#parallel.design <- run.coverage(parallel.design, 50)
+zigzag.design <- run.coverage(zigzag.design, 50)
+parallel.design
+zigzag.design
+```
+
+
+### Generating a Survey
+
+It is always a good idea to run a quick check that your design is as expected by generating a set of transects and plotting them. 
+
+```{r seed, echo=FALSE}
+set.seed(474)
+```
+
+```{r paralleltransects, fig.align='center', fig.cap="Figure 2: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=4, fig.height=4, fig.align='center'}
+p.survey <- generate.transects(parallel.design)
+plot(region, p.survey)
+```
+
+```{r zigzagtransects, fig.align='center', fig.cap="Figure 2: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=4, fig.height=4, fig.align='center'}
+z.survey <- generate.transects(zigzag.design)
+plot(region, z.survey)
+```
+
+## Assessing Coverage Uniformity and Design Statistics
+
+Once we have checked that our design appears to be correctly specified we can assess how uniform the coverage is and also how values such as total line length, trackline length and cyclic trackline length vary across many surveys generated from our design. While we were given single values for these statistics from our one survey above it is important to check that all potential surveys from our design can be completed in the effort available, i.e. the maximum trackline/cyclic trackline length from the simulation should be achievable within the limits of the study. It is not permissible to generate more than one set of transects for the final survey and select the set with shorter/longer trackline length as then the selection of transect locations will no longer be purely random.
+
+Parallel line designs should give uniform coverage across the majority of the survey region. The only exception to this is around the edge of the study region when we are using minus sampling, as we are using here. We will assess the effects of this now via a simulation which will generate 999 sets of transects from our design.
+
+```{r coverage, eval=FALSE}
+design <- run.coverage(design, reps = 999)
+```
+
+```{r coverage2, echo=FALSE}
+filename <- system.file("extdata/vigresults", "GSdesign.robj", package = "dssd")
+load(filename)
+```
+
+We can now view the coverage scores by plotting our design object.
+
+```{r coverage3, fig.align='center', fig.cap="Figure 4: The coverage grid", fig.width=6, fig.height=4}
+plot(design, subtitle = "Systematic Parallel, line.length = 1300km")
+```
+
+The plot above indicates that coverage is fairly uniform over the majority of the study region. There are a few points around the edge of the survey region which have lower coverage than the others due to the minus sampling protocol, however for this example we would expect the effects of non-uniform coverage on the study estimates to be very small. The coverage grid points with lower coverage are very few in number and represent a very small proportion of the study region area. 
+
+We can also look at the design statistics, these are shown below. 
+
+```{r designstats2, eval = FALSE}
+design
+```
+
+
+```{r designstats, echo = FALSE}
+ops <- options(warn = -1)
+design
+options <- ops
+```
+
+
+First you are given a summary of the design, systematically spaced transects where the spacing was to be selected to achieve around 1300 km of effort. The lines were to be placed on a design angle of 0 and a minus sampling protocol was to be used. 
+
+We are then told the area of the study region, the units of the region coordinates and how many times the coverage simulation was repeated.
+
+We now move on to the summary statistics from the 999 sets of transects generated during the simulation. We are told that each survey has between 20 and 21 samplers and that the minimum and maximum covered areas are 5051 and 5311 km^2 which equate to 42.0% and 44.1% of the study area, respectively. The minimum on-effort line length is 1268 km and the maximum on-effort line length is 1348 km, with a mean value of very close to the 1300km requested. We are then given the minimum, mean, median, maximum and standard deviation values for the trackline and cyclic trackline lengths. The maximum values for these statistics should be used to ensure that any set of transects randomly generated from the design is achievable in the total effort available given any time and financial constraints of the survey. 
+
+Finally, we are given a summary of the coverage score values. If we have even coverage then we should see little variation in the coverage scores. The minimum coverage score is 0.20 and the maximum is 0.46 indicating that some small areas around the edge of the study region (as shown in Figure 4) are half as likely to be sampled as those within the main part of the study region. We are given an indication of the variability of the coverage scores in the standard deviation provided but it may also be useful to plot a histogram of the coverage scores, Figure 5. Again this looks fairly reassuring that the parts of the study with lower coverage do not represent a significant proportion of the study area. However, if we wanted to be really thorough we could run a simulation study using DSsim and test a worse case scenario, where density in these areas of lower coverage varied from the rest of the study region. If we were worried that this non-uniform coverage could cause significant bias we could switch to a plus sampling strategy.
+
+```{r coverage4, fig.align='center', fig.cap="Figure 5: Histogram of coverage scores", fig.width=6, fig.height=4}
+hist(get.coverage(design), xlab = "Coverage Scores", main = "Histogram of Coverage Scores")
+```
+
+## Appendix: Trackline and Cyclic Trackline Lengths
+
+The following four figures (6 - 10) demonstrate how the trackline lengths and cyclic trackline lengths are calculated. The red arrows indicate the trackline path, moving from the start of the first transect along its length then across off effort to the next transect and so on until the end of the last transect is reached. The cyclic trackline length is then the trackline length represented by the red arrows plus the off effort transit time required to travel from the end of the last transect back to the beginning of the first as indicated by the light blue arrow. These values are provided to help you assess the efficiency of the design by comparing on-effort line length to total trackline length and also to help you ensure that the entire survey can be completed within time and budget constraints. Note that the trackline and cyclic trackline lengths for segmented designs are calculated in a very similar way to parallel line transect designs. The observer will start at the beginning of one segment and move up the line of segments before crossing to the next line of segments and so on.  
+
+![Figure 6: Illustrates the trackline and cyclic trackline lengths for random parallel line designs. The sum of the lengths of the red arrows represent the trackline length. The sum of the lengths of the red arrows and the light blue arrow represent the cyclic trackline length.](images/RandomLines.jpeg)
+
+![Figure 7: Illustrates the trackline and cyclic trackline lengths for systematic parallel line designs. The sum of the lengths of the red arrows represent the trackline length. The sum of the lengths of the red arrows and the light blue arrow represent the cyclic trackline length.](images/SystematicLines.jpeg)
+
+![Figure 8: Illustrates the trackline and cyclic trackline lengths for zigzag designs. The sum of the lengths of the red arrows represent the trackline length. The sum of the lengths of the red arrows and the light blue arrow represent the cyclic trackline length.](images/ZigzagDesign.jpeg)
+
+![Figure 9: Illustrates the trackline and cyclic trackline lengths for complementary zigzag designs. The sum of the lengths of the red arrows represent the trackline length. The sum of the lengths of the red arrows and the light blue arrow represent the cyclic trackline length.](images/ComZigzag.jpeg)
+
+## Bibliography
