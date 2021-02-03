@@ -8,7 +8,7 @@ make.ds.analysis(
   dsmodel = list(~1),
   key = "hn",
   adjustment = list(),
-  truncation = 50,
+  truncation = numeric(0),
   cutpoints = numeric(0),
   er.var = "R2",
   control.opts = list(),
@@ -20,9 +20,8 @@ make.ds.analysis(
 \item{dsmodel}{list of distance sampling model formula specifying the detection function
 (see \code{?ds} for further details)}
 
-\item{key}{key function to use; "hn" gives half-normal (default), "hr" gives hazard-rate
-and "unif" gives uniform. Note that if uniform key is used, covariates cannot be
-included in the model.}
+\item{key}{key function to use; "hn" gives half-normal (default) and "hr" gives
+hazard-rate.}
 
 \item{adjustment}{a way of providing information about the adjustment term options. A
 list of options for adjustment parameters. In the case of multiple models this should
@@ -31,12 +30,10 @@ included when there are no covariates in the model. The adjustment options inclu
 adjustment - "cos" (recommended), "herm" or "poly", order - the order of the adjustment
 terms and scale - either "width" or "scale". See details for more information.}
 
-\item{truncation}{either truncation distance (numeric, e.g. 5) or percentage (as a
-string, e.g. "15%"). Can be supplied as a list with elements left and right if left
-truncation is required (e.g. list(left=1,right=20) or list(left="1%",right="15%") or
-even list(left="1",right="15%")). By default for exact distances the maximum observed
-distance is used as the right truncation. When the data is binned, the right truncation
-is the largest bin end point. Default left truncation is set to zero.}
+\item{truncation}{distance can be supplied as (numeric, e.g. 5) or percentage (as a
+string, e.g. "15%"). By default for exact distances the maximum observed
+distance is used as the right truncation. Note that any value supplied as a string
+will be interpreted as a % even without the % symbol.}
 
 \item{cutpoints}{if the data are binned, this vector gives the cutpoints of the bins.
 Ensure that the first element is 0 (or the left truncation distance) and the last

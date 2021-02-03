@@ -33,9 +33,6 @@ clusters.
 
 \item{\code{gen.by.N}}{Object of class \code{"logical"}; If \code{TRUE}
 N is fixed otherwise it is generated from a Poisson distribution.}
-
-\item{\code{D.dist}}{Object of class \code{character}; Describes the
-density distribution (currently not implemented).}
 }}
 
 \section{Methods}{

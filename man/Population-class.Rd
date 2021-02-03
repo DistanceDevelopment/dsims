@@ -14,14 +14,14 @@ in the form of an object of class Detectability.
 \item{\code{region.obj}}{Object of class \code{"character"}; the name of the region
 object.}
 
-\item{\code{strata.names}}{Object of class \code{"character"}; the names of the 
+\item{\code{strata.names}}{Object of class \code{"character"}; the names of the
 strata.}
 
 \item{\code{N}}{Object of class \code{"numeric"}; the number of individuals/clusters.}
 
 \item{\code{D}}{Object of class \code{"numeric"}; the density of individuals/clusters.}
 
-\item{\code{population}}{Object of class \code{"data.frame"}; the locations of 
+\item{\code{population}}{Object of class \code{"data.frame"}; the locations of
 individuals/clusters and any population covariates.}
 
 \item{\code{detectability}}{Object of class \code{"Detectability"}; describes how
