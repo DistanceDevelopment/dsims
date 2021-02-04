@@ -62,9 +62,9 @@ setMethod(
     cov.param.names <- all.col.names[!all.col.names %in% c("object", "x", "y", "Region.Label", "Sample.Label", "scale.param", "shape.param", "individual")]
     dist.data <- dist.data[,c("object", "individual", "Region.Label", "Sample.Label", "distance", "x", "y", cov.param.names)]
     # Add in the transect lengths
-    sample.table <- data.frame(Region.Label = transects@samplers$strata,
-                               Sample.Label = transects@samplers$transect,
-                               Effort = sf::st_length(transects@samplers))
+    sample.table <- data.frame(Region.Label = line.transect@samplers$strata,
+                               Sample.Label = line.transect@samplers$transect,
+                               Effort = sf::st_length(line.transect@samplers))
     # If the region is supplied then add in the survey region Area
     if(!is.null(region)){
       region.table <- data.frame(Region.Label = region@strata.name,
