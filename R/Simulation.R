@@ -107,12 +107,6 @@ setMethod(
   }
 )
 
-#' @name generate.transects
-#' @description Calls the generate.transects method inside dssd on the
-#' design object inside the simulation. It then returns a single set
-#' of transects created based on the design.
-#' @seealso \code{?dssd::generate.transects}
-#' @rdname generate.transects-methods
 #' @export
 setMethod(
   f="generate.transects",
@@ -132,15 +126,15 @@ setMethod(
   definition=function(object){
     # Create the population and transects for the survey
     population <- generate.population(object)
-    transects <- generate.population(object)
+    transects <- generate.transects(object)
     if(class(transects) == "Line.Transect"){
       survey <- new(Class = "Survey.LT",
-                    population = pop,
+                    population = population,
                     transect = transects,
                     perp.truncation = object@design@truncation)
     }else if(class(transects) == "Point.Transect"){
       survey <- new(Class = "Survey.PT",
-                    population = pop,
+                    population = population,
                     transect = transects,
                     rad.truncation = object@design@truncation)
     }
