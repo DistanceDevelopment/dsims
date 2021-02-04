@@ -13,7 +13,7 @@
 #' also supply a \code{mgcv gam} object and x, y spacings and the density grid will
 #' be created from these.
 #'
-#' @param region.obj the Region object in which the density grid will be created
+#' @param region the Region object in which the density grid will be created
 #' @param density.surface Object of class \code{list}; list of
 #'  data.frames with the columns x, y and density. There must be one
 #'  data.frame for each strata.
@@ -22,8 +22,6 @@
 #' @param buffer the width of the buffer region for generating the density grid. If not supplied DSsim will use the maximum value provided for the x.space or y.space.
 #' @param constant a value describing a constant density across the surface. If not supplied a default value of 1 is used for all strata.
 #' @param density.gam \code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.
-#' @param dsm not currently implemented
-#' @param formula not currently implemented
 #' @return object of class Density
 #' @export
 #' @author Laura Marshall
@@ -34,11 +32,10 @@
 #' # the default values:
 #' density <- make.density()
 #' plot(density)
-#' plot(make.region(), add = TRUE)
 #'
 #' # The example below shows hot to add high and low point to the density surface
-#' \dontrun{
-#' pop.density <- make.density(region.obj = region, x.space = 10,
+#' region <- make.region()
+#' pop.density <- make.density(region = region, x.space = 10,
 #'  y.space = 10, constant = 0.5)
 #'
 #' pop.density <- add.hotspot(pop.density, centre = c(50, 200),
@@ -50,21 +47,18 @@
 #'
 #' #New plot features
 #' plot(pop.density)
-#' plot(region, add = TRUE)
 #'
 #' #Block style plotting
 #' plot(pop.density, contours = FALSE, style = "blocks")
-#' plot(region, add = TRUE)
 #'
-#' }
-make.density <- function(region.obj = make.region(), density.surface = list(), x.space = 5, y.space = NULL, buffer = numeric(0), constant = numeric(0), density.gam = NULL, dsm = NULL, formula = NULL){
+make.density <- function(region = make.region(), density.surface = list(), x.space = 5, y.space = NULL, buffer = numeric(0), constant = numeric(0), density.gam = NULL){
   # Find the number of strata
-  no.strata <- length(region.obj@strata.name)
+  no.strata <- length(region@strata.name)
   # Check the user has supplied the correct number of consants
   if(length(constant) > 0){
-    if(no.strata > 0 & length(constant) != length(region.obj@strata.name)){
+    if(no.strata > 0 & length(constant) != length(region@strata.name)){
       if(length(constant) == 1){
-        constant <- rep(constant, length(region.obj@strata.name))
+        constant <- rep(constant, length(region@strata.name))
       }else{
         stop("The length of the constant vector does not correspond to the number of strata", call. = FALSE)
       }
@@ -82,7 +76,7 @@ make.density <- function(region.obj = make.region(), density.surface = list(), x
     y.space <- x.space
   }
   # Make density object
-  density <- new(Class = "Density", region = region.obj, strata.name = region.obj@strata.name, density.surface = density.surface, x.space = x.space, y.space = y.space, constant = constant, density.gam = density.gam, buffer = buffer)
+  density <- new(Class = "Density", region = region, strata.name = region@strata.name, density.surface = density.surface, x.space = x.space, y.space = y.space, constant = constant, density.gam = density.gam, buffer = buffer)
   return(density)
 }
 
@@ -107,8 +101,8 @@ make.density <- function(region.obj = make.region(), density.surface = list(), x
 #'                lognormal     \tab meanlog     \tab sdlog   \cr
 #'               }
 #'
-#' @param region.obj the Region object in which this population exists (see \link{make.region}).
-#' @param density.obj the Density object describing the distribution of the individuals / clusters (see \link{make.density}).
+#' @param region the Region object in which this population exists (see \link{make.region}).
+#' @param density the Density object describing the distribution of the individuals / clusters (see \link{make.density}).
 #' @param covariates Named list with one named entry per individual level covariate. Cluster sizes can be defined here. Each list entry should be another list with either one element or one element per strata allowing different population structures per strata. Each element of these lists should either be a data.frame containing 2 columns, the first the level (level) and the second the probability (prob). The cluster size entry in the list must be named 'size'. Alternatively the list element may be another list specifying the distribution in the first element and a named list in the second element with the distribution parameter.
 #' @param N the number of individuals / clusters in a population (1000 by default)
 #' @param fixed.N a logical value. If TRUE the population is generated from the value of N
@@ -234,6 +228,7 @@ make.population.description <- make.pop.description <- function(region.obj = mak
 #' plot(detect, pop.desc)
 #'
 make.detectability <- function(key.function = "hn", scale.param = 25, shape.param = numeric(0), cov.param = list(), truncation = 50){
+  # Passes all arguments to function to make a new instance of the class
   detectability <- new(Class = "Detectability", key.function = key.function, scale.param = scale.param, shape.param = shape.param, cov.param = cov.param, truncation = truncation)
   return(detectability)
 }
@@ -258,9 +253,9 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' adjustment - "cos" (recommended), "herm" or "poly", order - the order of the adjustment
 #' terms and scale - either "width" or "scale". See details for more information.
 #' @param truncation distance can be supplied as (numeric, e.g. 5) or percentage (as a
-#' string, e.g. "15%"). By default for exact distances the maximum observed
+#' string, e.g. "15\%"). By default for exact distances the maximum observed
 #' distance is used as the right truncation. Note that any value supplied as a string
-#' will be interpreted as a % even without the % symbol.
+#' will be interpreted as a \% even without the \% symbol.
 #' @param cutpoints if the data are binned, this vector gives the cutpoints of the bins.
 #'  Ensure that the first element is 0 (or the left truncation distance) and the last
 #'  is the distance to the end of the furthest bin. (Default NULL, no binning.) Note
@@ -349,16 +344,16 @@ make.ds.analysis <- function(dsmodel = list(~1),
 #' @param single.transect.set logical specifying whether the transects should
 #'   be kept the same throughout the simulation.
 #' @param double.observer not currently implemented.
-#' @param region.obj an object of class Region created by a call to
+#' @param region an object of class Region created by a call to
 #'  \link{make.region}
-#' @param design.obj an object of class Survey.Design created by a call to
+#' @param design an object of class Survey.Design created by a call to
 #'  \link{make.design}
-#' @param population.description.obj an object of class Population.Description
+#' @param population.description an object of class Population.Description
 #'  created by a call to \link{make.population.description}
-#' @param detectability.obj and object of class Detectabolity created by a call to
+#' @param detectability and object of class Detectabolity created by a call to
 #'  \link{make.detectability}
-#' @param ddf.analyses.list a list of objects of class DDF.Analysis created by
-#'  a call to\link{make.ddf.analysis.list}
+#' @param ds.analysis a list of objects of class DS.Analysis created by
+#'  a call to\link{make.ds.analysis}
 #' @return object of class Simulation
 #' @export
 #' @author Laura Marshall

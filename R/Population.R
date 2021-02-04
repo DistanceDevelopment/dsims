@@ -7,7 +7,7 @@
 #'
 #' @name Population-class
 #' @title S4 Class "Population"
-#' @slot region.obj Object of class \code{"character"}; the name of the region
+#' @slot region.name Object of class \code{"character"}; the name of the region
 #'  object.
 #' @slot strata.names Object of class \code{"character"}; the names of the
 #'  strata.
@@ -24,7 +24,7 @@
 #' }
 #' @keywords classes
 #' @seealso \code{\link{make.population.description}}, \code{\link{make.detectability}}
-setClass("Population", representation(region.obj   = "character",
+setClass("Population", representation(region.name  = "character",
                                       strata.names = "character",
                                       N            = "numeric",
                                       D            = "numeric",
@@ -36,7 +36,7 @@ setMethod(
   definition=function(.Object, region, strata.names, N, D, population, detectability){
     #Input pre-processing
     #Set slots
-    .Object@region.obj   <- region
+    .Object@region.name   <- region
     .Object@strata.names <- strata.names
     .Object@D            <- D
     .Object@N            <- N
