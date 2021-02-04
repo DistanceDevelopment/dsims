@@ -12,7 +12,7 @@ vignette: >
 
 ## Distance Sampling Simulations
 
-This vignette introduces the basic procedure for setting up and running a distance sampling simulation using dsims. The dsims package uses the distance sampling survey design package dssd [@dssd-pkg] to define the design and generate the suveys (sets of transects). For futher details on defining designs please refer to the dssd vignettes.
+This vignette introduces the basic procedure for setting up and running a distance sampling simulation using dsims [@dsims-pkg]. The dsims package uses the distance sampling survey design package dssd [@dssd-pkg] to define the design and generate the suveys (sets of transects). For futher details on defining designs please refer to the dssd vignettes. dsims was designed to be largely similar to the DSsim package [@DSsim-pkg] in terms of work flow, functions and arguments. The main differences in terms of its use lie in the definition of the designs which can now be generated in R via the dssd package and the definition of analyses. Analyses are now defined using terminology based on the Distance package [@Distance-pkg]. In addition, the underlying functionality now makes use of the sf package [@sf-pkg] for improved efficiency.
 
 Distance Sampling techniques provide design based estimates of density and abundance for populations, the accuracy of these estimates relies on valid survey design. While general rules of thumb can help guide our design choices, simulations emulating a specific set of survey characteristics can often help us achieve more optimal results for individual studies.
 
@@ -35,7 +35,91 @@ plot(region)
 
 ### Population Density Grid
 
-The first step in defining your study population is to set up the densty grid. One way to do this is initially create a 
+The first step in defining your study population is to set up the densty grid. One way to do this is to initially create a flat surface and then add hot and low spots to represent where you think you might have areas of higher and lower density of animals. We will first of all demonstrate this approach. 
+
+Note that if we were to assume that there were 300 animals in the St Andrews bay study area this would give us an average density of 3.04-07 animals per square metre. For this simulation, as we will use a fixed population size, we do not need to worry about the absolute values of the density surface. Instead, it can be simpler to work with larger values and be aware that we are instead defining a relative density surface. So where we create a surface to have a density of twice that in another area that relationship will be maintained (be it at much smaller absolute values) when we later generate the population.
+
+For the purposes of simulation you will likely want to test over a range of plausible animal distributions as if you knew exactly how many you were going to find at any given location you probably wouldn't be doing the study! When testing non-uniform coverage designs you may want to try out worst case scenarios, when density in the area of higher or lower coverage differs to majority of the survey region. This will give an idea of the degree of potential bias which could be introduced. In this example for the equal spaced zigzag design as it is generated in a convex hull the areas with differing coverage are likely to be at the very top and very bottom of the survey region. In the density grid below these areas are shown to have lower animal density than the rest of the survey region, a likely scenario when a study region has been constructed in order to catch the range of a population of interest.
+
+```{r density, fig.align='center', fig.cap="Figure 2: A density map representing a plausible distributions of animals within the study region.", fig.width=4, fig.height=4}
+
+# We first create a flat density grid
+density <- make.density(region = region,
+                        x.space = 500,
+                        constant = 1)
+
+# Now we can add some high and low points to give some spatial variability
+density <- add.hotspot(object = density,
+                       centre = c(-170000, 6255000),
+                       sigma = 8000,
+                       amplitude = 4)
+
+density <- add.hotspot(object = density,
+                       centre = c(-160000, 6275000),
+                       sigma = 6000,
+                       amplitude = 4)
+
+density <- add.hotspot(object = density,
+                       centre = c(-155000, 6260000),
+                       sigma = 3000,
+                       amplitude = 2)
+
+density <- add.hotspot(object = density,
+                       centre = c(-150000, 6240000),
+                       sigma = 10000,
+                       amplitude = -0.9)
+
+density <- add.hotspot(object = density,
+                       centre = c(-155000, 6285000),
+                       sigma = 10000,
+                       amplitude = -2)
+
+plot(density, style = "blocks")
+
+```
+
+In some situations you may not need to rely on constructing a density distribution from scratch. Below we will demonstrate how to use a gam to construct the density surface. As I do not have data for this area I will use the density grid I created above as an example dataset. I will fit a gam to this data and then use this to create a new density object. As I need to restrict the predicted values to be greater than 0 I will use a log link with the gaussian error distribution. This can also be a useful trick if you want to turn something created using the above method, which can look a bit lumpy and bumpy, into a smoother distribution surface. The gam fitted must only use a smooth over x and y to fit the model as no other predictor covariates will be present in the density surface.
+
+```{r densitygam, fig.align='center', fig.cap="Figure 3: A density map representing a plausible distributions of animals within the study region.", fig.width=4, fig.height=4}
+
+# First extract the data above - this is simple in this case as we only have a single strata
+# Multi-strata regions will involve combining the density grids for each strata into a 
+# single dataset.
+density.data <- density@density.surface[[1]]
+head(density.data)
+
+# Fit a simple gam to the data
+fit.gam <- mgcv::gam(density ~ s(x,y), data = density.data, family = gaussian(link="log"))
+
+# Use the gam object to create a density object
+gam.density <- make.density(region = region,
+                            x.space = 500,
+                            density.gam = fit.gam)
+
+plot(gam.density, style = "blocks")
+```
+
+### Other Population Parameters
+
+Once we have created a plausible animal density distribution we can go on to define other population parameters. We do this by constructing a population description. 
+
+We will assume animals occur in small clusters so we will first create a covariate list and define the distribution for cluster size (which must be named "size") as a zero-truncated Poisson distribution with mean equal to 3. For those of you familiar with DSsim please note the simplified format for defining population covariates. 
+
+The other population value we have to define is the population size which now refers to the number of clusters, we will set this to 100. We then leave the fixed.N argument as the default TRUE to say we would like to generate the population based on the population size rather than the density surface.
+
+```{r popdesc}
+
+# Create a covariate list describing the distribution of cluster sizes
+covariates <- list(size = list(distribution = "ztruncpois", mean = 3))
+
+# Define the population description
+pop.desc <- make.population.description(region = region,
+                                        density = gam.density,
+                                        covariates = covariates,
+                                        N = 100,
+                                        fixed.N = TRUE)
+
+```
 
 ## Coverage Grid
 
@@ -43,11 +127,11 @@ It is good practice to create a coverage grid over your study area to assess how
 
 ## Defining the Design
 
-dsims working together with dssd provides a number of point and line transect designs. Further details on defining designs can be found in the dssd help and vignettes.
+dsims working together with dssd provides a number of point and line transect designs. Further details on defining designs can be found in the dssd help and vignettes. We also provide examples online at \url{https://examples.distancesampling.org/}.
 
 For the purposes of these simulations we will compare two line transect designs, firstly systematically spaced parallel lines and secondly equal spaced zigzag lines. The zigzag design will be generated within a convex hull to try to minimise the off-effot transit time between the ends of transects. 
 
-The design angles for each design were selected so that the transects run perpendicular to the coast. The way the two designs are defined meant that this was 90 degrees for the parallel line design and 0 for the zigzag design. Both designs assumed a minus sampling protocol and the truncation distance was set at 500m from the transect. The spacings for each design were selected to give the same trackline lengths of around 450 km (this was assessed by running the coverage simulations for these designs \{run.coverage}). the trackline lengths can be thought of as an indicator of the cost of the survey as they give the total travel time (both on and off effort) from the beginning of the first transect to the end of the last transect.
+The design angles for each design were selected so that the transects run perpendicular to the coast. The way the two designs are defined meant that this was 90 degrees for the parallel line design and 0 for the zigzag design. Both designs assumed a minus sampling protocol and the truncation distance was set at 750m from the transect. The spacings for each design were selected to give the same trackline lengths of around 450 km (this was assessed by running the coverage simulations for these designs using \code{run.coverage}, see help in dssd). the trackline lengths can be thought of as an indicator of the cost of the survey as they give the total travel time (both on and off effort) from the beginning of the first transect to the end of the last transect.
 
 ```{r designs}
 parallel.design <- make.design(region = region, 
@@ -55,7 +139,7 @@ parallel.design <- make.design(region = region,
                                spacing = 2500,
                                edge.protocol = "minus",
                                design.angle = 90,
-                               truncation = 500)
+                               truncation = 750)
 
 zigzag.design <- make.design(region = region, 
                              design = "eszigzag",
@@ -63,17 +147,12 @@ zigzag.design <- make.design(region = region,
                              edge.protocol = "minus",
                              design.angle = 0,
                              bounding.shape = "convex.hull",
-                             truncation = 500)
+                             truncation = 750)
 
-
-#parallel.design <- run.coverage(parallel.design, 50)
-zigzag.design <- run.coverage(zigzag.design, 50)
-parallel.design
-zigzag.design
 ```
 
 
-### Generating a Survey
+### Generating a Set of Transects
 
 It is always a good idea to run a quick check that your design is as expected by generating a set of transects and plotting them. 
 
@@ -81,75 +160,164 @@ It is always a good idea to run a quick check that your design is as expected by
 set.seed(474)
 ```
 
-```{r paralleltransects, fig.align='center', fig.cap="Figure 2: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=4, fig.height=4, fig.align='center'}
+```{r paralleltransects, fig.align='center', fig.cap="Figure 4: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=4, fig.height=4, fig.align='center'}
 p.survey <- generate.transects(parallel.design)
 plot(region, p.survey)
 ```
 
-```{r zigzagtransects, fig.align='center', fig.cap="Figure 2: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=4, fig.height=4, fig.align='center'}
+```{r zigzagtransects, fig.align='center', fig.cap="Figure 5: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=4, fig.height=4, fig.align='center'}
 z.survey <- generate.transects(zigzag.design)
 plot(region, z.survey)
 ```
 
-## Assessing Coverage Uniformity and Design Statistics
+## Defining Detectability
 
-Once we have checked that our design appears to be correctly specified we can assess how uniform the coverage is and also how values such as total line length, trackline length and cyclic trackline length vary across many surveys generated from our design. While we were given single values for these statistics from our one survey above it is important to check that all potential surveys from our design can be completed in the effort available, i.e. the maximum trackline/cyclic trackline length from the simulation should be achievable within the limits of the study. It is not permissible to generate more than one set of transects for the final survey and select the set with shorter/longer trackline length as then the selection of transect locations will no longer be purely random.
+Once we have defined both the population of interest and the design which we will use to survey our population we now need to provide information about how detectable the individuals or clusters are. For this example we will assume that larger clusters are more detectable. Take care when defining covariate parameters that the covariate names match those in the population description.
 
-Parallel line designs should give uniform coverage across the majority of the survey region. The only exception to this is around the edge of the study region when we are using minus sampling, as we are using here. We will assess the effects of this now via a simulation which will generate 999 sets of transects from our design.
+When setting the basic scale parameter along side covariate parameters values we need be aware of how the covariate parameter values are incorporated. The covariate parameter values provided adjust the value of the scale parameter on the log scale. The scale parameter for any individual ($\sigma_j$) can be calculated as: 
 
-```{r coverage, eval=FALSE}
-design <- run.coverage(design, reps = 999)
+$$\sigma_j = exp(log(\sigma_0)+\sum_{i=1}^{k}\beta_ix_{ij})$$
+where $j$ is the individual, $\sigma_0$ is the base line scale parameter (passed in as argument \code{scale.param} on the natural scale), the $\beta_i$'s are the covariate parameters passed in on the log scale for each covariate $i$ and the $x_{ij}$ values are the covariate values for covariate $i$ and individual $j$.
+
+We will assume a half normal detection function with a scale parameter of 400. We will set the truncation distance to be the same as the design at 750 m.  and set the covariate value on the log scale to log(1.05) = 0.049. We can check what our detection functions will look like for the different covariate values by plotting them. To plot the example detection functions we need to provide the population description as well as detectability. 
+
+```{r detect, fig.align='center', fig.cap="Figure 6: Plot of the detection function for the mean group size (solid line) and for the 2.5 and 97.5 percentile values  of group size (dashed lines) for this population. ", fig.width=6, fig.height=4}
+
+# Define the covariate parameters on the log scale
+cov.param <- list(size = log(1.05))
+
+# Create the detectability description
+detect <- make.detectability(key.function = "hn",
+                             scale.param = 400,
+                             cov.param = cov.param,
+                             truncation = 750)
+
+# Plot the simulation detection functions
+plot(detect, pop.desc)
+
 ```
 
-```{r coverage2, echo=FALSE}
-filename <- system.file("extdata/vigresults", "GSdesign.robj", package = "dssd")
-load(filename)
+We can also calculate the average detection function for our mean cluster size of 3 as defined in our population description:
+
+$$\sigma_{size = 3} = exp(log(400)+log(1.05)*3) = 463.05 $$
+
+## Defining Analyses
+
+The final component to a simulation is the analysis or set of analyses you wish to fit to the simulated data. We will define a number of models and allow automatic model selection based on the minimum AIC value. The models included below are a half-normal with no covariates, a hazard rate with no covariates and a half-normal with cluster size as a covariate. We will leave the truncation value at 750 as previously defined (it must be <= to the truncation values used previously) and use the default error variance selection of "R2". See ?mrds::varn for descriptions of the various empirical variance estimators for encounter rate.
+
+```{r analysis}
+
+analyses <- make.ds.analysis(dsmodel = list(~1, ~1, ~size),
+                             key = c("hn", "hr", "hn"),
+                             truncation = 750,
+                             er.var = "R2",
+                             criteria = "AIC")
+
 ```
 
-We can now view the coverage scores by plotting our design object.
+## Putting the Simulation Together
 
-```{r coverage3, fig.align='center', fig.cap="Figure 4: The coverage grid", fig.width=6, fig.height=4}
-plot(design, subtitle = "Systematic Parallel, line.length = 1300km")
+Now we have all the simulation components defined we can create our simulation objects. We will create one for the systematic parallel line design and one for the equal spaced zigzag design.
+
+```{r simulation}
+
+sim.parallel <- make.simulation(reps = 999,
+                                design = parallel.design,
+                                population.description = pop.desc,
+                                detectability = detect,
+                                ds.analysis = analyses)
+
+sim.zigzag <- make.simulation(reps = 999,
+                              design = zigzag.design,
+                              population.description = pop.desc,
+                              detectability = detect,
+                              ds.analysis = analyses)
+
 ```
 
-The plot above indicates that coverage is fairly uniform over the majority of the study region. There are a few points around the edge of the survey region which have lower coverage than the others due to the minus sampling protocol, however for this example we would expect the effects of non-uniform coverage on the study estimates to be very small. The coverage grid points with lower coverage are very few in number and represent a very small proportion of the study region area. 
+Once you have created a simulation we recommend you check to see what a simulated survey might look like. 
 
-We can also look at the design statistics, these are shown below. 
+```{r parallel.survey, eval = FALSE}
+# Generate a single instance of a survey: a population, set of transects 
+# and the resulting distance data
+eg.parallel.survey <- run.survey(sim.parallel)
 
-```{r designstats2, eval = FALSE}
-design
+# Plot it to view a summary
+plot(eg.parallel.survey, region = region)
+
+```
+
+```{r parallel.survey2, echo = FALSE, fig.align='center', fig.cap="Figure 7: Example survey from systematic parallel design. Panels showing: top left - transects, top right - population, bottom left - survey detections, bottom right -  detection distances", fig.width=6, fig.height=6}
+x <- run.survey(sim.parallel)
+par(mfrow = c(2,2))
+# Plot transects
+plot(region, x@transect, main = "Transects")
+# Plot population
+plot(region, main = "Population")
+pop <- x@population@population
+points(pop$x, pop$y, pch = 20, col = 2)
+# Plot detections
+plot(region, x@transect, main = "Survey")
+pop <- x@population@population
+points(pop$x, pop$y, pch = 20, col = 1)
+dist.data <- x@dist.data
+ids <- na.omit(dist.data$individual)
+detects <- pop[pop$individual %in% ids,]
+points(detects$x, detects$y, pch = 20, cex = 1.5, col = 6)
+# Plot histogram of detections
+hist(dist.data$distance, main = "Detection Distances", xlab = "Distance from the transect")
 ```
 
 
-```{r designstats, echo = FALSE}
-ops <- options(warn = -1)
-design
-options <- ops
+```{r zigzag.survey, eval = FALSE}
+# Generate a single instance of a survey: a population, set of transects 
+# and the resulting distance data
+eg.zigzag.survey <- run.survey(sim.zigzag)
+
+# Plot it to view a summary
+plot(eg.zigzag.survey, region = region)
+
 ```
 
-
-First you are given a summary of the design, systematically spaced transects where the spacing was to be selected to achieve around 1300 km of effort. The lines were to be placed on a design angle of 0 and a minus sampling protocol was to be used. 
-
-We are then told the area of the study region, the units of the region coordinates and how many times the coverage simulation was repeated.
-
-We now move on to the summary statistics from the 999 sets of transects generated during the simulation. We are told that each survey has between 20 and 21 samplers and that the minimum and maximum covered areas are 5051 and 5311 km^2 which equate to 42.0% and 44.1% of the study area, respectively. The minimum on-effort line length is 1268 km and the maximum on-effort line length is 1348 km, with a mean value of very close to the 1300km requested. We are then given the minimum, mean, median, maximum and standard deviation values for the trackline and cyclic trackline lengths. The maximum values for these statistics should be used to ensure that any set of transects randomly generated from the design is achievable in the total effort available given any time and financial constraints of the survey. 
-
-Finally, we are given a summary of the coverage score values. If we have even coverage then we should see little variation in the coverage scores. The minimum coverage score is 0.20 and the maximum is 0.46 indicating that some small areas around the edge of the study region (as shown in Figure 4) are half as likely to be sampled as those within the main part of the study region. We are given an indication of the variability of the coverage scores in the standard deviation provided but it may also be useful to plot a histogram of the coverage scores, Figure 5. Again this looks fairly reassuring that the parts of the study with lower coverage do not represent a significant proportion of the study area. However, if we wanted to be really thorough we could run a simulation study using DSsim and test a worse case scenario, where density in these areas of lower coverage varied from the rest of the study region. If we were worried that this non-uniform coverage could cause significant bias we could switch to a plus sampling strategy.
-
-```{r coverage4, fig.align='center', fig.cap="Figure 5: Histogram of coverage scores", fig.width=6, fig.height=4}
-hist(get.coverage(design), xlab = "Coverage Scores", main = "Histogram of Coverage Scores")
+```{r zigzag.survey2, echo = FALSE, fig.align='center', fig.cap="Figure 8: Example survey from equal spaced zigzag design. Panels showing: top left - transects, top right - population, bottom left - survey detections, bottom right -  detection distances", fig.width=6, fig.height=6}
+x <- run.survey(sim.zigzag)
+par(mfrow = c(2,2))
+# Plot transects
+plot(region, x@transect, main = "Transects")
+# Plot population
+plot(region, main = "Population")
+pop <- x@population@population
+points(pop$x, pop$y, pch = 20, col = 2)
+# Plot detections
+plot(region, x@transect, main = "Survey")
+pop <- x@population@population
+points(pop$x, pop$y, pch = 20, col = 1)
+dist.data <- x@dist.data
+ids <- na.omit(dist.data$individual)
+detects <- pop[pop$individual %in% ids,]
+points(detects$x, detects$y, pch = 20, cex = 1.5, col = 6)
+# Plot histogram of detections
+hist(dist.data$distance, main = "Detection Distances", xlab = "Distance from the transect")
 ```
 
-## Appendix: Trackline and Cyclic Trackline Lengths
+## Running the Simualtion
 
-The following four figures (6 - 10) demonstrate how the trackline lengths and cyclic trackline lengths are calculated. The red arrows indicate the trackline path, moving from the start of the first transect along its length then across off effort to the next transect and so on until the end of the last transect is reached. The cyclic trackline length is then the trackline length represented by the red arrows plus the off effort transit time required to travel from the end of the last transect back to the beginning of the first as indicated by the light blue arrow. These values are provided to help you assess the efficiency of the design by comparing on-effort line length to total trackline length and also to help you ensure that the entire survey can be completed within time and budget constraints. Note that the trackline and cyclic trackline lengths for segmented designs are calculated in a very similar way to parallel line transect designs. The observer will start at the beginning of one segment and move up the line of segments before crossing to the next line of segments and so on.  
+The simulations can be run as follows. 
 
-![Figure 6: Illustrates the trackline and cyclic trackline lengths for random parallel line designs. The sum of the lengths of the red arrows represent the trackline length. The sum of the lengths of the red arrows and the light blue arrow represent the cyclic trackline length.](images/RandomLines.jpeg)
+```{r runsim, eval=FALSE}
 
-![Figure 7: Illustrates the trackline and cyclic trackline lengths for systematic parallel line designs. The sum of the lengths of the red arrows represent the trackline length. The sum of the lengths of the red arrows and the light blue arrow represent the cyclic trackline length.](images/SystematicLines.jpeg)
+# Running the simulations
+sim.parallel <- run.simulation(sim.parallel)
+sim.zigzag <- run.simulation(sim.zigzag)
 
-![Figure 8: Illustrates the trackline and cyclic trackline lengths for zigzag designs. The sum of the lengths of the red arrows represent the trackline length. The sum of the lengths of the red arrows and the light blue arrow represent the cyclic trackline length.](images/ZigzagDesign.jpeg)
+```
 
-![Figure 9: Illustrates the trackline and cyclic trackline lengths for complementary zigzag designs. The sum of the lengths of the red arrows represent the trackline length. The sum of the lengths of the red arrows and the light blue arrow represent the cyclic trackline length.](images/ComZigzag.jpeg)
+## Simulation Results
+
+The simulation results will look the same as DSsim for now. Will add these over the wekend.
+
+```{r simresults, echo=FALSE}
+
+```
 
 ## Bibliography
