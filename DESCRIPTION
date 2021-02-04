@@ -44,6 +44,7 @@ Collate:
     'add.covariate.values.R'
     'add.summary.results.R'
     'calc.perp.dists.R'
+    'calc.rad.dists.R'
     'calculate.scale.param.R'
     'check.covariates.R'
     'create.bins.R'

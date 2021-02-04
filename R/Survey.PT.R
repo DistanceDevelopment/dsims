@@ -45,5 +45,40 @@ setValidity("Survey.PT",
 
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
+#' @rdname run.survey-methods
+#' @export
+setMethod(
+  f="run.survey",
+  signature="Survey.PT",
+  definition=function(object, region = NULL){
+    population <- object@population
+    point.transect <- object@transect
+    # Find possible detection distances
+    poss.distances <- calc.rad.dists(population, point.transect)
+    # Simulate detections
+    dist.data <- simulate.detections(poss.distances, object@population@detectability)
+    # Get the covariate names
+    all.col.names <- names(object@population@population)
+    cov.param.names <- all.col.names[!all.col.names %in% c("object", "x", "y", "Region.Label", "Sample.Label", "scale.param", "shape.param", "individual")]
+    dist.data <- dist.data[,c("object", "individual", "Region.Label", "Sample.Label", "distance", "x", "y", cov.param.names)]
+    # Add in the transect lengths
+    sample.table <- data.frame(Region.Label = point.transect@samplers$strata,
+                               Sample.Label = point.transect@samplers$transect,
+                               Effort = rep(1,length(point.transect@samplers$transect)))
+    # If the region is supplied then add in the survey region Area
+    if(!is.null(region)){
+      region.table <- data.frame(Region.Label = region@strata.name,
+                                 Area = region@area)
+      sample.table <- dplyr::left_join(sample.table, region.table, by = "Region.Label")
+    }
+    dist.data <- dplyr::full_join(dist.data, sample.table, by = c("Sample.Label", "Region.Label"))
+    # Order by transect id
+    index <- order(dist.data$Sample.Label)
+    dist.data <- dist.data[index,]
+    object@dist.data <- dist.data
+    object@dists.in.covered <- poss.distances$distance
+    return(object)
+  }
+)
 
 
