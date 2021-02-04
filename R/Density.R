@@ -66,6 +66,10 @@ setValidity("Density",
     some.strata.with.grids <- FALSE
     some.strata.with.no.grids <- FALSE
     for(i in seq(along = object@density.surface)){
+      # Check if there are any negative values for density
+      if(any(object@density.surface[[i]]$density < 0)){
+        return("All density values must be positive!")
+      }
       density.sum <- sum(object@density.surface[[i]]$density)
       #check there are some cells with non-zero density
       if(density.sum == 0){
