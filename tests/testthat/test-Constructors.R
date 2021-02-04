@@ -22,7 +22,7 @@ test_that("Can create object or return correct error messages", {
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Test density surface creation
-  density <- make.density(region.obj = region, x.space = 10, constant = 10)
+  density <- make.density(region = region, x.space = 10, constant = 10)
   expect_equal(all(density@density.surface[[1]]$density == 10), TRUE)
 
   # Add hotspot
@@ -58,13 +58,14 @@ test_that("Can create object or return correct error messages", {
 
   # Test giving wrong parameter for distribution
   covariate.list <- list()
-  covariate.list$size <- list(list("poisson", list(mu = 25)))
+  covariate.list$size <- list(distribution = "poisson", mu = 25)
 
   expect_error(make.population.description(region.obj = region,
                                            density.obj = density,
                                            covariates = covariate.list,
                                            N = 250),
                "The distribution parameter for covariate size and strata 1 should be lambda.")
+
 
   # Test giving wrong columns in covariate dataframe
   covariate.list <- list()
