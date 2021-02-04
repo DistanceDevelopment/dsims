@@ -156,8 +156,65 @@ make.density <- function(region = make.region(), density.surface = list(), x.spa
 #' pop@population
 #' # Note that the covariate values have not affected the detectability (the scale parameter) to
 #' # do this we need to set the cov.param argument in make.detectability. See ?make.detectability
-make.population.description <- make.pop.description <- function(region.obj = make.region(), density.obj = make.density(), covariates = list(), N = numeric(0), fixed.N = TRUE){
-  pop.description <- new(Class = "Population.Description", N = N, density = density.obj, region.obj = region.obj, covariates = covariates, gen.by.N = fixed.N)
+make.population.description <- make.pop.description <- function(region = make.region(), density = make.density(), covariates = list(), N = numeric(0), fixed.N = TRUE){
+  # Check all covariates are named
+  if(any(names(covariates) == "")){
+    stop("All elements in the covariate list must be names with the covariate name.", call. = FALSE)
+  }
+  # Pre-processing of covariates - check new form and convert to old form
+  for(cov in seq(along = covariates)){
+    # For single strata cases wrap cov option in additional list
+    if("distribution" %in% names(covariates[[cov]]) || class(covariates[[cov]]) == "data.frame"){
+      covariates[[cov]] <- list(covariates[[cov]])
+    }
+  }
+  cov.names <- names(covariates)
+  for(cov in seq(along = covariates)){
+    strat.list <- list()
+    for(i in seq(along = covariates[[cov]])){
+      if(class(covariates[[cov]][[i]]) == "data.frame"){
+        if(!c("level", "prob") %in% names(covariates[[cov]][[i]])){
+          stop("Covariate dataframes must contain the columns 'level' and 'prob'.", call. = FALSE)
+        }
+        strat.names <- region@strata.name
+        if("strata" %in% names(covariates[[cov]][[i]]) && length(covariates[[cov]] == 1) && length(strat.names) > 1){
+          strat.names.check <- unique(covariates[[cov]][[i]]$strata)
+          if(sort(strat.names) != sort(strat.names.check)){
+            stop(paste("The strata names in the covariate dataframe for ", cov.names[cov], " do not match the strata names in the region object.", sep = ""), call. = FALSE)
+          }
+          # Separte this table out into separate list elements
+          for(j in seq(along = strat.names)){
+            cov.dataframe <- covariates[[cov]][[i]]
+            strat.list[[j]] <- cov.dataframe[cov.dataframe$strata == strat.names[j],]
+          }
+        }else{
+          stop("Please only supply one covariate dataframe with strata as a column for multi-strata covariate values.", call. = FALSE)
+        }
+      }else if(class(covariates[[cov]][[i]]) == "list"){
+        # Find what parameters should be supplied given the distribution
+        params <- switch(covariates[[cov]][[i]]$distribution,
+                         normal = c("mean", "sd"),
+                         poisson = "lambda",
+                         ztruncpois = "mean",
+                         lognormal = c("meanlog", "sdlog"))
+        if(!params %in% names(covariates[[cov]][[i]])){
+          stop(paste("You have not supplied all the required parameters (", paste(params, collapse = ", "),") for the following covariate distribution: ", covariates[[cov]][[i]]$distribution, sep = ""))
+        }
+        # Separate out into old format
+        pvs <- covariates[[cov]][[i]]
+        param.vals <- switch(covariates[[cov]][[i]]$distribution,
+                             normal = list(mean = pvs$mean, sd = pvs$sd),
+                             poisson = list(lambda = pvs$lambda),
+                             ztruncpois = list(mean = pvs$mean),
+                             lognormal = list(meanlog = pvs$meanlog, sdlog = pvs$sdlog))
+        old.format <- list(covariates[[cov]][[i]]$distribution, param.vals)
+        strat.list[[i]] <- old.format
+      }
+    }
+    covariates[[cov]] <- strat.list
+  }
+  # Passes all arguments to function to make a new instance of the class
+  pop.description <- new(Class = "Population.Description", N = N, density = density, region.obj = region, covariates = covariates, gen.by.N = fixed.N)
   return(pop.description)
 }
 
