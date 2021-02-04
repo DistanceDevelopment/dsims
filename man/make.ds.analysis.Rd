@@ -31,9 +31,9 @@ adjustment - "cos" (recommended), "herm" or "poly", order - the order of the adj
 terms and scale - either "width" or "scale". See details for more information.}
 
 \item{truncation}{distance can be supplied as (numeric, e.g. 5) or percentage (as a
-string, e.g. "15%"). By default for exact distances the maximum observed
+string, e.g. "15\%"). By default for exact distances the maximum observed
 distance is used as the right truncation. Note that any value supplied as a string
-will be interpreted as a % even without the % symbol.}
+will be interpreted as a \% even without the \% symbol.}
 
 \item{cutpoints}{if the data are binned, this vector gives the cutpoints of the bins.
 Ensure that the first element is 0 (or the left truncation distance) and the last

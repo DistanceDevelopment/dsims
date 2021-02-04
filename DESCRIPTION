@@ -55,6 +55,7 @@ Collate:
     'get.surface.gam.R'
     'message.handler.R'
     'modify.strata.for.analysis.R'
+    'rtpois.R'
     'run.simulation.R'
     'simulate.detections.R'
     'single.sim.loop.R'

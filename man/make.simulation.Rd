@@ -15,25 +15,25 @@ make.simulation(
 \arguments{
 \item{reps}{number of times the simulation should be repeated}
 
+\item{design}{an object of class Survey.Design created by a call to
+\link{make.design}}
+
+\item{population.description}{an object of class Population.Description
+created by a call to \link{make.population.description}}
+
+\item{detectability}{and object of class Detectabolity created by a call to
+\link{make.detectability}}
+
+\item{ds.analysis}{a list of objects of class DS.Analysis created by
+a call to\link{make.ds.analysis}}
+
 \item{single.transect.set}{logical specifying whether the transects should
 be kept the same throughout the simulation.}
 
 \item{double.observer}{not currently implemented.}
 
-\item{region.obj}{an object of class Region created by a call to
+\item{region}{an object of class Region created by a call to
 \link{make.region}}
-
-\item{design.obj}{an object of class Survey.Design created by a call to
-\link{make.design}}
-
-\item{population.description.obj}{an object of class Population.Description
-created by a call to \link{make.population.description}}
-
-\item{detectability.obj}{and object of class Detectabolity created by a call to
-\link{make.detectability}}
-
-\item{ddf.analyses.list}{a list of objects of class DDF.Analysis created by
-a call to\link{make.ddf.analysis.list}}
 }
 \value{
 object of class Simulation

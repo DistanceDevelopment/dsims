@@ -11,7 +11,7 @@ in the form of an object of class Detectability.
 \section{Slots}{
 
 \describe{
-\item{\code{region.obj}}{Object of class \code{"character"}; the name of the region
+\item{\code{region.name}}{Object of class \code{"character"}; the name of the region
 object.}
 
 \item{\code{strata.names}}{Object of class \code{"character"}; the names of the

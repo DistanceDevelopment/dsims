@@ -5,19 +5,17 @@
 \title{Creates a Density object}
 \usage{
 make.density(
-  region.obj = make.region(),
+  region = make.region(),
   density.surface = list(),
   x.space = 5,
   y.space = NULL,
   buffer = numeric(0),
   constant = numeric(0),
-  density.gam = NULL,
-  dsm = NULL,
-  formula = NULL
+  density.gam = NULL
 )
 }
 \arguments{
-\item{region.obj}{the Region object in which the density grid will be created}
+\item{region}{the Region object in which the density grid will be created}
 
 \item{density.surface}{Object of class \code{list}; list of
 data.frames with the columns x, y and density. There must be one
@@ -32,10 +30,6 @@ data.frame for each strata.}
 \item{constant}{a value describing a constant density across the surface. If not supplied a default value of 1 is used for all strata.}
 
 \item{density.gam}{\code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.}
-
-\item{dsm}{not currently implemented}
-
-\item{formula}{not currently implemented}
 }
 \value{
 object of class Density
@@ -54,11 +48,10 @@ be created from these.
 # the default values:
 density <- make.density()
 plot(density)
-plot(make.region(), add = TRUE)
 
 # The example below shows hot to add high and low point to the density surface
-\dontrun{
-pop.density <- make.density(region.obj = region, x.space = 10,
+region <- make.region()
+pop.density <- make.density(region = region, x.space = 10,
  y.space = 10, constant = 0.5)
 
 pop.density <- add.hotspot(pop.density, centre = c(50, 200),
@@ -70,13 +63,10 @@ pop.density <- add.hotspot(pop.density, centre = c(300, 100),
 
 #New plot features
 plot(pop.density)
-plot(region, add = TRUE)
 
 #Block style plotting
 plot(pop.density, contours = FALSE, style = "blocks")
-plot(region, add = TRUE)
 
-}
 }
 \seealso{
 \code{\link{make.region}}

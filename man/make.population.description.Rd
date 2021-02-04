@@ -5,17 +5,17 @@
 \title{Creates a Population.Description object}
 \usage{
 make.population.description(
-  region.obj = make.region(),
-  density.obj = make.density(),
+  region = make.region(),
+  density = make.density(),
   covariates = list(),
   N = numeric(0),
   fixed.N = TRUE
 )
 }
 \arguments{
-\item{region.obj}{the Region object in which this population exists (see \link{make.region}).}
+\item{region}{the Region object in which this population exists (see \link{make.region}).}
 
-\item{density.obj}{the Density object describing the distribution of the individuals / clusters (see \link{make.density}).}
+\item{density}{the Density object describing the distribution of the individuals / clusters (see \link{make.density}).}
 
 \item{covariates}{Named list with one named entry per individual level covariate. Cluster sizes can be defined here. Each list entry should be another list with either one element or one element per strata allowing different population structures per strata. Each element of these lists should either be a data.frame containing 2 columns, the first the level (level) and the second the probability (prob). The cluster size entry in the list must be named 'size'. Alternatively the list element may be another list specifying the distribution in the first element and a named list in the second element with the distribution parameter.}
 
