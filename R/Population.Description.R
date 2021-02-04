@@ -45,14 +45,14 @@ setMethod(
   signature="Population.Description",
   definition=function(.Object, N = numeric(0), density = make.density(), region.obj = make.region(), covariates = list(), gen.by.N = TRUE, D.dist = character(0)){
     #Input pre-processing
-    if(!gen.by.N){
-      ave.density <- NULL
-      #Calculate average density for each strata.
-      for(strat in seq(along = density@density.surface)){
-        ave.density[strat] <- get.ave.density(density.surface = density@density.surface[[strat]], coords = region.obj@coords[[strat]], gaps = region.obj@gaps[[strat]], x.space = density@x.space, y.space = density@y.space)
-      }
-      N <- region.obj@area*ave.density
-    }
+    # if(!gen.by.N){
+    #   ave.density <- NULL
+    #   #Calculate average density for each strata.
+    #   for(strat in seq(along = density@density.surface)){
+    #     ave.density[strat] <- get.ave.density(density.surface = density@density.surface[[strat]], coords = region.obj@coords[[strat]], gaps = region.obj@gaps[[strat]], x.space = density@x.space, y.space = density@y.space)
+    #   }
+    #   N <- region.obj@area*ave.density
+    # }
     # Get the number of strata
     no.strata <- ifelse(length(region.obj@strata.name) > 0, length(region.obj@strata.name), 1)
     # Check covariate input
