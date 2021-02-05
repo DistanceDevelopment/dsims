@@ -173,7 +173,7 @@ make.population.description <- make.pop.description <- function(region = make.re
     strat.list <- list()
     for(i in seq(along = covariates[[cov]])){
       if(class(covariates[[cov]][[i]]) == "data.frame"){
-        if(!c("level", "prob") %in% names(covariates[[cov]][[i]])){
+        if(!all(c("level", "prob") %in% names(covariates[[cov]][[i]]))){
           stop("Covariate dataframes must contain the columns 'level' and 'prob'.", call. = FALSE)
         }
         strat.names <- region@strata.name
