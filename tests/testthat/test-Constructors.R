@@ -5,7 +5,7 @@ library(testthat)
 
 context("Constructor Checks")
 
-test_that("Can create object or return correct error messages", {
+test_that("Can create objects or return correct error / warning messages", {
 
   #Set up data
   outer = matrix(c(0,0,0,500,2000,500,2000,0,0,0),ncol=2, byrow=TRUE)
@@ -60,30 +60,30 @@ test_that("Can create object or return correct error messages", {
   covariate.list <- list()
   covariate.list$size <- list(distribution = "poisson", mu = 25)
 
-  expect_error(make.population.description(region.obj = region,
-                                           density.obj = density,
+  expect_error(make.population.description(region = region,
+                                           density = density,
                                            covariates = covariate.list,
                                            N = 250),
-               "The distribution parameter for covariate size and strata 1 should be lambda.")
+               "You have not supplied all the required parameters (lambda) for the following covariate distribution: poisson", fixed = TRUE)
 
 
   # Test giving wrong columns in covariate dataframe
   covariate.list <- list()
   covariate.list$sex <- list(data.frame(cov = c("male", "female"), prob = c(0.5,0.5)))
 
-  expect_error(make.population.description(region.obj = region,
-                                           density.obj = density,
+  expect_error(make.population.description(region = region,
+                                           density = density,
                                            covariates = covariate.list,
                                            N = 250),
-               "The data.frame for covariate sex and strata 1 should have 2 columns: level and prob.")
+               "Covariate dataframes must contain the columns 'level' and 'prob'.")
 
-  expect_error(make.population.description(region.obj = region,
-                                           density.obj = density,
+  expect_error(make.population.description(region = region,
+                                           density = density,
                                            N = c(250,200)),
                "You have not supplied the correct number of constants for population size N (one for each strata).", fixed = TRUE)
 
-  expect_error(make.population.description(region.obj = region,
-                                           density.obj = density,
+  expect_error(make.population.description(region = region,
+                                           density = density,
                                            N = -100),
                "You must provide a positive, non-zero abundance", fixed = TRUE)
 
@@ -91,15 +91,16 @@ test_that("Can create object or return correct error messages", {
   # This should work below
   covariate.list <- list()
   # Animal height is generated from a lognormal distribution for both strata
-  covariate.list$size <- list(list("poisson", list(lambda = 25)))
+  covariate.list$size <- list(distribution = "poisson", lambda = 25)
   # Animal sex is discrete/categorical, there are more females than males in strata 1 and equal
   # numbers in strata 2
-  covariate.list$sex <- list(data.frame(level = c("male", "female"), prob = c(0.5,0.5)))
+  covariate.list$sex <- data.frame(level = c("male", "female"), prob = c(0.5,0.5))
 
-  pop.descrp <- make.population.description(region.obj = region,
-                                            density.obj = density,
+  pop.descrp <- make.population.description(region = region,
+                                            density = density,
                                             covariates = covariate.list,
                                             N = 250)
+
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Test detectability creation
@@ -130,11 +131,11 @@ test_that("Can create object or return correct error messages", {
                      sex = data.frame(factor = c("male", "female"),
                                       param = c(log(1), log(1.5))))
 
-  expect_error(make.detectability(key.function = "hn",
+  expect_warning(expect_error(make.detectability(key.function = "hn",
                                   scale.param = 5,
                                   truncation = 25,
                                   cov.param = cov.params),
-               "The dataframe for covariate 'sex' has missing columns: level")
+               "The dataframe for covariate 'sex' has missing columns: level"), "The dataframe for covariate 'sex' has unrecognised columns: factor. These will be ignored.")
 
   cov.params <- list(size = log(1.05),
                      sex = data.frame(level = rep(c("male", "female"),2),
@@ -147,13 +148,14 @@ test_that("Can create object or return correct error messages", {
                                              truncation = 25,
                                              cov.param = cov.params),
                   "The dataframe for covariate 'sex' has unrecognised columns: ignore. These will be ignored.")
+
   tmp <- data.frame(level = rep(c("male", "female"),2),
                     param = rep(c(log(1), log(1.5)),2),
                     strata = c("A", "A", "B", "B"))
   expect_equal(test@cov.param$sex, tmp)
 
   cov.params <- list(size = log(1.05))
-  cov.params[[2]] <- data.frame(factor = c("male", "female"),
+  cov.params[[2]] <- data.frame(level = c("male", "female"),
                                 param = c(log(1), log(1.5)))
 
   expect_error(make.detectability(key.function = "hn",
@@ -202,7 +204,7 @@ test_that("Can create object or return correct error messages", {
                                 key = rep("hn",3),
                                 cutpoints = seq(0,25, length = 4),
                                 truncation = list(left="1",right="15%")),
-               "Truncation cannot be supplied as a percentage with binned data.")
+               "The first cutpoint must be 0 or the left truncation distance!")
 
   expect_error(make.ds.analysis(dsmodel = list(~1, ~size, ~size+sex),
                                 key = rep("hn",3),
@@ -227,17 +229,34 @@ test_that("Can create object or return correct error messages", {
                                 criteria = "QIC"),
                "This selection criteria is not currently supported, please select from 'AIC', 'BIC' or 'AICc'.")
 
+  expect_error(make.ds.analysis(dsmodel = list(~1, ~size, ~size+sex),
+                                key = c("hn","hr","hr"),
+                                truncation = "5%",
+                                er.var = "ZZ",
+                                criteria = "AIC"),
+               "The er.var argument must be one of: 'R2', 'R3', 'R4', 'S1', 'S2', 'O1', 'O2', 'O3', 'P2', 'P3'.")
 
+  analysis <- make.ds.analysis(dsmodel = list(~1, ~size, ~size+sex),
+                               key = c("hn","hr","hr"))
 
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Create a design - no need to test as tested in dssd
 
-
-
-
-
+  design <- make.design(region = region,
+                        transect.type = "line",
+                        design = "systematic",
+                        samplers = 20,
+                        truncation = 25)
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Test simulation creation
-  #check number of shape / scale parameters is equal to number of strata - what else needs to be equal to strata numbers?
 
+  sim <- make.simulation(reps = 10,
+                         design = design,
+                         population.description = pop.descrp,
+                         detectability = detect,
+                         ds.analysis = analysis)
+
+  survey <- run.survey(sim)
 
 })
