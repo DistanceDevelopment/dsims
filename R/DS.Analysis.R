@@ -96,8 +96,12 @@ setValidity("DS.Analysis",
                   return("monotonicity must be one of 'none', FALSE, 'weak' or 'strict'.")
                 }
               }
-
               #Check that the adjustment list is either empty or has adjustment, order and scale and are the correct length
+              # Check the error variance estimator
+              er.var.estimators <- c("R2","R3","R4","S1","S2","O1","O2","O3","P2","P3")
+              if(!(object@er.var %in% er.var.estimators)){
+                return(paste("The er.var argument must be one of: '", paste(er.var.estimators, collapse = "', '"), "'.",  sep = ""))
+              }
               return(TRUE)
             }
 )
