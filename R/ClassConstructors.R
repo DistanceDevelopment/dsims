@@ -176,8 +176,11 @@ make.population.description <- make.pop.description <- function(region = make.re
         if(!all(c("level", "prob") %in% names(covariates[[cov]][[i]]))){
           stop("Covariate dataframes must contain the columns 'level' and 'prob'.", call. = FALSE)
         }
+        if(length(covariates[[cov]]) > 1){
+          stop("Please only supply one covariate dataframe with strata as a column for multi-strata covariate values.", call. = FALSE)
+        }
         strat.names <- region@strata.name
-        if("strata" %in% names(covariates[[cov]][[i]]) && length(covariates[[cov]] == 1) && length(strat.names) > 1){
+        if("strata" %in% names(covariates[[cov]][[i]]) && length(covariates[[cov]]) == 1 && length(strat.names) > 1){
           strat.names.check <- unique(covariates[[cov]][[i]]$strata)
           if(sort(strat.names) != sort(strat.names.check)){
             stop(paste("The strata names in the covariate dataframe for ", cov.names[cov], " do not match the strata names in the region object.", sep = ""), call. = FALSE)
@@ -187,8 +190,6 @@ make.population.description <- make.pop.description <- function(region = make.re
             cov.dataframe <- covariates[[cov]][[i]]
             strat.list[[j]] <- cov.dataframe[cov.dataframe$strata == strat.names[j],]
           }
-        }else{
-          stop("Please only supply one covariate dataframe with strata as a column for multi-strata covariate values.", call. = FALSE)
         }
       }else if(class(covariates[[cov]][[i]]) == "list"){
         # Find what parameters should be supplied given the distribution
@@ -211,7 +212,9 @@ make.population.description <- make.pop.description <- function(region = make.re
         strat.list[[i]] <- old.format
       }
     }
-    covariates[[cov]] <- strat.list
+    if(length(strat.list) > 0){
+      covariates[[cov]] <- strat.list
+    }
   }
   # Passes all arguments to function to make a new instance of the class
   pop.description <- new(Class = "Population.Description", N = N, density = density, region.obj = region, covariates = covariates, gen.by.N = fixed.N)
@@ -496,11 +499,7 @@ make.ds.analysis <- function(dsmodel = list(~1),
 #' }
 #'
 make.simulation <- function(reps = 10, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis()){
-  # Check to see if the analysis truncation distance is larger than the
-  # detectability trunation distance
-  if(ds.analysis@truncation > detectability@truncation){
-    warning("The truncation distance for analysis is larger than the truncation distance for data generation, this will likely cause biased results.", immediate. = TRUE, call. = FALSE)
-  }
+
   # Make the results arrays and store in a list
   results <- create.results.arrays(reps,
                                    design@region,
