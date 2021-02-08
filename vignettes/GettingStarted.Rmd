@@ -207,7 +207,7 @@ The final component to a simulation is the analysis or set of analyses you wish 
 
 ```{r analysis}
 
-analyses <- make.ds.analysis(dsmodel = list(~1, ~1, ~size),
+analyses <- make.ds.analysis(dfmodel = list(~1, ~1, ~size),
                              key = c("hn", "hr", "hn"),
                              truncation = 750,
                              er.var = "R2",
@@ -237,68 +237,28 @@ sim.zigzag <- make.simulation(reps = 999,
 
 Once you have created a simulation we recommend you check to see what a simulated survey might look like. 
 
-```{r parallel.survey, eval = FALSE}
+```{r parallel.survey, fig.align='center', fig.cap="Figure 7: Example survey from systematic parallel design. Panels showing: top left - transects, top right - population, bottom left - survey detections, bottom right -  detection distances", fig.width=6, fig.height=6}
 # Generate a single instance of a survey: a population, set of transects 
 # and the resulting distance data
 eg.parallel.survey <- run.survey(sim.parallel)
 
 # Plot it to view a summary
-plot(eg.parallel.survey, region = region)
+plot(eg.parallel.survey, region)
 
 ```
 
-```{r parallel.survey2, echo = FALSE, fig.align='center', fig.cap="Figure 7: Example survey from systematic parallel design. Panels showing: top left - transects, top right - population, bottom left - survey detections, bottom right -  detection distances", fig.width=6, fig.height=6}
-x <- run.survey(sim.parallel)
-par(mfrow = c(2,2))
-# Plot transects
-plot(region, x@transect, main = "Transects")
-# Plot population
-plot(region, main = "Population")
-pop <- x@population@population
-points(pop$x, pop$y, pch = 20, col = 2)
-# Plot detections
-plot(region, x@transect, main = "Survey")
-pop <- x@population@population
-points(pop$x, pop$y, pch = 20, col = 1)
-dist.data <- x@dist.data
-ids <- na.omit(dist.data$individual)
-detects <- pop[pop$individual %in% ids,]
-points(detects$x, detects$y, pch = 20, cex = 1.5, col = 6)
-# Plot histogram of detections
-hist(dist.data$distance, main = "Detection Distances", xlab = "Distance from the transect")
-```
 
-
-```{r zigzag.survey, eval = FALSE}
+```{r zigzag.survey, fig.align='center', fig.cap="Figure 8: Example survey from equal spaced zigzag design. Panels showing: top left - transects, top right - population, bottom left - survey detections, bottom right -  detection distances", fig.width=6, fig.height=6}
 # Generate a single instance of a survey: a population, set of transects 
 # and the resulting distance data
 eg.zigzag.survey <- run.survey(sim.zigzag)
 
 # Plot it to view a summary
-plot(eg.zigzag.survey, region = region)
+plot(eg.zigzag.survey, region)
 
 ```
 
-```{r zigzag.survey2, echo = FALSE, fig.align='center', fig.cap="Figure 8: Example survey from equal spaced zigzag design. Panels showing: top left - transects, top right - population, bottom left - survey detections, bottom right -  detection distances", fig.width=6, fig.height=6}
-x <- run.survey(sim.zigzag)
-par(mfrow = c(2,2))
-# Plot transects
-plot(region, x@transect, main = "Transects")
-# Plot population
-plot(region, main = "Population")
-pop <- x@population@population
-points(pop$x, pop$y, pch = 20, col = 2)
-# Plot detections
-plot(region, x@transect, main = "Survey")
-pop <- x@population@population
-points(pop$x, pop$y, pch = 20, col = 1)
-dist.data <- x@dist.data
-ids <- na.omit(dist.data$individual)
-detects <- pop[pop$individual %in% ids,]
-points(detects$x, detects$y, pch = 20, cex = 1.5, col = 6)
-# Plot histogram of detections
-hist(dist.data$distance, main = "Detection Distances", xlab = "Distance from the transect")
-```
+
 
 ## Running the Simualtion
 

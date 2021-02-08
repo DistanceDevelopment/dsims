@@ -191,7 +191,7 @@ setMethod(
       use.max.reps = args$use.max.reps
     }
     #Get index of iterations to use
-    model.count <- length(object@ds.analysis@dsmodel)
+    model.count <- length(object@ds.analysis@dfmodel)
     #These will use max iters by default
     results <- object@results
     # Update summary stats depending on use.max.reps option
@@ -449,7 +449,7 @@ setMethod(
     }
 
     #Create analysis summary
-    analysis.summary <- list(dsmodels = object@ds.analysis@dsmodel,
+    analysis.summary <- list(dfmodels = object@ds.analysis@dfmodel,
                              key = object@ds.analysis@key,
                              criteria = object@ds.analysis@criteria,
                              variance.estimator = object@ds.analysis@er.var,

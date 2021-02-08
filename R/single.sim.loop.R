@@ -93,7 +93,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   }
   #analyse survey if there are data to analyse
   if(nrow(dist.data[!is.na(dist.data$distance),]) >= 20){
-    model.results <- analyse.data(simulation@ds.analysis, survey)
+    model.results <- analyse.data(simulation@ds.analysis, data.obj = survey)
     warnings <- model.results$warnings
     num.successful.models <- model.results$num.successful.models
     model.results <- model.results$model

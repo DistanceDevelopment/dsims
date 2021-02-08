@@ -302,7 +302,7 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #'
 #' @details
 #'
-#' @param dsmodel list of distance sampling model formula specifying the detection function
+#' @param dfmodel list of distance sampling model formula specifying the detection function
 #'  (see \code{?ds} for further details)
 #' @param key key function to use; "hn" gives half-normal (default) and "hr" gives
 #' hazard-rate.
@@ -334,15 +334,11 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' @author Laura Marshall
 #' @seealso \code{ds} in \code{library(Distance)}
 #' @examples
-#' # A simple half-normal "ds" model can be created using the default values
-#' ddf.analyses <- make.ddf.analysis.list()
 #'
 #' # To incorporate model selection between a 'hn' and 'hr' model:
-#' ddf.analyses <- make.ddf.analysis.list(dsmodel = list(~cds(key = "hn",
-#'  formula = ~1),~cds(key = "hr", formula = ~1)), method = "ds",
-#'  criteria = "AIC")
+#' ds.analyses <- make.ds.analysis(dfmodel = ~1, key = "hn")
 #'
-make.ds.analysis <- function(dsmodel = list(~1),
+make.ds.analysis <- function(dfmodel = list(~1),
                              key = "hn",
                              adjustment = list(),
                              truncation = numeric(0),
@@ -379,11 +375,11 @@ make.ds.analysis <- function(dsmodel = list(~1),
   }
 
 
-  if(!("list" %in% class(dsmodel))){
-    dsmodel <- list(dsmodel)
+  if(!("list" %in% class(dfmodel))){
+    dfmodel <- list(dfmodel)
   }
   # Create class instance
-  ds.analysis <- new(Class = "DS.Analysis", dsmodel = dsmodel, key = key, adjustment = adjustment, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria)
+  ds.analysis <- new(Class = "DS.Analysis", dfmodel = dfmodel, key = key, adjustment = adjustment, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria)
   return(ds.analysis)
 }
 
@@ -480,7 +476,7 @@ make.ds.analysis <- function(dsmodel = list(~1),
 #' detect <- make.detectability(key.function = "hn", scale.param = 15,
 #'  truncation = 30)
 #'
-#' ddf.analyses <- make.ddf.analysis.list(dsmodel = list(~cds(key = "hn",
+#' ddf.analyses <- make.ddf.analysis.list(dfmodel = list(~cds(key = "hn",
 #'  formula = ~1),~cds(key = "hr", formula = ~1)), method = "ds",
 #'  criteria = "AIC")
 #'

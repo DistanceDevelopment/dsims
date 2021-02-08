@@ -117,7 +117,7 @@ pop.description <- make.population.description(N = 1000,
 detect <- make.detectability(key.function = "hn", scale.param = 15,
  truncation = 30)
 
-ddf.analyses <- make.ddf.analysis.list(dsmodel = list(~cds(key = "hn",
+ddf.analyses <- make.ddf.analysis.list(dfmodel = list(~cds(key = "hn",
  formula = ~1),~cds(key = "hr", formula = ~1)), method = "ds",
  criteria = "AIC")
 

@@ -129,7 +129,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, sav
     }
   }
   simulation@results <- add.summary.results(results = simulation@results,
-                                            model.count = length(simulation@ds.analysis@dsmodel))
+                                            model.count = length(simulation@ds.analysis@dfmodel))
   #Process warnings
   test <- try(simulation@warnings, silent = TRUE)
   if(class(test) == "list"){

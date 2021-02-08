@@ -5,7 +5,7 @@
 \title{Creates an Analysis object}
 \usage{
 make.ds.analysis(
-  dsmodel = list(~1),
+  dfmodel = list(~1),
   key = "hn",
   adjustment = list(),
   truncation = numeric(0),
@@ -17,7 +17,7 @@ make.ds.analysis(
 )
 }
 \arguments{
-\item{dsmodel}{list of distance sampling model formula specifying the detection function
+\item{dfmodel}{list of distance sampling model formula specifying the detection function
 (see \code{?ds} for further details)}
 
 \item{key}{key function to use; "hn" gives half-normal (default) and "hr" gives
@@ -66,13 +66,9 @@ the minimum criteria value.
 
 }
 \examples{
-# A simple half-normal "ds" model can be created using the default values
-ddf.analyses <- make.ddf.analysis.list()
 
 # To incorporate model selection between a 'hn' and 'hr' model:
-ddf.analyses <- make.ddf.analysis.list(dsmodel = list(~cds(key = "hn",
- formula = ~1),~cds(key = "hr", formula = ~1)), method = "ds",
- criteria = "AIC")
+ds.analyses <- make.ds.analysis(dfmodel = ~1, key = "hn")
 
 }
 \seealso{

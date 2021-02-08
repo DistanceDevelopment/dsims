@@ -1,6 +1,4 @@
 library(dsims)
-
-devtools::load_all()
 library(testthat)
 
 context("Basic point transect example")
@@ -46,7 +44,7 @@ test_that("Can create object or return correct error messages", {
                         truncation = 100)
 
   # Make analyses
-  analyses <- make.ds.analysis(dsmodel = ~1,
+  analyses <- make.ds.analysis(dfmodel = ~1,
                                key = "hr",
                                truncation = 100,
                                er.var = "P2")
@@ -61,10 +59,10 @@ test_that("Can create object or return correct error messages", {
   # Create a test survey
   survey <- run.survey(sim)
 
-  plot(survey, region = region)
+  expect_true(class(survey@transect) == "Point.Transect")
 
-
-
+  # test running the simulation
+  test <- run.simulation(sim)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -11,7 +11,7 @@ Class \code{"DDF.Analysis"} is an S4 class describing a basic
 \section{Slots}{
 
 \describe{
-\item{\code{dsmodel}}{Object of class \code{"formula"}; describing the
+\item{\code{dfmodel}}{Object of class \code{"formula"}; describing the
 detection function model.}
 
 \item{\code{key}}{key function to use; "hn" gives half-normal (default), "hr"

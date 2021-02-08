@@ -8,7 +8,7 @@
 #'
 #' @name DS.Analysis-class
 #' @title S4 Class "DS.Analysis"
-#' @slot dsmodel Object of class \code{"formula"}; describing the
+#' @slot dfmodel Object of class \code{"formula"}; describing the
 #'  detection function model.
 #' @slot key key function to use; "hn" gives half-normal (default), "hr"
 #'  gives hazard-rate and "unif" gives uniform. Note that if uniform key
@@ -39,7 +39,7 @@
 #' }
 #' @keywords classes
 #' @export
-setClass(Class = "DS.Analysis", representation(dsmodel = "list",
+setClass(Class = "DS.Analysis", representation(dfmodel = "list",
                                                key = "character",
                                                adjustment = "list",
                                                truncation = "list",
@@ -52,13 +52,13 @@ setClass(Class = "DS.Analysis", representation(dsmodel = "list",
 setMethod(
   f="initialize",
   signature="DS.Analysis",
-  definition=function(.Object, dsmodel, key, adjustment, truncation, cutpoints, er.var, control.opts, group.strata, criteria){
+  definition=function(.Object, dfmodel, key, adjustment, truncation, cutpoints, er.var, control.opts, group.strata, criteria){
     # Pre-processing
     #make sure these are characters not factors
     group.strata$design.id <- as.character(group.strata$design.id)
     group.strata$analysis.id <- as.character(group.strata$analysis.id)
     # Make object
-    .Object@dsmodel <- dsmodel
+    .Object@dfmodel <- dfmodel
     .Object@key <- key
     .Object@adjustment <- adjustment
     .Object@truncation <- truncation
@@ -119,7 +119,7 @@ setMethod(
     # Get distance data
     dist.data <- data.obj@dist.data
     # Check what kind of survey it is
-    transect <- switch(class(survey),
+    transect <- switch(class(data.obj),
                        Survey.LT = "line",
                        Survey.PT = "point")
     #Call analyse.data on model and dataset
@@ -165,8 +165,8 @@ setMethod(
       monotonicity <- analysis@control.opts$monotonicity
     }else{
       monotonicity <- character()
-      for(i in seq(along = analysis@dsmodel)){
-        monotonicity[i] <- ifelse(analysis@dsmodel[i] == ~1, "strict", "none")
+      for(i in seq(along = analysis@dfmodel)){
+        monotonicity[i] <- ifelse(analysis@dfmodel[i] == ~1, "strict", "none")
       }
     }
     if("method" %in% names(analysis@control.opts)){
@@ -195,7 +195,7 @@ setMethod(
     # Fit models
     models <- list()
     IC <- numeric()
-    for(i in seq(along = analysis@dsmodel)){
+    for(i in seq(along = analysis@dfmodel)){
       # Set W to null
       W <- NULL
       # Try to fit model
@@ -203,7 +203,7 @@ setMethod(
         withCallingHandlers(tryCatch(Distance::ds(data = dist.data,
                                                      truncation = truncation,
                                                      transect = transect,
-                                                     formula = analysis@dsmodel[[i]],
+                                                     formula = analysis@dfmodel[[i]],
                                                      key = analysis@key[i],
                                                      adjustment = adjustment[i],
                                                      order = order[i],
