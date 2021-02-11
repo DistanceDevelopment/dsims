@@ -161,6 +161,36 @@ setMethod(
   }
 )
 
+#' histogram.N.ests
+#'
+#' Plots a histogram of the estimates abundances
+#'
+#' @param x object of class Simulation
+#' @param ... optional parameters to pass to the generic hist function in graphics
+#' @rdname histogram.N.ests-methods
+#' @importFrom graphics hist abline
+#' @export
+histogram.N.ests <- function(x, ...){
+  reps <- x@reps
+  sum.sim <- summary(x, description.summary = FALSE)
+  if(sum.sim@failures == reps){
+    warning("None of the simulation repetitions were successful, cannot plot histogram of estimates.", immediate. = TRUE, call. = TRUE)
+  }else{
+    index <- dim(x@results$individuals$N)[1]
+    true.N <- sum(x@population.description@N)
+    if(!is.null(x@results$clusters)){
+      ests <- x@results$clusters$N[index, "Estimate", 1:reps]
+      hist(ests, main = "Histogram of Estimates", xlab = "Estimated Abundance of Clusters", ...)
+    }else{
+      ests <- x@results$individuals$N[index, "Estimate", 1:reps]
+      hist(ests, main = "Histogram of Estimates", xlab = "Estimated Abundance of Individuals", ...)
+    }
+    abline(v = true.N, col = 2, lwd = 3, lty = 2)
+  }
+  invisible(x)
+}
+
+
 
 #' summary
 #'
