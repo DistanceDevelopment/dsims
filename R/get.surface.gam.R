@@ -1,4 +1,5 @@
 #' @importFrom sp Polygon Polygons SpatialPolygons
+#' @importFrom sf as_Spatial
 get.surface.gam <- function(region, x.space, y.space, gam.model, buffer){
 
   # Check the value of the buffer
@@ -29,7 +30,7 @@ get.surface.gam <- function(region, x.space, y.space, gam.model, buffer){
   sf.column <- attr(temp.region, "sf_column")
   for(strat in seq(along = temp.region[[sf.column]])){
     #Extract polygons and gaps for current strata
-    strata.sp <- as(temp.region[[sf.column]][strat], "Spatial")
+    strata.sp <- sf::as_Spatial(temp.region[[sf.column]][strat])
     # Add positive buffer region
     buffered.strata <- rgeos::gBuffer(strata.sp, width = x.space)
     inside <- pts[buffered.strata,]

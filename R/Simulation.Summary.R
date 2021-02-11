@@ -31,7 +31,7 @@ setClass("Simulation.Summary", representation(region.name = "character",
                                               include.glossary = "logical"))
 
 
-
+#' @importFrom methods validObject
 setMethod(
   f="initialize",
   signature="Simulation.Summary",

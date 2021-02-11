@@ -46,7 +46,7 @@ be created from these.
 # A simple density surface with a constant value of 1 can be created within a rectangular
 # region using
 # the default values:
-density <- make.density()
+density <- make.density(re)
 plot(density)
 
 # The example below shows hot to add high and low point to the density surface

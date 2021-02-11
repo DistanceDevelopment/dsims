@@ -27,11 +27,6 @@ created by a call to \link{make.population.description}}
 \item{ds.analysis}{a list of objects of class DS.Analysis created by
 a call to\link{make.ds.analysis}}
 
-\item{single.transect.set}{logical specifying whether the transects should
-be kept the same throughout the simulation.}
-
-\item{double.observer}{not currently implemented.}
-
 \item{region}{an object of class Region created by a call to
 \link{make.region}}
 }

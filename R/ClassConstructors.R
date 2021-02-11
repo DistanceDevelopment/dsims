@@ -24,13 +24,15 @@
 #' @param density.gam \code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.
 #' @return object of class Density
 #' @export
+#' @importFrom dssd make.region
+#' @importFrom methods new
 #' @author Laura Marshall
 #' @seealso \code{\link{make.region}}
 #' @examples
 #' # A simple density surface with a constant value of 1 can be created within a rectangular
 #' # region using
 #' # the default values:
-#' density <- make.density()
+#' density <- make.density(re)
 #' plot(density)
 #'
 #' # The example below shows hot to add high and low point to the density surface
@@ -109,6 +111,8 @@ make.density <- function(region = make.region(), density.surface = list(), x.spa
 #' otherwise it is generated from the density description.
 #' @return object of class Population.Description
 #' @export
+#' @importFrom methods new
+#' @importFrom dssd make.region
 #' @author Laura Marshall
 #' @seealso \code{\link{make.region}}, \code{\link{make.density}}, \code{\link{make.detectability}}
 #' @examples
@@ -235,6 +239,7 @@ make.population.description <- make.pop.description <- function(region = make.re
 #'   objects may be detected from a line (or point) transect.
 #' @return object of class Detectablility
 #' @export
+#' @importFrom methods new
 #' @author Laura Marshall
 #' @examples
 #' # The default values create a detectability object with a half normal
@@ -331,6 +336,7 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' @param criteria character model selection criteria (AIC, AICc, BIC)
 #' @return an object of class DS.Analysis
 #' @export
+#' @importFrom methods new
 #' @author Laura Marshall
 #' @seealso \code{ds} in \code{library(Distance)}
 #' @examples
@@ -397,9 +403,6 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'  default (with the exception of specifying point transects rather than
 #'   line) it can run a simple simulation example. See examples.
 #' @param reps number of times the simulation should be repeated
-#' @param single.transect.set logical specifying whether the transects should
-#'   be kept the same throughout the simulation.
-#' @param double.observer not currently implemented.
 #' @param region an object of class Region created by a call to
 #'  \link{make.region}
 #' @param design an object of class Survey.Design created by a call to
@@ -412,6 +415,8 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'  a call to\link{make.ds.analysis}
 #' @return object of class Simulation
 #' @export
+#' @importFrom methods new
+#' @importFrom dssd make.region make.design
 #' @author Laura Marshall
 #' @examples
 #' \dontrun{

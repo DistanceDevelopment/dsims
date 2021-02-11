@@ -1,5 +1,4 @@
 #' @importFrom stats runif
-#' @importFrom splancs as.points
 #' @importFrom sf st_crs
 generate.pop.N <- function(population.description, region.obj){
 #This function generates a Population based on a fixed population size
@@ -46,7 +45,7 @@ generate.pop.N <- function(population.description, region.obj){
   return(all.pop.locations)
 }
 
-
+#' @importFrom sf as_Spatial
 get.animal.locations <- function(density.obj, temp.region, Nj, strat){
   n.cells <- nrow(density.obj@density.surface[[strat]])
   probs <- density.obj@density.surface[[strat]][["density"]]/sum(density.obj@density.surface[[strat]][["density"]])
@@ -64,7 +63,7 @@ get.animal.locations <- function(density.obj, temp.region, Nj, strat){
   #Get sf column
   sf.column <- attr(temp.region, "sf_column")
   #Extract shape for current strata
-  strata.sp <- as(temp.region[[sf.column]][strat], "Spatial")
+  strata.sp <- sf::as_Spatial(temp.region[[sf.column]][strat])
   inside <- pts[strata.sp,]
   return(inside)
 }

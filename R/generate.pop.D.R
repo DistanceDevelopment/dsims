@@ -1,5 +1,5 @@
 #' @importFrom stats rpois runif
-#' @importFrom splancs as.points
+#' @importFrom sf as_Spatial
 generate.pop.D <- function(population.description, region.obj){
 #this function generates a population based on the values in the
 #Density object grid (not from a fixed population size)
@@ -32,13 +32,13 @@ generate.pop.D <- function(population.description, region.obj){
       #find which x,y coords are within the region
       pts <- sp::SpatialPoints(data.frame(x = grid.locations$x.coord, y = grid.locations$y.coord))
       #Extract shape for current strata
-      strata.sp <- as(temp.region[[sf.column]][strat], "Spatial")
+      strata.sp <- sf::as_Spatial(temp.region[[sf.column]][strat])
       inside <- pts[strata.sp,]
       pop.locations <- as.data.frame(inside@coords)
       #Record strata ID
       pop.locations$strata <- rep(strat, nrow(pop.locations))
       if(strat == 1){
-        all.pop.locations <- oop.locations
+        all.pop.locations <- pop.locations
       }else{
         all.pop.locations <- rbind(all.pop.locations, pop.locations)
       }

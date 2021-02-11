@@ -27,6 +27,7 @@ setClass("Detectability", representation(key.function    = "character",
                                          shape.param     = "numeric",
                                          cov.param       = "list",
                                          truncation      = "numeric"))
+#' @importFrom methods validObject
 setMethod(
   f="initialize",
   signature="Detectability",
@@ -140,7 +141,7 @@ setMethod(
 #' @param main character plot title
 #' @param ... other general plot parameters
 #' @rdname plot.Detectability-methods
-#' @importFrom graphics polygon plot axTicks axis lines plot legend
+#' @importFrom graphics polygon plot axTicks axis lines plot legend par
 #' @importFrom stats quantile
 #' @exportMethod plot
 setMethod(
@@ -373,7 +374,7 @@ setMethod(
         y <- switch(object@key.function,
                               "hn" = exp(-x^2/(2*scale.param.strat^2)),
                               "hr" = 1-exp(-(x/scale.param.strat)^-shape.param.strat),
-                              "uf" = rep(nscale.param.strat, length(x)))
+                              "uf" = rep(scale.param.strat, length(x)))
         lines(x, y, col = strat, lwd = 2)
       }
       legend(object@truncation, 1.2,  lty = 1, lwd = 2, col = 1:no.strata, legend = strata.names, bty = "n", box.col = "white", xjust = 1)

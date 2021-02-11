@@ -20,6 +20,7 @@ setClass(Class = "Survey.LT",
          contains = "Survey"
 )
 
+#' @importFrom methods validObject
 setMethod(
   f="initialize",
   signature="Survey.LT",
@@ -46,6 +47,7 @@ setValidity("Survey.LT",
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
 #' @rdname run.survey-methods
+#' @param region an object of class Region.
 #' @export
 setMethod(
   f="run.survey",

@@ -20,6 +20,7 @@ setClass(Class = "Survey.PT",
          contains = "Survey"
 )
 
+#' @importFrom methods validObject
 setMethod(
   f="initialize",
   signature="Survey.PT",

@@ -30,6 +30,8 @@ setClass("Population", representation(region.name  = "character",
                                       D            = "numeric",
                                       population   = "data.frame",
                                       detectability = "Detectability"))
+
+#' @importFrom methods validObject
 setMethod(
   f="initialize",
   signature="Population",

@@ -1,4 +1,3 @@
-#' @import methods
 #' @import Distance
 #' @importFrom dssd generate.transects
 NULL
@@ -12,10 +11,6 @@ NULL
 #' class Detectability.
 #'
 #' @param object an object of class Simulation or Population.Description
-#' @param detectability object of class Detectability (optional - only
-#'   required if object is of class Population.Description)
-#' @param region.obj the region object for the population (optional - only
-#'   required if object is of class Population.Description)
 #' @param ... when this is called on an object of class Population.Description
 #' the additional arguments detectability and region.obj should also be supplied
 #' @return an object of class Population

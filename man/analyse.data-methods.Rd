@@ -20,8 +20,6 @@ analyse.data(analysis, data.obj, ...)
 \item{...}{optional arguments including the following:}
 
 \item{warnings}{a list of warnings and how many times they arose}
-
-\item{point}{logical indicating whether it is a point transect survey}
 }
 \value{
 a list containing an S3 ddf object and optionally an S3 dht object relating to the model with the minimum criteria.

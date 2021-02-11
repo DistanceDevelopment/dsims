@@ -18,6 +18,7 @@
 #' @param ... will allow further options to be implemented
 #' @return an object of class simulation which now includes the results
 #' @export
+#' @importFrom parallel detectCores makeCluster clusterEvalQ stopCluster parLapply
 #' @rdname run.simulation-methods
 #' @seealso \code{\link{make.simulation}}
 
@@ -93,12 +94,12 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, sav
       if(length(progress.file) > 0){
         # Set up progress file
         cat(0, file = progress.file)
-        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.simulation.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = TRUE, progress.file = progress.file, in.parallel = TRUE)
+        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = TRUE, progress.file = progress.file, in.parallel = TRUE)
       }else{
-        results <- pbapply::pblapply(X= as.list(1:simulation@reps), FUN = single.simulation.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = FALSE)
+        results <- pbapply::pblapply(X= as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = FALSE)
       }
     }else{
-      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.simulation.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE)
+      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE)
     }
     #Extract results and warnings
     sim.results <- sim.warnings <- list()

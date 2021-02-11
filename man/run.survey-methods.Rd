@@ -20,6 +20,8 @@ run.survey(object, ...)
 \item{object}{an object of class Simulation}
 
 \item{...}{allows a region object to be passed in}
+
+\item{region}{an object of class Region.}
 }
 \value{
 an object of class LT.Survey.Results

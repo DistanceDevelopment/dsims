@@ -201,6 +201,7 @@ We can also calculate the average detection function for our mean cluster size o
 
 $$\sigma_{size = 3} = exp(log(400)+log(1.05)*3) = 463.05 $$
 
+
 ## Defining Analyses
 
 The final component to a simulation is the analysis or set of analyses you wish to fit to the simulated data. We will define a number of models and allow automatic model selection based on the minimum AIC value. The models included below are a half-normal with no covariates, a hazard rate with no covariates and a half-normal with cluster size as a covariate. We will leave the truncation value at 750 as previously defined (it must be <= to the truncation values used previously) and use the default error variance selection of "R2". See ?mrds::varn for descriptions of the various empirical variance estimators for encounter rate.
@@ -277,7 +278,8 @@ sim.zigzag <- run.simulation(sim.zigzag)
 The simulation results will look the same as DSsim for now. Will add these over the wekend.
 
 ```{r simresults, echo=FALSE}
-
+load("files/sim.parallel.ROBJ")
+load("files/sim.zigzag.ROBJ")
 ```
 
 ## Bibliography

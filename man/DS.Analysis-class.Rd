@@ -41,8 +41,6 @@ be grouped (into less strata) for the analyses}
 
 \item{\code{criteria}}{Object of class \code{"character"}; describes
 which model selection criteria to use ("AIC","AICc","BIC").}
-
-\item{\code{fitted.models}}{A list of the models fitted.}
 }}
 
 \section{Methods}{

@@ -6,6 +6,13 @@ Imports:
     Distance,
     sf,
     sp
+Suggests:
+    testthat,
+    parallel,
+    pbapply,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
 Type: Package
 Title: Distance Sampling Simulations
 Version: 0.1.0

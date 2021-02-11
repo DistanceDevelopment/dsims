@@ -1,5 +1,5 @@
 #' @importFrom sp Polygon Polygons SpatialPolygons
-#' @importFrom sf st_crs
+#' @importFrom sf st_crs as_Spatial
 get.surface.constant <- function(region, x.space, y.space, constant, buffer){
 
   # Check the value of the buffer
@@ -30,7 +30,7 @@ get.surface.constant <- function(region, x.space, y.space, constant, buffer){
   sf.column <- attr(temp.region, "sf_column")
   for(strat in seq(along = region@region[[sf.column]])){
     #Extract shape for current strata
-    strata.sp <- as(temp.region[[sf.column]][strat], "Spatial")
+    strata.sp <- sf::as_Spatial(temp.region[[sf.column]][strat])
     # Add positive buffer region
     buffered.strata <- rgeos::gBuffer(strata.sp, width = x.space)
     #Finds the points inside the region

@@ -30,7 +30,6 @@
 #' be grouped (into less strata) for the analyses
 #' @slot criteria Object of class \code{"character"}; describes
 #'  which model selection criteria to use ("AIC","AICc","BIC").
-#' @slot fitted.models A list of the models fitted.
 #' @section Methods:
 #' \describe{
 #'  \item{\code{run.analysis}}{\code{signature=c(object = "DS.Analysis",
@@ -49,6 +48,7 @@ setClass(Class = "DS.Analysis", representation(dfmodel = "list",
                                                group.strata = "data.frame",
                                                criteria = "character"))
 
+#' @importFrom methods validObject
 setMethod(
   f="initialize",
   signature="DS.Analysis",
@@ -109,7 +109,6 @@ setValidity("DS.Analysis",
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
 #' @rdname analyse.data-methods
-#' @param point logical indicating whether it is a point transect survey
 #' @param warnings a list of warnings and how many times they arose
 #' @export
 setMethod(
@@ -128,13 +127,11 @@ setMethod(
   }
 )
 
-
-
 #' @rdname analyse.data-methods
-#' @param point logical indicating whether it is a point transect survey
 #' @param warnings a list of warnings and how many times they arose
 #' @export
 #' @importFrom Distance ds
+#' @importFrom stats AIC BIC
 setMethod(
   f="analyse.data",
   signature=c("DS.Analysis", "data.frame"),
@@ -183,8 +180,8 @@ setMethod(
     # if binned analysis add distbegin and distend cols
     if(length(analysis@cutpoints) > 0){
       # bin data
-      dist.data <- dist.data[dist.data$distance <= max(object@cutpoints),]
-      dist.data <- create.bins(dist.data, cutpoints = object@cutpoints)
+      dist.data <- dist.data[dist.data$distance <= max(analysis@cutpoints),]
+      dist.data <- create.bins(dist.data, cutpoints = analysis@cutpoints)
     }
     # Make sure there is a detected column
     #if(is.null(dist.data$detected)){
@@ -222,8 +219,8 @@ setMethod(
       }else if(models[[i]]$ddf$ds$converge != 0){
         warnings <- message.handler(warnings, paste("The following model failed to converge: ", i, sep = ""))
         models[[i]] <- NA
-      }else if(any(predict(models[[i]])$fitted < 0)){
-        warnings <- message.handler(warnings, paste("Negative predictions for model ", i,", excluding these results."), sep = "")
+      }else if(any(models[[i]]$fitted < 0)){
+        warnings <- message.handler(warnings, paste("Negative predictions for model ", i,", excluding these results.", sep = ""))
         ddf.result <- NA
       }
       if(!is.null(W)){

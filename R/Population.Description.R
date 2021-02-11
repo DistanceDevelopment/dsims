@@ -40,6 +40,8 @@ setClass("Population.Description", representation(N            = "numeric",
                                                   covariates   = "list",
                                                   size         = "logical",
                                                   gen.by.N     = "logical"))
+#' @importFrom methods validObject
+#' @importFrom dssd make.region
 setMethod(
   f="initialize",
   signature="Population.Description",
@@ -115,11 +117,16 @@ setMethod("get.N","Population.Description",
 )
 
 #' @rdname generate.population-methods
+#' @param detectability object of class Detectability (optional - only
+#'   required if object is of class Population.Description)
+#' @param region the region object for the population (optional - only
+#'   required if object is of class Population.Description)
 #' @export
+#' @importFrom methods new
 setMethod(
   f="generate.population",
   signature="Population.Description",
-  definition=function(object, detectability, region){
+  definition=function(object, detectability = NULL, region = NULL){
     #If the user has not passed in the region object
     if(class(region) != "Region"){
       stop("region must be of class 'Region'")

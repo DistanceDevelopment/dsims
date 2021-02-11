@@ -1,4 +1,6 @@
 #' @importFrom utils flush.console
+#' @importFrom methods new
+#' @importFrom mrds dht
 #single.simulation.loop <- function(i, object){
 single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, progress.file = "", in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE){
   # Input: i - integer representing the loop number
@@ -171,7 +173,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   }
   # If the transects were loaded store the filename in the results
   if(load.transects){
-    simulation@results$filename <- filename
+    simulation@results$filename <- transect.filename
   }
   return(list(results = simulation@results, warnings = warnings))
 }

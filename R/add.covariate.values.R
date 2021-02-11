@@ -1,3 +1,4 @@
+#' @importFrom stats rnorm rlnorm
 add.covariate.values <- function(pop.data, covariates){
   # Find number of strata
   strata.ids <- unique(pop.data$Region.Label)

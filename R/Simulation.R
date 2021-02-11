@@ -60,6 +60,8 @@ setClass("Simulation", representation(reps = "numeric",
                                       results = "list",
                                       warnings = "list"))
 
+#' @importFrom methods validObject
+#' @importFrom dssd make.design
 setMethod(
   f="initialize",
   signature="Simulation",
@@ -107,6 +109,7 @@ setMethod(
   }
 )
 
+#' @rdname generate.transects-methods
 #' @export
 setMethod(
   f="generate.transects",
@@ -120,6 +123,7 @@ setMethod(
 
 #' @rdname run.survey-methods
 #' @export
+#' @importFrom methods new
 setMethod(
   f="run.survey",
   signature="Simulation",
@@ -202,6 +206,7 @@ histogram.N.ests <- function(x, ...){
 #' @param ... can specify if you want the maximum number of iterations to be used where at least one model converged (use.max.reps = TRUE) or only use iterations where all models converged (use.max.reps = FALSE)
 #' @rdname summary.Simulation-methods
 #' @importFrom stats na.omit qlnorm qnorm
+#' @importFrom methods slotNames
 #' @export
 setMethod(
   f="summary",

@@ -9,7 +9,7 @@
 \usage{
 generate.population(object, ...)
 
-\S4method{generate.population}{Population.Description}(object, detectability, region)
+\S4method{generate.population}{Population.Description}(object, detectability = NULL, region = NULL)
 
 \S4method{generate.population}{Simulation}(object, ...)
 }
@@ -22,7 +22,7 @@ the additional arguments detectability and region.obj should also be supplied}
 \item{detectability}{object of class Detectability (optional - only
 required if object is of class Population.Description)}
 
-\item{region.obj}{the region object for the population (optional - only
+\item{region}{the region object for the population (optional - only
 required if object is of class Population.Description)}
 }
 \value{

@@ -15,7 +15,13 @@ setClass("Survey", representation(population = "Population",
 
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
+
+#' @param x object of class Survey
+#' @param y NULL
+#' @param ... additional plotting parameters
+#' @rdname plot-methods
 #' @export
+#' @importFrom graphics par
 setMethod(
   f="plot",
   signature=c("Survey", "Region"),
@@ -116,8 +122,19 @@ setMethod(
   }
 )
 
-
+#' plot
+#'
+#' Produces four plots of the survey: 1) Plots the transects inside the survey
+#' region, 2) plots the population, 3) plots the transects, population and
+#' detections 4) plots a histogram of the detection distances. Note that only
+#' plots 3 & 4 are generated without the survey region if Region is omitted.
+#'
+#' @param x object of class Survey
+#' @param y object of class Region
+#' @param ... additional plotting parameters
+#' @rdname plot-methods
 #' @export
+#' @importFrom graphics par
 setMethod(
   f="plot",
   signature=c("Survey"),
@@ -165,9 +182,6 @@ setMethod(
 
     # Plot 4 - histogram of detection distances
     hist.xlab <- ifelse(class(x@transect) == "Line.Transect", "perpendicular distance", "radial distance")
-    if(length(region@units) > 0){
-      hist.xlab <- paste(hist.xlab, " (", region@units, ")", sep = "")
-    }
     hist(x@dist.data$distance, main = "Detection Distances", xlab = hist.xlab)
 
     return(invisible(x))

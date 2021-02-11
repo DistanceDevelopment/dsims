@@ -1,5 +1,6 @@
 #' @importFrom graphics points
 #' @importFrom sp Polygon Polygons SpatialPolygons
+#' @importFrom sf as_Spatial
 calc.perp.dists <- function(population, transects, plot = FALSE){
   # Calculates the possible detection distances to the transects
   # Arguments:
@@ -14,7 +15,7 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
     samp <- samplers[[sf.column.t]][[i]]
     sf.column.ca <- attr(cov.areas, "sf_column")
     ca <- cov.areas[[sf.column.ca]][[i]]
-    sp.ca <- as(ca, "Spatial")
+    sp.ca <- sf::as_Spatial(ca)
     #Get population within covered area
     available_ind <- which(rgeos::gIntersects(sp.pop, sp.ca, byid=TRUE))
     #get the points in the region
