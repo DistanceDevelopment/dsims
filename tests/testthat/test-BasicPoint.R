@@ -31,8 +31,8 @@ test_that("Can create object or return correct error messages", {
   cov.params <- list(size = log(1.02))
 
   detect <- make.detectability(key.function = "hn",
-                               scale.param = 30,
-                               truncation = 100,
+                               scale.param = 25,
+                               truncation = 75,
                                cov.param = cov.params)
 
 
@@ -41,13 +41,13 @@ test_that("Can create object or return correct error messages", {
                         transect.type = "point",
                         design = "systematic",
                         samplers = 30,
-                        truncation = 100)
+                        truncation = 75)
 
   # Make analyses
   analyses <- make.ds.analysis(dfmodel = ~1,
                                key = "hr",
-                               truncation = 100,
-                               er.var = "P2")
+                               truncation = 75,
+                               er.var = "P3")
 
   # Make.simulation
   sim <- make.simulation(reps = 5,
@@ -58,8 +58,14 @@ test_that("Can create object or return correct error messages", {
 
   # Create a test survey
   survey <- run.survey(sim)
+<<<<<<< Updated upstream
 
   expect_true(class(survey@transect) == "Point.Transect")
+=======
+  plot(survey, region = region)
+
+
+>>>>>>> Stashed changes
 
   # test running the simulation
   test <- run.simulation(sim)

@@ -283,6 +283,7 @@ setMethod(
       #If there are no clusters
       true.N.individuals <- N
       true.D.individuals <- true.N.individuals/areas
+      expected.size <- data.frame()
     }else{
       #If there are clusters
       true.N.clusters <- N
