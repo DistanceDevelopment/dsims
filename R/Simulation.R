@@ -86,10 +86,24 @@ setMethod(
 
 setValidity("Simulation",
             function(object){
-              #if(object@double.observer){
-              #  warning("Double observer simulations not supported at present", call. = TRUE, immediate. = TRUE)
-              #  return(FALSE)
-              #}
+              strata.names <- object@design@region@strata.name
+              # truncation
+              # Check to see if the analysis truncation distance is larger than the
+              if(length(object@ds.analysis@truncation[[1]]) > 0){
+                if(object@ds.analysis@truncation > object@detectability@truncation ||
+                   object@ds.analysis@truncation > object@design@truncation){
+                  warning("The truncation distance for analysis is larger than the truncation distance for data generation, this will likely cause biased results.", immediate. = TRUE, call. = FALSE)
+                }
+              }
+              # Population.Description checks
+              pop.desc <- object@population.description
+
+
+              # Detectability checks
+              # Check number of scale parameters is equal to
+
+              # Analysis checks
+
               return(TRUE)
             }
 )
