@@ -58,14 +58,7 @@ test_that("Can create object or return correct error messages", {
 
   # Create a test survey
   survey <- run.survey(sim)
-<<<<<<< Updated upstream
-
   expect_true(class(survey@transect) == "Point.Transect")
-=======
-  plot(survey, region = region)
-
-
->>>>>>> Stashed changes
 
   # test running the simulation
   test <- run.simulation(sim)
