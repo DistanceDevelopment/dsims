@@ -100,6 +100,7 @@ setValidity("Simulation",
 
 
               # Detectability checks
+
               # Check number of scale parameters is equal to
 
               # Analysis checks
@@ -145,7 +146,7 @@ setMethod(
     # Create the population and transects for the survey
     population <- generate.population(object)
     transects <- generate.transects(object)
-    if(class(transects) == "Line.Transect"){
+    if(class(transects) %in% c("Line.Transect", "Segment.Transect")){
       survey <- new(Class = "Survey.LT",
                     population = population,
                     transect = transects,
