@@ -157,7 +157,8 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
         simulation@results <- store.dht.results(simulation@results,
                                                 dht.results, i,
                                                 simulation@population.description@size,
-                                                dist.data, obs.table@obs.table)
+                                                dist.data,
+                                                obs.table)
       }
     }
     else{
