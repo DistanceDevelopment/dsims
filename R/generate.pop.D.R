@@ -36,7 +36,7 @@ generate.pop.D <- function(population.description, region.obj){
       inside <- pts[strata.sp,]
       pop.locations <- as.data.frame(inside@coords)
       #Record strata ID
-      pop.locations$strata <- rep(strat, nrow(pop.locations))
+      pop.locations$Region.Label <- rep(region.obj@strata.name[strat], nrow(pop.locations))
       if(strat == 1){
         all.pop.locations <- pop.locations
       }else{
