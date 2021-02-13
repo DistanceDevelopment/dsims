@@ -1,5 +1,5 @@
 #' @include generic.functions.R
-
+#' @include Density.Summary.R
 
 #' @title  Class "Density"
 #' @description  Class \code{"Density"} is an S4 class containing a list of grids which
@@ -18,6 +18,10 @@
 #' gridpoints described in the density data.frames in the y-direction.
 #' @slot units Object of class \code{"numeric"}; The units of the grid
 #' points.
+#' @slot summary a data.frame summarising the average abundance and density
+#' for each stratum.
+#' @slot sf.grid a data.frame sf object of the density surface for the
+#' whole study area
 #' @keywords classes
 #' @seealso \code{\link{make.density}}
 #' @export
@@ -26,7 +30,9 @@ setClass("Density", representation(region.name = "character",
                                    density.surface = "list",
                                    x.space = "numeric",
                                    y.space = "numeric",
-                                   units = "character"))
+                                   units = "character",
+                                   summary = "data.frame",
+                                   sf.grid = "data.frame"))
 
 #' @importFrom methods validObject
 setMethod(
@@ -43,6 +49,8 @@ setMethod(
         density.surface <- get.surface.constant(region, x.space, y.space, constant, buffer)
       }
     }
+    # Get the summary table and sf representation
+    density.summary <- get.density.summary(density.surface = density.surface, dimx = x.space, dimy = y.space, region = region)
     #Set slots
     .Object@region.name <- region@region.name
     .Object@strata.name <- strata.name
@@ -50,6 +58,8 @@ setMethod(
     .Object@x.space <- x.space
     .Object@y.space <- y.space
     .Object@units <- region@units
+    .Object@summary <- density.summary@summary
+    .Object@sf.grid <- density.summary@sf.grid
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
     if(class(valid) == "character"){
@@ -290,7 +300,18 @@ setMethod(
 )
 
 
-
+#' @importFrom methods new
+setMethod(
+  f = "summary",
+  signature = "Density",
+  definition = function(object, ...){
+    # Create a new Density.Summary object
+    density.summary <- new(Class = "Density.Summary",
+                           summary = object@summary,
+                           sf.grid = object@sf.grid)
+    return(density.summary)
+  }
+)
 
 
 

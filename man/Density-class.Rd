@@ -28,6 +28,12 @@ gridpoints described in the density data.frames in the y-direction.}
 
 \item{\code{units}}{Object of class \code{"numeric"}; The units of the grid
 points.}
+
+\item{\code{summary}}{a data.frame summarising the average abundance and density
+for each stratum.}
+
+\item{\code{sf.grid}}{a data.frame sf object of the density surface for the
+whole study area}
 }}
 
 \seealso{
