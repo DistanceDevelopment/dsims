@@ -54,6 +54,20 @@
 #' plot(pop.density, contours = FALSE, style = "blocks")
 #'
 make.density <- function(region = make.region(), density.surface = list(), x.space = 5, y.space = NULL, buffer = numeric(0), constant = numeric(0), density.gam = NULL){
+  # Check if the user has supplied a y.space value
+  if(is.null(y.space)){
+    # If not set it equal to x.space
+    y.space <- x.space
+  }
+  # Check how many grid points there will likely be
+  est.grid.points <- (sum(region@area)/(x.space)^2)*(x.space/y.space)
+  if(est.grid.points < 25){
+    stop("Your grid spacing will result in less than 25 grid cells. Please reduce your x.space (and optionally your y.space) argument.", call. = FALSE)
+  }else if(est.grid.points > 25000){
+    stop("Your grid spacing will result in more than 25,000 grid cells. Please increase your x.space (and optionally your y.space) argument.", call. = FALSE)
+  }else if(est.grid.points > 5000){
+    warning("Your grid spacing arguments x.space (and y.space) will result in more than 5000 grid cells being generated. This could take some time!", call. = FALSE, immediate. = TRUE)
+  }
   # Find the number of strata
   no.strata <- length(region@strata.name)
   # Check the user has supplied the correct number of consants
@@ -71,11 +85,6 @@ make.density <- function(region = make.region(), density.surface = list(), x.spa
     }else{
       constant <- rep(1, no.strata)
     }
-  }
-  # Check if the user has supplied a y.space value
-  if(is.null(y.space)){
-    # If not set it equal to x.space
-    y.space <- x.space
   }
   # Make density object
   density <- new(Class = "Density", region = region, strata.name = region@strata.name, density.surface = density.surface, x.space = x.space, y.space = y.space, constant = constant, density.gam = density.gam, buffer = buffer)
