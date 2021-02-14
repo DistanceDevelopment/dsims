@@ -37,9 +37,13 @@ plot(region)
 
 The first step in defining your study population is to set up the densty grid. One way to do this is to initially create a flat surface and then add hot and low spots to represent where you think you might have areas of higher and lower density of animals. We will first of all demonstrate this approach. 
 
-Note that if we were to assume that there were 300 animals in the St Andrews bay study area this would give us an average density of 3.04-07 animals per square metre. For this simulation, as we will use a fixed population size, we do not need to worry about the absolute values of the density surface. Instead, it can be simpler to work with larger values and be aware that we are instead defining a relative density surface. So where we create a surface to have a density of twice that in another area that relationship will be maintained (be it at much smaller absolute values) when we later generate the population.
+Note that if we were to assume that there were 300 groups in the St Andrews bay study area (which is a fairly large number!) this would only give us an average density of 3.04-07 groups per square metre. For this simulation, as we will use a fixed population size, we do not need to worry about the absolute values of the density surface. Instead, it can be simpler to work with larger values and be aware that we are instead defining a relative density surface. So where we create a surface to have a density of twice that in another area that relationship will be maintained (be it at much smaller absolute values) when we later generate the population.
 
 For the purposes of simulation you will likely want to test over a range of plausible animal distributions as if you knew exactly how many you were going to find at any given location you probably wouldn't be doing the study! When testing non-uniform coverage designs you may want to try out worst case scenarios, when density in the area of higher or lower coverage differs to majority of the survey region. This will give an idea of the degree of potential bias which could be introduced. In this example for the equal spaced zigzag design as it is generated in a convex hull the areas with differing coverage are likely to be at the very top and very bottom of the survey region. In the density grid below these areas are shown to have lower animal density than the rest of the survey region, a likely scenario when a study region has been constructed in order to catch the range of a population of interest.
+
+```{r densitydepend, echo=FALSE}
+#' @importFrom mgcv gam
+```
 
 ```{r density, fig.align='center', fig.cap="Figure 2: A density map representing a plausible distributions of animals within the study region.", fig.width=4, fig.height=4}
 
@@ -74,7 +78,7 @@ density <- add.hotspot(object = density,
                        sigma = 10000,
                        amplitude = -2)
 
-plot(density, style = "blocks")
+plot(density)
 
 ```
 
@@ -96,7 +100,7 @@ gam.density <- make.density(region = region,
                             x.space = 500,
                             density.gam = fit.gam)
 
-plot(gam.density, style = "blocks")
+plot(gam.density)
 ```
 
 ### Other Population Parameters
@@ -116,7 +120,7 @@ covariates <- list(size = list(distribution = "ztruncpois", mean = 3))
 pop.desc <- make.population.description(region = region,
                                         density = gam.density,
                                         covariates = covariates,
-                                        N = 100,
+                                        N = 300,
                                         fixed.N = TRUE)
 
 ```
@@ -157,7 +161,7 @@ zigzag.design <- make.design(region = region,
 It is always a good idea to run a quick check that your design is as expected by generating a set of transects and plotting them. 
 
 ```{r seed, echo=FALSE}
-set.seed(474)
+set.seed(476)
 ```
 
 ```{r paralleltransects, fig.align='center', fig.cap="Figure 4: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=4, fig.height=4, fig.align='center'}
@@ -184,11 +188,11 @@ We will assume a half normal detection function with a scale parameter of 400. W
 ```{r detect, fig.align='center', fig.cap="Figure 6: Plot of the detection function for the mean group size (solid line) and for the 2.5 and 97.5 percentile values  of group size (dashed lines) for this population. ", fig.width=6, fig.height=4}
 
 # Define the covariate parameters on the log scale
-cov.param <- list(size = log(1.05))
+cov.param <- list(size = log(1.08))
 
 # Create the detectability description
 detect <- make.detectability(key.function = "hn",
-                             scale.param = 400,
+                             scale.param = 300,
                              cov.param = cov.param,
                              truncation = 750)
 
