@@ -5,8 +5,6 @@
 #' @docType class
 #' @slot summary a summary of the average abundances and densitites for
 #' each strata.
-#' @slot sf.grid a list containing an sf grid with the densities across the
-#' study region
 #' @keywords classes
 #' @seealso \code{\link{make.density}}
 #' @export
@@ -36,7 +34,12 @@ setValidity("Density.Summary",
 
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
-#' @rdname show-methods
+#' show
+#'
+#' displays the density summary table
+#'
+#' @param object object of class Density.Summary
+#' @rdname show.Density-methods
 #' @export
 setMethod("show","Density.Summary",
           function(object){

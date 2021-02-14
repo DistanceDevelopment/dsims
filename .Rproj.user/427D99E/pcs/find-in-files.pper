@@ -5,7 +5,7 @@
         ],
         "path" : "",
         "projectRelative" : true,
-        "query" : "generate.pop.N",
+        "query" : "slot",
         "regex" : false
     }
 }

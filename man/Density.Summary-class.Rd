@@ -13,9 +13,6 @@ summary of the density grids for each strata.
 \describe{
 \item{\code{summary}}{a summary of the average abundances and densitites for
 each strata.}
-
-\item{\code{sf.grid}}{a list containing an sf grid with the densities across the
-study region}
 }}
 
 \seealso{

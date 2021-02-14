@@ -124,12 +124,22 @@ setMethod(
   }
 )
 
-#' @rdname generate.transects-methods
+#' generate.transects
+#'
+#' Generates a set of transects based on the design provided.
+#'
+#' @param object object of class Simulation
+#' @param quiet if TRUE silences some warnings
+#' @param ... not implemented
+#' @rdname generate.transects.Simulation-methods
+#' @importFrom stats na.omit qlnorm qnorm
+#' @importFrom methods slotNames
+#' @importFrom methods new
 #' @export
 setMethod(
   f="generate.transects",
   signature="Simulation",
-  definition=function(object, region = NULL){
+  definition=function(object, quiet = FALSE, ...){
     transect <- generate.transects(object = object@design,
                                    region = object@design@region)
     return(transect)
@@ -221,7 +231,7 @@ histogram.N.ests <- function(x, ...){
 #' @param ... can specify if you want the maximum number of iterations to be used where at least one model converged (use.max.reps = TRUE) or only use iterations where all models converged (use.max.reps = FALSE)
 #' @rdname summary.Simulation-methods
 #' @importFrom stats na.omit qlnorm qnorm
-#' @importFrom methods slotNames
+#' @importFrom methods slotNames slot show
 #' @export
 setMethod(
   f="summary",

@@ -26,9 +26,6 @@ created by a call to \link{make.population.description}}
 
 \item{ds.analysis}{a list of objects of class DS.Analysis created by
 a call to\link{make.ds.analysis}}
-
-\item{region}{an object of class Region created by a call to
-\link{make.region}}
 }
 \value{
 object of class Simulation
@@ -41,8 +38,7 @@ used by itself based on default values to create a simple line transect example,
 Examples below. To create more complex simulations it is advisable to define the
 different parts of the simulation individually before grouping them together. See
 the Arguments for links to the functions which make the definitions for the
-individual simulation components. Example simulations can also be found at
-<https://github.com/DistanceDevelopment/DSsim/wiki>.
+individual simulation components.
 }
 \details{
 The \code{make.simulation} function is now set up so that by

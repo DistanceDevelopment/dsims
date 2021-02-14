@@ -18,7 +18,7 @@ make.ds.analysis(
 }
 \arguments{
 \item{dfmodel}{list of distance sampling model formula specifying the detection function
-(see \code{?ds} for further details)}
+(see \code{?Distance::ds} for further details)}
 
 \item{key}{key function to use; "hn" gives half-normal (default) and "hr" gives
 hazard-rate.}
@@ -41,8 +41,8 @@ is the distance to the end of the furthest bin. (Default NULL, no binning.) Note
 that if data has columns distbegin and distend then these will be used as bins if cutpoints is not specified. If both are specified, cutpoints has precedence.}
 
 \item{er.var}{encounter rate variance estimator to use when abundance estimates are
-required. Defaults to "R2" for line transects and "P3" for point transects. See dht2
-for more information and if more complex options are required.}
+required. Defaults to "R2" for line transects and "P3" for point transects. See
+\code{mrds::varn} for more information / options.}
 
 \item{control.opts}{A list of control options: method - optimisation method,
 initial.values - a list of names starting values, see mrds}
@@ -61,9 +61,6 @@ This method creates an Analysis objects which describes a one or more
 models to fit to the distance data. The simulation will fit each of these
 models to the data generated in the simulation and select the model with
 the minimum criteria value.
-}
-\details{
-
 }
 \examples{
 

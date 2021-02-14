@@ -5,23 +5,30 @@
 #' @include DS.Analysis.R
 
 #' @title Creates a Density object
-#' @description
-#' The user has the option to create a grid describing the density of the
-#' objects and pass this in giving the x and y spacings used in the creation
-#' of this grid. Alternatively the user can specify a constant density and x,
-#' y spacings and this grid will be generated automatically. The user may
-#' also supply a \code{mgcv gam} object and x, y spacings and the density grid will
-#' be created from these.
-#'
+#' @description Creates a density grid across the study area describing the distribution
+#' of animals.
+#' @details
+#' There are multiple ways to create the density grid. The most straight forward
+#' is to create a grid with constant values (to which high and low areas can later
+#' be added) or pass in a fitted \code{mgcv gam}. The gam model should only be fitted
+#' with x and y as explanatory variables. Additionally the user has the option to
+#' create an equally spaced grid themselves describing the density of objects at
+#' eack grid point. There should be one data.frame with x, y and density values per
+#' strata and these are grouped together in a list. Care must be taken to then provide
+#' make.density with the correct x and y spacing values. If you plan on trying multiple
+#' animal distributions by adding high and low areas to a constant surface if is
+#' recommended to make a copy of the initial flat density grid object as the first
+#' step in grid generation is computationally intensive and can take a little while
+#' to complete, especially if you have a fine density grid.
 #' @param region the Region object in which the density grid will be created
-#' @param density.surface Object of class \code{list}; list of
-#'  data.frames with the columns x, y and density. There must be one
-#'  data.frame for each strata.
 #' @param x.space the intervals in the grid in the x direction
 #' @param y.space the intervals in the grid in the y direction
 #' @param buffer the width of the buffer region for generating the density grid. If not supplied DSsim will use the maximum value provided for the x.space or y.space.
 #' @param constant a value describing a constant density across the surface. If not supplied a default value of 1 is used for all strata.
 #' @param density.gam \code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.
+#' @param density.surface Object of class \code{list}; list of
+#'  data.frames with the columns x, y and density. There must be one
+#'  data.frame for each strata.
 #' @return object of class Density
 #' @export
 #' @importFrom dssd make.region
@@ -30,30 +37,28 @@
 #' @seealso \code{\link{make.region}}
 #' @examples
 #' # A simple density surface with a constant value of 1 can be created within a rectangular
-#' # region using
-#' # the default values:
-#' density <- make.density(re)
+#' # Create a region from shapefile
+#' shapefile.name <- system.file("extdata", "StAndrew.shp", package = "dssd")
+#' region <- make.region(region.name = "St Andrews bay",
+#'                       shape = shapefile.name)
+#'
+#' # Create a density object
+#' density <- make.density(region = region,
+#'                        x.space = 1000,
+#'                        constant = 1)
+#'
+#' # Add some ares of higher / lower density
+#' density <- add.hotspot(object = density,
+#'                        centre = c(-170000, 6255000),
+#'                        sigma = 10000,
+#'                        amplitude = 4)
+#' density <- add.hotspot(object = density,
+#'                        centre = c(-150000, 6240000),
+#'                        sigma = 10000,
+#'                        amplitude = -0.9)
 #' plot(density)
 #'
-#' # The example below shows hot to add high and low point to the density surface
-#' region <- make.region()
-#' pop.density <- make.density(region = region, x.space = 10,
-#'  y.space = 10, constant = 0.5)
-#'
-#' pop.density <- add.hotspot(pop.density, centre = c(50, 200),
-#'  sigma = 100, amplitude = 0.1)
-#' pop.density <- add.hotspot(pop.density, centre = c(500, 700),
-#'  sigma = 900, amplitude = 0.05)
-#' pop.density <- add.hotspot(pop.density, centre = c(300, 100),
-#'  sigma = 100, amplitude = -0.15)
-#'
-#' #New plot features
-#' plot(pop.density)
-#'
-#' #Block style plotting
-#' plot(pop.density, contours = FALSE, style = "blocks")
-#'
-make.density <- function(region = make.region(), density.surface = list(), x.space = 5, y.space = NULL, buffer = numeric(0), constant = numeric(0), density.gam = NULL){
+make.density <- function(region = make.region(), x.space = 20, y.space = NULL, buffer = numeric(0), constant = numeric(0), density.gam = NULL, density.surface = list(),){
   # Check if the user has supplied a y.space value
   if(is.null(y.space)){
     # If not set it equal to x.space
@@ -66,7 +71,7 @@ make.density <- function(region = make.region(), density.surface = list(), x.spa
   }else if(est.grid.points > 25000){
     stop("Your grid spacing will result in more than 25,000 grid cells. Please increase your x.space (and optionally your y.space) argument.", call. = FALSE)
   }else if(est.grid.points > 5000){
-    warning("Your grid spacing arguments x.space (and y.space) will result in more than 5000 grid cells being generated. This could take some time!", call. = FALSE, immediate. = TRUE)
+    warning("Your grid spacing arguments x.space (and y.space) will result in more than 5000 grid cells being generated. This could take a little time!", call. = FALSE, immediate. = TRUE)
   }
   # Find the number of strata
   no.strata <- length(region@strata.name)
@@ -92,13 +97,20 @@ make.density <- function(region = make.region(), density.surface = list(), x.spa
 }
 
 #' @title Creates a Population.Description object
+#'
 #' @description
 #' Creates an object which describes a population. The values in this object
-#' will be used to create instances of the population
+#' will be used to create instances of the population.
 #'
-#' @details #' The \code{covariates} argument should specify a list with one named
-#' element per covariate. If specifying the covariate values via a distribution
-#' this should be done in the form of a list. The first element should be one of
+#' @details
+#' The \code{covariates} argument should specify a list with one named
+#' element per covariate. The population covariate values can either be described
+#' by dataframes representing discrete covariates or by distributions.
+#' If specifying the covariate values via a distribution
+#' this should be done in the form of a list, the list should first contain the
+#' distribution and then specify
+#'
+#' The first element should be one of
 #' the following: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'
 #' distribution refers to a zero truncated Poisson distribution. The corresponding
 #' parameters that you must supply are detailed below. These should be added to a named
@@ -114,7 +126,7 @@ make.density <- function(region = make.region(), density.surface = list(), x.spa
 #'
 #' @param region the Region object in which this population exists (see \link{make.region}).
 #' @param density the Density object describing the distribution of the individuals / clusters (see \link{make.density}).
-#' @param covariates Named list with one named entry per individual level covariate. Cluster sizes can be defined here. Each list entry should be another list with either one element or one element per strata allowing different population structures per strata. Each element of these lists should either be a data.frame containing 2 columns, the first the level (level) and the second the probability (prob). The cluster size entry in the list must be named 'size'. Alternatively the list element may be another list specifying the distribution in the first element and a named list in the second element with the distribution parameter.
+#' @param covariates Named list with one named entry per individual level covariate. Cluster sizes can be defined here, it must be named 'size'. Each list entry should be another list with either one element or one element per strata allowing different population structures per strata. Each element of these lists should either be a data.frame containing 2 columns, the first the level (level) and the second the probability (prob). The cluster size entry in the list must be named 'size'. Alternatively the list element may be another list specifying the distribution in the first element and a named list in the second element with the distribution parameter.
 #' @param N the number of individuals / clusters in a population (1000 by default)
 #' @param fixed.N a logical value. If TRUE the population is generated from the value of N
 #' otherwise it is generated from the density description.
@@ -314,10 +326,8 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' models to the data generated in the simulation and select the model with
 #' the minimum criteria value.
 #'
-#' @details
-#'
 #' @param dfmodel list of distance sampling model formula specifying the detection function
-#'  (see \code{?ds} for further details)
+#'  (see \code{?Distance::ds} for further details)
 #' @param key key function to use; "hn" gives half-normal (default) and "hr" gives
 #' hazard-rate.
 #' @param adjustment a way of providing information about the adjustment term options. A
@@ -335,8 +345,8 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #'  is the distance to the end of the furthest bin. (Default NULL, no binning.) Note
 #'  that if data has columns distbegin and distend then these will be used as bins if cutpoints is not specified. If both are specified, cutpoints has precedence.
 #' @param er.var encounter rate variance estimator to use when abundance estimates are
-#'  required. Defaults to "R2" for line transects and "P3" for point transects. See dht2
-#'  for more information and if more complex options are required.
+#'  required. Defaults to "R2" for line transects and "P3" for point transects. See
+#'  \code{mrds::varn} for more information / options.
 #' @param control.opts A list of control options: method - optimisation method,
 #'  initial.values - a list of names starting values, see mrds
 #' @param group.strata Dataframe with two columns ("design.id" and "analysis.id"). The
@@ -406,14 +416,11 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' Examples below. To create more complex simulations it is advisable to define the
 #' different parts of the simulation individually before grouping them together. See
 #' the Arguments for links to the functions which make the definitions for the
-#' individual simulation components. Example simulations can also be found at
-#' <https://github.com/DistanceDevelopment/DSsim/wiki>.
+#' individual simulation components.
 #' @details The \code{make.simulation} function is now set up so that by
 #'  default (with the exception of specifying point transects rather than
 #'   line) it can run a simple simulation example. See examples.
 #' @param reps number of times the simulation should be repeated
-#' @param region an object of class Region created by a call to
-#'  \link{make.region}
 #' @param design an object of class Survey.Design created by a call to
 #'  \link{make.design}
 #' @param population.description an object of class Population.Description

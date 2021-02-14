@@ -7,7 +7,7 @@
 make.density(
   region = make.region(),
   density.surface = list(),
-  x.space = 5,
+  x.space = 20,
   y.space = NULL,
   buffer = numeric(0),
   constant = numeric(0),

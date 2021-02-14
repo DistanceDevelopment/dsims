@@ -182,9 +182,9 @@ setMethod(
     }
     strata.names <- x@strata.name
     #define plot.units if it was not specified
-    if(length(plot.units) == 0){
-      plot.units <- x@units
-    }
+    # if(length(plot.units) == 0){
+    #   plot.units <- x@units
+    # }
     # #Create plot axes labels
     # if(length(plot.units) > 0){
     #   xlabel <- paste("X-coords (",plot.units[1],")", sep = "")
@@ -214,12 +214,23 @@ setMethod(
     # Plot the denity data
     plot(plot.data, main = main,
          axes = axes,
-         lwd = lwd, ...)
+         lwd = lwd,
+         pal = pal,
+         nbreaks = nbreaks, ...)
   }
 )
 
-
+#' summary
+#'
+#' Provides a summary table of the density object.
+#'
+#' @param object object of class Simulation
+#' @param ... not implemented
+#' @rdname summary.Density-methods
+#' @importFrom stats na.omit qlnorm qnorm
+#' @importFrom methods slotNames
 #' @importFrom methods new
+#' @export
 setMethod(
   f = "summary",
   signature = "Density",
