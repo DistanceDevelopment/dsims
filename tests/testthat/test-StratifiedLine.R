@@ -29,7 +29,7 @@ test_that("Test stratified options and generating by density", {
                           constant = c(100,550,300))
 
 
-  density.summary <- summary(density, region)
+  density.summary <- summary(density)
   expect_equal(density.summary@summary$ave.D, c(100,550,300))
   expect_equal(region@area*c(100,550,300), density.summary@summary$ave.N)
 
@@ -104,7 +104,12 @@ test_that("Test stratified options and generating by density", {
   # test running the simulation
   sim <- run.simulation(sim)
 
-  sim.summary <- summary(sim)
+  sim.summary <- summary(sim, description.summary = FALSE)
+
+  D.summary <- density.summary@summary
+  expect_equal(sum(D.summary$ave.N[2:3])/sum(D.summary$area[2:3]),sim.summary@individuals$D$Truth[2])
+  expect_equal(sum(D.summary$ave.N[2:3]),sim.summary@individuals$N$Truth[2])
+  expect_equal(sum(D.summary$ave.N[1:3])/sum(D.summary$area[1:3]),sim.summary@individuals$D$Truth[3])
 
 
 })

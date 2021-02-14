@@ -16,7 +16,7 @@ test_that("Can create object or return correct error messages", {
   region <- make.region(region.name = "main",
                         shape = mp1)
   # Create density
-  density <- make.density(region = region, x.space = 10, constant = 10)
+  density <- make.density(region = region, x.space = 20, constant = 10)
   # Add hotspot
   density <- add.hotspot(density, c(500,250), 200, 200)
 

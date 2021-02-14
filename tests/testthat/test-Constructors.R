@@ -3,6 +3,7 @@ library(testthat)
 
 context("Constructor Checks")
 
+#' @importFrom mgcv gam
 test_that("Can create objects or return correct error / warning messages", {
 
   #Set up data
@@ -20,7 +21,7 @@ test_that("Can create objects or return correct error / warning messages", {
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Test density surface creation
-  density <- make.density(region = region, x.space = 10, constant = 10)
+  density <- make.density(region = region, x.space = 20, constant = 10)
   expect_equal(all(density@density.surface[[1]]$density == 10), TRUE)
 
   # Add hotspot
@@ -31,23 +32,24 @@ test_that("Can create objects or return correct error / warning messages", {
   fit.gam <- mgcv::gam(density~s(x,y), data = ddata)
 
   # Try creating a density object from the gam results
-  density2 <- make.density(region, x.space = 10, density.gam = fit.gam)
+  density2 <- make.density(region, x.space = 20, density.gam = fit.gam)
 
   # Check can feed in density grid values directly
-  density.grid <- density2@density.surface
-  density3 <- make.density(region, density.surface = density.grid, x.space = 10)
+  density.grid <- get.surface.constant(region, x.space = 20, y.space = 20, constant = 10, buffer = numeric(0))
+  density3 <- make.density(region, density.surface = density.grid, x.space = 20)
+  density4 <- make.density(region, x.space = 20, constant = 10)
   #Check these two things are identical
-  expect_identical(density2, density3)
+  expect_identical(density3, density4)
 
   # Check non equal values for x.space and y.space work
-  density2 <- make.density(region, x.space = 10, y.space = 100, density.gam = fit.gam)
+  density2 <- make.density(region, x.space = 20, y.space = 100, density.gam = fit.gam)
   x.vals <- sort(unique(density2@density.surface[[1]]$x))
   y.vals <- sort(unique(density2@density.surface[[1]]$y))
-  expect_equal(x.vals[2]-x.vals[1], 10)
+  expect_equal(x.vals[2]-x.vals[1], 20)
   expect_equal(y.vals[2]-y.vals[1], 100)
 
   # Test failure when nothing is supplied
-  expect_that(make.density(region, x.space = 10, constant = 0),
+  expect_that(make.density(region, x.space = 20, constant = 0),
               throws_error("All strata must have some cells with non-zero density. Check that you have correctly specified your density grid. Large grid spacing may also generate this error."))
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
