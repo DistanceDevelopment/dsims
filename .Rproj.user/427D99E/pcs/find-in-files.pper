@@ -5,7 +5,7 @@
         ],
         "path" : "",
         "projectRelative" : true,
-        "query" : "You have not supplied the correct number of constants for population size N for each strata",
+        "query" : "generate.pop.N",
         "regex" : false
     }
 }
