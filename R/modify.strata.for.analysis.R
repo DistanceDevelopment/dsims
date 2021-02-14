@@ -18,18 +18,18 @@ modify.strata.for.analysis <- function(analysis.strata, obs.table, sample.table,
   }
 
   #Replace in tables
-  obs.table@obs.table$Region.Label <- obs.RL
-  sample.table@sample.table$Region.Label <- sample.RL
-  region.table@region.table$Region.Label <- region.RL
+  obs.table$Region.Label <- obs.RL
+  sample.table$Region.Label <- sample.RL
+  region.table$Region.Label <- region.RL
 
   #Now join strata in region.table
-  new.region.table <- data.frame(Region.Label = unique(region.table@region.table$Region.Label))
+  new.region.table <- data.frame(Region.Label = unique(region.table$Region.Label))
   new.Area <- rep(NA, nrow(new.region.table))
   for(i in seq(along = new.region.table$Region.Label)){
-    new.Area[i] <- sum(region.table@region.table$Area[region.table@region.table$Region.Label == new.region.table$Region.Label[i]])
+    new.Area[i] <- sum(region.table$Area[region.table$Region.Label == new.region.table$Region.Label[i]])
   }
   new.region.table$Area <- new.Area
-  region.table@region.table <- new.region.table
+  region.table <- new.region.table
 
   #Return tables in a list
   return(list(obs.table = obs.table, sample.table = sample.table, region.table = region.table))
