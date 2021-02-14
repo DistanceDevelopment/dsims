@@ -266,6 +266,8 @@ setMethod(
     strata.order <- NULL
     #Deal with any grouping of strata
     analysis.strata <- object@ds.analysis@group.strata
+    # Get density summary
+    density.summary <- summary(object@population.description@density)@summary
     if(nrow(analysis.strata) > 0){
       #get strata names
       sub.strata.names <- strata.names
@@ -278,7 +280,13 @@ setMethod(
         #Find their index
         index <- which(sub.strata.names %in% sub.strata)
         areas[strat] <- sum(object@design@region@area[index])
-        N[strat] <- sum(object@population.description@N[index])
+        # Get abundance for strata
+        if(object@population.description@gen.by.N){
+          N[strat] <- object@population.description@N[index]
+        }else{
+          index2 <- which(density.summary$strata %in% sub.strata)
+          N[strat] <- sum(density.summary$ave.N[index2])
+        }
       }
       #Add on totals
       areas <- c(areas, sum(areas))
@@ -289,7 +297,11 @@ setMethod(
       for(strat in seq(along = strata.names)){
         strata.order <- c(strata.order, which(strata.names == dimnames(results$individuals$N)[[1]][strat]))
       }
-      N <- object@population.description@N
+      if(object@population.description@gen.by.N){
+        N <- object@population.description@N
+      }else{
+        N <- density.summary$ave.N
+      }
       if(length(strata.names) > 1){
         N <- N[strata.order]
         N <- c(N, sum(N))
@@ -473,18 +485,21 @@ setMethod(
                                   truncation = object@detectability@truncation)
 
     #Create design summary
-    if(class(object@design) == "Line.Transect.Design"){
-      design.type <- switch(object@design@design,
-                            systematic = "Systematic parallel line design",
-                            eszigzag = "Equal spaced zigzag line design",
-                            eszigzagcom = "Equal spaced zigzag with complementary lines design",
-                            random = "Random parallel line design",
-                            segmentedgrid = "Segmented line transect grid design")
-    }else{
-      design.type <- switch(object@design@design,
-                            systematic = "Systematic point design",
-                            random = "Random sampling point design")
+    design.type = character()
+    for(i in seq(along = object@design@design)){
+      if(class(object@design) %in% c("Line.Transect.Design", "Segment.Transect.Design")){
+        design.type[i] <- switch(object@design@design[i],
+                              systematic = "Systematic parallel line design",
+                              eszigzag = "Equal spaced zigzag line design",
+                              eszigzagcom = "Equal spaced zigzag with complementary lines design",
+                              random = "Random parallel line design",
+                              segmentedgrid = "Segmented line transect grid design")
+      }else{
+        design.type[i] <- switch(object@design@design[i],
+                              systematic = "Systematic point design",
+                              random = "Random sampling point design")
 
+      }
     }
     slots <- slotNames(object@design)
     design.parameters <- list()

@@ -11,6 +11,7 @@ Suggests:
     parallel,
     pbapply,
     knitr,
+    lwgeom,
     rmarkdown
 VignetteBuilder: knitr
 Type: Package
@@ -60,7 +61,7 @@ Collate:
     'description.summary.R'
     'generate.pop.D.R'
     'generate.pop.N.R'
-    'get.density.summary.R'
+    'get.density.sf.R'
     'get.surface.constant.R'
     'get.surface.gam.R'
     'message.handler.R'

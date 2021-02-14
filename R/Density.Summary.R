@@ -10,16 +10,15 @@
 #' @keywords classes
 #' @seealso \code{\link{make.density}}
 #' @export
-setClass("Density.Summary", representation(summary = "data.frame",
-                                           sf.grid = "data.frame"))
+setClass("Density.Summary", representation(summary = "data.frame"))
+
 #' @importFrom methods validObject
 setMethod(
   f="initialize",
   signature="Density.Summary",
-  definition=function(.Object, summary, sf.grids){
+  definition=function(.Object, summary){
     #Set slots
     .Object@summary <- summary
-    .Object@sf.grids <- sf.grids
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
     if(class(valid) == "character"){

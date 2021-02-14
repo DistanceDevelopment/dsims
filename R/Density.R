@@ -18,10 +18,6 @@
 #' gridpoints described in the density data.frames in the y-direction.
 #' @slot units Object of class \code{"numeric"}; The units of the grid
 #' points.
-#' @slot summary a data.frame summarising the average abundance and density
-#' for each stratum.
-#' @slot sf.grid a data.frame sf object of the density surface for the
-#' whole study area
 #' @keywords classes
 #' @seealso \code{\link{make.density}}
 #' @export
@@ -30,9 +26,7 @@ setClass("Density", representation(region.name = "character",
                                    density.surface = "list",
                                    x.space = "numeric",
                                    y.space = "numeric",
-                                   units = "character",
-                                   summary = "data.frame",
-                                   sf.grid = "data.frame"))
+                                   units = "character"))
 
 #' @importFrom methods validObject
 setMethod(
@@ -50,16 +44,14 @@ setMethod(
       }
     }
     # Get the summary table and sf representation
-    density.summary <- get.density.summary(density.surface = density.surface, dimx = x.space, dimy = y.space, region = region)
+    density.sf <- get.density.sf(density.surface = density.surface, dimx = x.space, dimy = y.space, region = region)
     #Set slots
     .Object@region.name <- region@region.name
     .Object@strata.name <- strata.name
-    .Object@density.surface <- density.surface
+    .Object@density.surface <- list(density.sf)
     .Object@x.space <- x.space
     .Object@y.space <- y.space
     .Object@units <- region@units
-    .Object@summary <- density.summary@summary
-    .Object@sf.grid <- density.summary@sf.grid
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
     if(class(valid) == "character"){
@@ -76,17 +68,21 @@ setValidity("Density",
     #check the density grid was created without problem
     some.strata.with.grids <- FALSE
     some.strata.with.no.grids <- FALSE
+    density.sf <- object@density.surface[[1]]
+    strata.names <- object@strata.name
     for(i in seq(along = object@density.surface)){
+      # Get densities for current strata
+      densities <- density.sf$density[density.sf$strata == strata.names[i]]
       # Check if there are any negative values for density
-      if(any(object@density.surface[[i]]$density < 0)){
+      if(any(densities < 0)){
         return("All density values must be positive!")
       }
-      density.sum <- sum(object@density.surface[[i]]$density)
+      density.sum <- sum(densities)
       #check there are some cells with non-zero density
       if(density.sum == 0){
         return("All strata must have some cells with non-zero density. Check that you have correctly specified your density grid. Large grid spacing may also generate this error.")
       }
-      if(nrow(object@density.surface[[1]]) > 0){
+      if(length(densities) > 0){
         some.strata.with.grids <- TRUE
       }else{
         some.strata.with.no.grids <- TRUE
@@ -107,18 +103,15 @@ setValidity("Density",
 #' @export
 setMethod("add.hotspot","Density",
           function(object, centre, sigma, amplitude){
-            density.surface <- object@density.surface
-            for(strat in seq(along = density.surface)){
-              #Find distances from centre to each point on the density surface
-              strata.surface <- density.surface[[strat]]
-              dists <- sqrt((strata.surface$x-centre[1])^2 + (strata.surface$y-centre[2])^2)
-              #Calculate radial decay
-              additive.values <- (exp(-dists^2/(2*sigma^2)))*amplitude
-              #Add to surface
-              strata.surface$density <- strata.surface$density+additive.values
-              density.surface[[strat]] <- strata.surface
-            }
-            object@density.surface <- density.surface
+            sf.density.df <- object@density.surface[[1]][,c("x","y","density")]
+            # Find distances from centre to each point on the density surface
+            dists <- sqrt((sf.density.df$x-centre[1])^2 + (sf.density.df$y-centre[2])^2)
+            # Calculate radial decay
+            additive.values <- (exp(-dists^2/(2*sigma^2)))*amplitude
+            # Add to current density values
+            new.densities <- sf.density.df$density + additive.values
+            # Put them back in sf object
+            object@density.surface[[1]]$density <- new.densities
             return(object)
           }
 )
@@ -128,174 +121,100 @@ setMethod("add.hotspot","Density",
 #'
 #' Plots an S4 object of class 'Density'
 #'
+#' @details Described below are the plot arguments implemented
+#' when plotting Density objects and passed in via ... Further
+#' arguments may be handled by \code{plot.sf}, see \code{?plot.sf}
+#' for further details.
+#' \describe{
+#'   \item{main}{The plot title. Defaults to the region or strata
+#'   name depening on what is being plotted.}
+#'   \item{lwd}{The line width around each grid cell. Defaults to
+#'   a very fine line.}
+#'   \item{axes}{Whether to display the axes. Defaults to TRUE.}
+#'   \item{pal}{The colour palette to use. Defaults to heat.colors.}
+#'   \item{nbreaks}{The number of break points in the colour palette,
+#'   defaults to 20.}
+#' }
 #' @param x object of class Density
 #' @param y not used
-#' @param add logical indicating whether it should be added to
-#'  existing plot
-#' @param plot.units allows for units to be converted between m
-#'  and km
-#' @param contours logical indicating whether contours should be
-#'  added
-#' @param style character "points" or "blocks". Points displays
-#'  a coloured point at the centre of each grid cell where as
-#'  blocks colours the entire cell.
-#' @param density.col the colours used to indicate density level
-#' @param main character plot title
-#' @param ... other general plot parameters
+#' @param strata the strata name or number to be plotted. By default
+#' all strata will be plotted.
+#' @param ... other general plot parameters. See details and
+#' \code{?plot.sf} for further information.
 #' @rdname plot.Density-methods
 #' @importFrom grDevices heat.colors rainbow terrain.colors topo.colors cm.colors
-#' @importFrom graphics image contour plot points axTicks axis
 #' @exportMethod plot
 setMethod(
   f = "plot",
   signature = "Density",
-  definition = function(x, y, add = FALSE, plot.units = character(0), contours = TRUE, style = "points", density.col = heat.colors(12), main = "", ...){
-    # If main is not supplied then take it from the object
-    if(main == ""){
-      main <- x@region.name
+  definition = function(x, y, strata = "all", ...){
+    # Process ...
+    args <- list(...)
+    if("main" %in% names(args)){
+      main <- args$main
+    }else{
+      main <- ""
     }
-    #Check a valid style has been requested
-    if(!style %in% c("points", "blocks")){
-      stop("You have requested an unsupported plot style", call. = FALSE)
+    if("lwd" %in% names(args)){
+      lwd <- args$lwd
+    }else{
+      lwd <- 0.001
     }
-    density.surface <- x@density.surface
-    #Get all the x, y and density values across strata
-    densities <- x.vals <- y.vals <- NULL
-    full.density.grid <- data.frame(x = NULL, y = NULL, density = NULL)
-    for(strat in seq(along = density.surface)){
-      full.density.grid <- rbind(full.density.grid, density.surface[[strat]])
-      densities <- c(densities, density.surface[[strat]]$density)
-      x.vals <- c(x.vals, density.surface[[strat]]$x)
-      y.vals <- c(y.vals, density.surface[[strat]]$y)
+    if("axes" %in% names(args)){
+      axes <- args$axes
+    }else{
+      axes <- TRUE
     }
-    # keep a copy of all the x and y values
-    x.vals.orig <- x.vals
-    y.vals.orig <- y.vals
+    if("pal" %in% names(args)){
+      pal <- args$pal
+    }else{
+      pal <- heat.colors
+    }
+    if("nbreaks" %in% names(args)){
+      nbreaks <- args$nbreaks
+    }else{
+      nbreaks <- 20
+    }
+    if(is.character(strata)){
+      if(!strata %in% c(x@strata.name, "all")){
+        stop("You have provided an unrecognised strata name.", call. = FALSE)
+      }
+    }
+    strata.names <- x@strata.name
     #define plot.units if it was not specified
     if(length(plot.units) == 0){
       plot.units <- x@units
     }
-    #Create plot axes labels
-    if(length(plot.units) > 0){
-      xlabel <- paste("X-coords (",plot.units[1],")", sep = "")
-      ylabel <- paste("Y-coords (",plot.units[1],")", sep = "")
-    }else{
-      xlabel <- "X-coords"
-      ylabel <- "Y-coords"
-    }
-    #If all z values are equal turn contours off
-    if(length(unique(densities)) == 1){
-      contours = FALSE
-    }
-    if(contours | style == "blocks"){
-      #Sort the x and y values
-      x.vals <- sort(unique(x.vals))
-      y.vals <- sort(unique(y.vals))
-      z.matrix <- matrix(rep(NA, length(x.vals)*length(y.vals)), ncol = length(y.vals))
-      #Fill in the z matrix
-      for(ix in seq(along = x.vals)){
-        for(iy in seq(along = y.vals)){
-          #find densities
-          index <- which(full.density.grid$x == x.vals[ix] & full.density.grid$y == y.vals[iy])
-          #use the first one incase there is over lap with strata buffers
-          z.matrix[ix,iy] <- full.density.grid$density[index[1]]
-        }
+    # #Create plot axes labels
+    # if(length(plot.units) > 0){
+    #   xlabel <- paste("X-coords (",plot.units[1],")", sep = "")
+    #   ylabel <- paste("Y-coords (",plot.units[1],")", sep = "")
+    # }else{
+    #   xlabel <- "X-coords"
+    #   ylabel <- "Y-coords"
+    # }
+    # Extract the sf object and the densities
+    sf.column <- attr(x@density.surface[[1]], "sf_column")
+    if(strata == "all"){
+      plot.data <- x@density.surface[[1]][,c("density", sf.column)]
+      if(main == ""){
+        main <- x@region.name
+      }
+    }else if(is.numeric(strata)){
+      plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata.names[strata],c("density", sf.column)]
+      if(main == ""){
+        main <- strata.names[strata]
+      }
+    }else if(is.character(strata)){
+      plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata,c("density", sf.column)]
+      if(main == ""){
+        main <- strata
       }
     }
-    if(length(plot.units) > 0){
-      #Check to see if the units of the z-matrix need converting
-      if(plot.units != x@units){
-        #convert units
-        if(x@units == "m" & plot.units == "km"){
-          if(contours| style == "blocks"){
-            z.matrix <- z.matrix * 1000000
-            densities <- densities * 1000000
-          }
-        }else if(x@units == "km" & plot.units == "m"){
-          if(contours| style == "blocks"){
-            z.matrix <- z.matrix/1000000
-            densities <- densities/1000000
-          }
-        }else{
-          warning("The requested conversion of units is not currently supported, this option will be ignored.", call. = FALSE, immediate. = TRUE)
-        }
-      }
-    }
-    #If a contour plot is requested
-    if(style == "blocks"){
-      #Create the image
-      #image(x.vals, y.vals, z.matrix, yaxt = "n", xaxt = "n", xlab = xlabel, ylab = ylabel, main = x@region.name, col = density.col)
-      # Get the number of intervals in each direction
-      nx <- (range(x.vals)[2]-range(x.vals)[1])/x@x.space
-      ny <- (range(y.vals)[2]-range(y.vals)[1])/x@y.space
-      # Use quilt plot to avoid stretching between polygons
-      fields::quilt.plot(x = x.vals.orig, y = y.vals.orig, z = densities, nx = nx, ny = ny, yaxt = "n", xaxt = "n", xlab = xlabel, ylab = ylabel, main = main, col = density.col)
-      if(contours){
-        contour(x.vals, y.vals, z.matrix, add = TRUE, ...)
-      }else{
-        x.min <- min(x.vals)
-        y.min <- min(y.vals)
-        points(x.min - 100000, y.min - 100000)
-      }
-    }else{
-      #Set up plot
-      if(!add){
-        plot(range(x.vals), range(y.vals), col = "white", xlab = xlabel, ylab = ylabel, main = main, yaxt = "n", xaxt = "n")
-      }
-      #Find the range of densities
-      #zlim <- range(strat.density)
-      zlim <- range(densities)
-      #Find the break points
-      breaks <- seq(zlim[1], zlim[2], length = length(density.col)+1)
-      #Add the points for each strata
-      for(strat in seq(along = density.surface)){
-        #col <- colorlut[density.surface[[strat]]$density*multiplier-zlim[1]+1]
-        strat.density <- density.surface[[strat]]$density
-        #Set up a vector for the colours
-        colours <- rep(NA, length = length(strat.density))
-        #Fill in colours
-        for(i in seq(along = density.col)){
-          colours <- ifelse(strat.density >= breaks[i] & strat.density <= breaks[i+1], density.col[i], colours)
-        }
-        points(density.surface[[strat]]$x, density.surface[[strat]]$y, col = colours, pch = 20)
-      }
-      if(contours){
-        contour(x.vals, y.vals, z.matrix, add = TRUE, ...)
-      }
-    }
-    #Now add the tick marks to the axese
-    xticks <- axTicks(1)
-    yticks <- axTicks(2)
-    #Set up axes
-    if(length(plot.units) > 0){
-      if (plot.units != x@units) {
-        #convert units
-        if (x@units == "m" & plot.units == "km") {
-          axis(1,
-               at = xticks,
-               labels = xticks / 1000,
-               col.ticks = 1)
-          axis(2, at = yticks, labels = yticks / 1000)
-        } else if (x@units == "km" & plot.units == "m") {
-          axis(1, at = xticks, labels = xticks * 1000)
-          axis(2, at = yticks, labels = yticks * 1000)
-        } else{
-          warning(
-            "The requested conversion of units is not currently supported, this option will be ignored.",
-            call. = FALSE,
-            immediate. = TRUE
-          )
-        }
-      } else{
-        #no unit conversion needed
-        axis(1, at = xticks, labels = xticks)
-        axis(2, at = yticks, labels = yticks)
-      }
-    }else{
-      #no unit conversion needed
-      axis(1, at = xticks, labels = xticks)
-      axis(2, at = yticks, labels = yticks)
-    }
+    # Plot the denity data
+    plot(plot.data, main = main,
+         axes = axes,
+         lwd = lwd, ...)
   }
 )
 
@@ -305,10 +224,33 @@ setMethod(
   f = "summary",
   signature = "Density",
   definition = function(object, ...){
+    density.sf <- object@density.surface[[1]]
+    # Get strata names
+    strata.name <- unique(density.sf$strata)
+    # For each strata
+    for(strat in seq(along = strata.name)){
+      # Get sf shapes relevant to current strata
+      strat.grid <- density.sf[density.sf$strata == strata.name[strat],]
+      # Find the areas and densities of each grid cell
+      areas <- sf::st_area(strat.grid)
+      # Obtain from sf shape as some grid cells may have been removed
+      densities <- strat.grid$density
+      # Find average abundance per grid cell
+      N <- areas*densities
+      # Create strata summary data
+      tmp.data <- data.frame(strata = strata.name[strat],
+                             area = sum(areas),
+                             ave.N = sum(N),
+                             ave.D = sum(N)/sum(areas))
+      if(strat == 1){
+        density.summary <- tmp.data
+      }else{
+        density.summary <- rbind(density.summary, tmp.data)
+      }
+    }
     # Create a new Density.Summary object
     density.summary <- new(Class = "Density.Summary",
-                           summary = object@summary,
-                           sf.grid = object@sf.grid)
+                           summary = density.summary)
     return(density.summary)
   }
 )

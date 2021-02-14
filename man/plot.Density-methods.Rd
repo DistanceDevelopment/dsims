@@ -4,42 +4,35 @@
 \alias{plot,Density,ANY-method}
 \title{Plot}
 \usage{
-\S4method{plot}{Density,ANY}(
-  x,
-  y,
-  add = FALSE,
-  plot.units = character(0),
-  contours = TRUE,
-  style = "points",
-  density.col = heat.colors(12),
-  main = "",
-  ...
-)
+\S4method{plot}{Density,ANY}(x, y, strata = "all", ...)
 }
 \arguments{
 \item{x}{object of class Density}
 
 \item{y}{not used}
 
-\item{add}{logical indicating whether it should be added to
-existing plot}
+\item{strata}{the strata name or number to be plotted. By default
+all strata will be plotted.}
 
-\item{plot.units}{allows for units to be converted between m
-and km}
-
-\item{contours}{logical indicating whether contours should be
-added}
-
-\item{style}{character "points" or "blocks". Points displays
-a coloured point at the centre of each grid cell where as
-blocks colours the entire cell.}
-
-\item{density.col}{the colours used to indicate density level}
-
-\item{main}{character plot title}
-
-\item{...}{other general plot parameters}
+\item{...}{other general plot parameters. See details and
+\code{?plot.sf} for further information.}
 }
 \description{
 Plots an S4 object of class 'Density'
+}
+\details{
+Described below are the plot arguments implemented
+when plotting Density objects and passed in via ... Further
+arguments may be handled by \code{plot.sf}, see \code{?plot.sf}
+for further details.
+\describe{
+  \item{main}{The plot title. Defaults to the region or strata
+  name depening on what is being plotted.}
+  \item{lwd}{The line width around each grid cell. Defaults to
+  a very fine line.}
+  \item{axes}{Whether to display the axes. Defaults to TRUE.}
+  \item{pal}{The colour palette to use. Defaults to heat.colors.}
+  \item{nbreaks}{The number of break points in the colour palette,
+  defaults to 20.}
+}
 }
