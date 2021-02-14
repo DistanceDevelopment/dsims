@@ -23,7 +23,7 @@ generate.pop.N <- function(population.description, region){
       pop.locations <- data.frame()
       while(nrow(pop.locations) < N[strat] && counter < 10){
         #Generate some animal locations
-        inside <- get.animal.locations(strata.data, temp.region, N[strat], strat)
+        inside <- get.animal.locations(strata.data, temp.region, N[strat], strat, density.obj@x.space, density.obj@y.space)
         if(nrow(pop.locations) == 0){
           pop.locations <- as.data.frame(inside@coords[1:min(N[strat],nrow(inside@coords)),])
         }else{
