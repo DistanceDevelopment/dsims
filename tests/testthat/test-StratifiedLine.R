@@ -111,5 +111,4 @@ test_that("Test stratified options and generating by density", {
   expect_equal(sum(D.summary$ave.N[2:3]),sim.summary@individuals$N$Truth[2])
   expect_equal(sum(D.summary$ave.N[1:3])/sum(D.summary$area[1:3]),sim.summary@individuals$D$Truth[3])
 
-
 })
