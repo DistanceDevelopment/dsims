@@ -2,37 +2,30 @@
 % Please edit documentation in R/Density.R
 \name{plot,Density,ANY-method}
 \alias{plot,Density,ANY-method}
+\alias{plot,Density,Region-method}
 \title{Plot}
 \usage{
-\S4method{plot}{Density,ANY}(x, y, strata = "all", ...)
+\S4method{plot}{Density,ANY}(x, y, strata = "all", title = "")
+
+\S4method{plot}{Density,Region}(x, y, strata = "all", title = "")
 }
 \arguments{
 \item{x}{object of class Density}
 
-\item{y}{not used}
+\item{y}{object of class Region}
 
 \item{strata}{the strata name or number to be plotted. By default
 all strata will be plotted.}
 
-\item{...}{other general plot parameters. See details and
-\code{?plot.sf} for further information.}
+\item{title}{plot title}
+}
+\value{
+ggplot object
+
+ggplot object
 }
 \description{
 Plots an S4 object of class 'Density'
-}
-\details{
-Described below are the plot arguments implemented
-when plotting Density objects and passed in via ... Further
-arguments may be handled by \code{plot.sf}, see \code{?plot.sf}
-for further details.
-\describe{
-  \item{main}{The plot title. Defaults to the region or strata
-  name depening on what is being plotted.}
-  \item{lwd}{The line width around each grid cell. Defaults to
-  a very fine line.}
-  \item{axes}{Whether to display the axes. Defaults to TRUE.}
-  \item{pal}{The colour palette to use. Defaults to heat.colors.}
-  \item{nbreaks}{The number of break points in the colour palette,
-  defaults to 20.}
-}
+
+Plots an S4 object of class 'Density'
 }

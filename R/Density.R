@@ -32,23 +32,20 @@ setClass("Density", representation(region.name = "character",
 setMethod(
   f="initialize",
   signature="Density",
-  definition=function(.Object, region, strata.name = character(0), density.surface = list(), x.space, y.space, constant = NULL, density.gam = NULL, buffer = numeric(0)){
-    #Input pre-processing
+  definition=function(.Object, region, strata.name = character(0), density.surface = list(), x.space, y.space, constant = NULL, model.fit = NULL, density.formula = character(0)){
+    # Create density surface
     if(length(density.surface) == 0){
-      if(!is.null(density.gam)){
-        #Create density surface from gam
-        density.surface <- get.surface.gam(region, x.space, y.space, density.gam, buffer)
-      }else{
-        #Create density surface with constant density within strata
-        density.surface <- get.surface.constant(region, x.space, y.space, constant, buffer)
-      }
+      density.surface <- get.density.surface(region = region,
+                                             x.space = x.space,
+                                             y.space = y.space,
+                                             constant = constant,
+                                             model.fit = model.fit,
+                                             grid.formula = density.formula)
     }
-    # Get the summary table and sf representation
-    density.sf <- get.density.sf(density.surface = density.surface, dimx = x.space, dimy = y.space, region = region)
     #Set slots
     .Object@region.name <- region@region.name
     .Object@strata.name <- strata.name
-    .Object@density.surface <- list(density.sf)
+    .Object@density.surface <- list(density.surface)
     .Object@x.space <- x.space
     .Object@y.space <- y.space
     .Object@units <- region@units
@@ -110,7 +107,11 @@ setMethod("add.hotspot","Density",
             additive.values <- (exp(-dists^2/(2*sigma^2)))*amplitude
             # Add to current density values
             new.densities <- sf.density.df$density + additive.values
-            # Put them back in sf object
+            # Put them back in sf object if they are non-negative
+            if(any(new.densities < 0)){
+              warning("Adding this high / low spot to the density map would have resulted in negative densities. Object returned unchanged.")
+              return(object)
+            }
             object@density.surface[[1]]$density <- new.densities
             return(object)
           }
@@ -121,102 +122,120 @@ setMethod("add.hotspot","Density",
 #'
 #' Plots an S4 object of class 'Density'
 #'
-#' @details Described below are the plot arguments implemented
-#' when plotting Density objects and passed in via ... Further
-#' arguments may be handled by \code{plot.sf}, see \code{?plot.sf}
-#' for further details.
-#' \describe{
-#'   \item{main}{The plot title. Defaults to the region or strata
-#'   name depening on what is being plotted.}
-#'   \item{lwd}{The line width around each grid cell. Defaults to
-#'   a very fine line.}
-#'   \item{axes}{Whether to display the axes. Defaults to TRUE.}
-#'   \item{pal}{The colour palette to use. Defaults to heat.colors.}
-#'   \item{nbreaks}{The number of break points in the colour palette,
-#'   defaults to 20.}
-#' }
 #' @param x object of class Density
 #' @param y not used
 #' @param strata the strata name or number to be plotted. By default
 #' all strata will be plotted.
-#' @param ... other general plot parameters. See details and
-#' \code{?plot.sf} for further information.
+#' @param title plot title
+#' @return ggplot object
 #' @rdname plot.Density-methods
-#' @importFrom grDevices heat.colors rainbow terrain.colors topo.colors cm.colors
+#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes
 #' @exportMethod plot
 setMethod(
   f = "plot",
-  signature = "Density",
-  definition = function(x, y, strata = "all", ...){
-    # Process ...
-    args <- list(...)
-    if("main" %in% names(args)){
-      main <- args$main
-    }else{
-      main <- ""
-    }
-    if("lwd" %in% names(args)){
-      lwd <- args$lwd
-    }else{
-      lwd <- 0.001
-    }
-    if("axes" %in% names(args)){
-      axes <- args$axes
-    }else{
-      axes <- TRUE
-    }
-    if("pal" %in% names(args)){
-      pal <- args$pal
-    }else{
-      pal <- heat.colors
-    }
-    if("nbreaks" %in% names(args)){
-      nbreaks <- args$nbreaks
-    }else{
-      nbreaks <- 20
-    }
+  signature = c("Density"),
+  definition = function(x, y, strata = "all", title = ""){
+    # Extract strata names
+    strata.names <- x@strata.name
+    # Extract plot data
     if(is.character(strata)){
       if(!strata %in% c(x@strata.name, "all")){
         stop("You have provided an unrecognised strata name.", call. = FALSE)
       }
     }
-    strata.names <- x@strata.name
-    #define plot.units if it was not specified
-    # if(length(plot.units) == 0){
-    #   plot.units <- x@units
-    # }
-    # #Create plot axes labels
-    # if(length(plot.units) > 0){
-    #   xlabel <- paste("X-coords (",plot.units[1],")", sep = "")
-    #   ylabel <- paste("Y-coords (",plot.units[1],")", sep = "")
-    # }else{
-    #   xlabel <- "X-coords"
-    #   ylabel <- "Y-coords"
-    # }
-    # Extract the sf object and the densities
+    # set up plot data
     sf.column <- attr(x@density.surface[[1]], "sf_column")
     if(strata == "all"){
       plot.data <- x@density.surface[[1]][,c("density", sf.column)]
-      if(main == ""){
-        main <- x@region.name
+      if(title == ""){
+        title <- x@region.name
       }
     }else if(is.numeric(strata)){
       plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata.names[strata],c("density", sf.column)]
-      if(main == ""){
-        main <- strata.names[strata]
+      if(title == ""){
+        title <- strata.names[strata]
       }
     }else if(is.character(strata)){
       plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata,c("density", sf.column)]
-      if(main == ""){
-        main <- strata
+      if(title == ""){
+        title <- strata
       }
     }
-    # Plot the denity data
-    plot(plot.data, main = main,
-         axes = axes,
-         lwd = lwd,
-         pal = pal,
-         nbreaks = nbreaks, ...)
+    # Set theme
+    tmp <- theme_set(theme_bw())
+    on.exit(theme_set(tmp))
+
+    # Create the plot object
+    ggplot.obj <- ggplot() +
+      geom_sf(data = plot.data, mapping = aes(fill = density), lwd = 0) +
+      scale_fill_viridis_c() +
+      ggtitle(title)
+
+    # return the plot object incase the user wants to modify
+    return(ggplot.obj)
+  }
+)
+
+
+#' Plot
+#'
+#' Plots an S4 object of class 'Density'
+#'
+#' @param x object of class Density
+#' @param y object of class Region
+#' @param strata the strata name or number to be plotted. By default
+#' all strata will be plotted.
+#' @param title plot title
+#' @return ggplot object
+#' @rdname plot.Density-methods
+#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes
+#' @exportMethod plot
+setMethod(
+  f = "plot",
+  signature = c("Density","Region"),
+  definition = function(x, y, strata = "all", title = ""){
+    # Extract strata names
+    strata.names <- x@strata.name
+    # Extract plot data
+    if(is.character(strata)){
+      if(!strata %in% c(x@strata.name, "all")){
+        stop("You have provided an unrecognised strata name.", call. = FALSE)
+      }
+    }
+    # set up plot data
+    sf.column <- attr(x@density.surface[[1]], "sf_column")
+    if(strata == "all"){
+      plot.data <- x@density.surface[[1]][,c("density", sf.column)]
+      if(title == ""){
+        title <- x@region.name
+      }
+    }else if(is.numeric(strata)){
+      plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata.names[strata],c("density", sf.column)]
+      if(title == ""){
+        title <- strata.names[strata]
+      }
+    }else if(is.character(strata)){
+      plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata,c("density", sf.column)]
+      if(title == ""){
+        title <- strata
+      }
+    }
+    # Set theme
+    tmp <- theme_set(theme_bw())
+    on.exit(theme_set(tmp))
+
+    # Extract region data
+    sf.region <- y@region
+
+    # Create the plot object
+    ggplot.obj <- ggplot() +
+      geom_sf(data = plot.data, mapping = aes(fill = density), lwd = 0) +
+      scale_fill_viridis_c() +
+      geom_sf(data = sf.region, fill = NA, color = gray(.2), lwd = 0.2) +
+      ggtitle(title)
+
+    # return the plot object incase the user wants to modify
+    return(ggplot.obj)
   }
 )
 

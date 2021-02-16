@@ -49,7 +49,7 @@ For the purposes of simulation you will likely want to test over a range of plau
 
 # We first create a flat density grid
 density <- make.density(region = region,
-                        x.space = 500,
+                        x.space = 350,
                         constant = 1)
 
 # Now we can add some high and low points to give some spatial variability
@@ -76,9 +76,12 @@ density <- add.hotspot(object = density,
 density <- add.hotspot(object = density,
                        centre = c(-155000, 6285000),
                        sigma = 10000,
-                       amplitude = -2)
+                       amplitude = -1)
 
-plot(density)
+
+#plot(density)
+
+
 
 ```
 
@@ -98,9 +101,9 @@ fit.gam <- mgcv::gam(density ~ s(x,y), data = density.data, family = gaussian(li
 # Use the gam object to create a density object
 gam.density <- make.density(region = region,
                             x.space = 500,
-                            density.gam = fit.gam)
+                            fitted.model = fit.gam)
 
-plot(gam.density)
+#plot(gam.density)
 ```
 
 ### Other Population Parameters

@@ -6,66 +6,75 @@
 \usage{
 make.density(
   region = make.region(),
-  density.surface = list(),
   x.space = 20,
   y.space = NULL,
-  buffer = numeric(0),
   constant = numeric(0),
-  density.gam = NULL
+  fitted.model = NULL,
+  density.formula = NULL,
+  density.surface = list()
 )
 }
 \arguments{
 \item{region}{the Region object in which the density grid will be created}
 
-\item{density.surface}{Object of class \code{list}; list of
-data.frames with the columns x, y and density. There must be one
-data.frame for each strata.}
-
 \item{x.space}{the intervals in the grid in the x direction}
 
 \item{y.space}{the intervals in the grid in the y direction}
 
-\item{buffer}{the width of the buffer region for generating the density grid. If not supplied DSsim will use the maximum value provided for the x.space or y.space.}
-
 \item{constant}{a value describing a constant density across the surface. If not supplied a default value of 1 is used for all strata.}
 
-\item{density.gam}{\code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.}
+\item{fitted.model}{\code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.}
+
+\item{density.formula}{a formula of x and/or y describing the
+density surface.}
+
+\item{density.surface}{Object of class \code{list}; list of
+data.frames with the columns x, y and density. There must be one
+data.frame for each strata.}
 }
 \value{
 object of class Density
 }
 \description{
-The user has the option to create a grid describing the density of the
-objects and pass this in giving the x and y spacings used in the creation
-of this grid. Alternatively the user can specify a constant density and x,
-y spacings and this grid will be generated automatically. The user may
-also supply a \code{mgcv gam} object and x, y spacings and the density grid will
-be created from these.
+Creates a density grid across the study area describing the distribution
+of animals.
+}
+\details{
+There are multiple ways to create the density grid. The most straight forward
+is to create a grid with constant values (to which high and low areas can later
+be added) or pass in a fitted \code{mgcv gam}. The gam model should only be fitted
+with x and y as explanatory variables. Additionally the user has the option to
+create an equally spaced grid themselves describing the density of objects at
+eack grid point. There should be one data.frame with x, y and density values per
+strata and these are grouped together in a list. Care must be taken to then provide
+make.density with the correct x and y spacing values. If you plan on trying multiple
+animal distributions by adding high and low areas to a constant surface if is
+recommended to make a copy of the initial flat density grid object as the first
+step in grid generation is computationally intensive and can take a little while
+to complete, especially if you have a fine density grid.
 }
 \examples{
 # A simple density surface with a constant value of 1 can be created within a rectangular
-# region using
-# the default values:
-density <- make.density(re)
+# Create a region from shapefile
+shapefile.name <- system.file("extdata", "StAndrew.shp", package = "dssd")
+region <- make.region(region.name = "St Andrews bay",
+                      shape = shapefile.name)
+
+# Create a density object
+density <- make.density(region = region,
+                       x.space = 1000,
+                       constant = 1)
+
+# Add some ares of higher / lower density
+density <- add.hotspot(object = density,
+                       centre = c(-170000, 6255000),
+                       sigma = 10000,
+                       amplitude = 4)
+density <- add.hotspot(object = density,
+                       centre = c(-150000, 6240000),
+                       sigma = 10000,
+                       amplitude = -0.9)
 plot(density)
-
-# The example below shows hot to add high and low point to the density surface
-region <- make.region()
-pop.density <- make.density(region = region, x.space = 10,
- y.space = 10, constant = 0.5)
-
-pop.density <- add.hotspot(pop.density, centre = c(50, 200),
- sigma = 100, amplitude = 0.1)
-pop.density <- add.hotspot(pop.density, centre = c(500, 700),
- sigma = 900, amplitude = 0.05)
-pop.density <- add.hotspot(pop.density, centre = c(300, 100),
- sigma = 100, amplitude = -0.15)
-
-#New plot features
-plot(pop.density)
-
-#Block style plotting
-plot(pop.density, contours = FALSE, style = "blocks")
 
 }
 \seealso{

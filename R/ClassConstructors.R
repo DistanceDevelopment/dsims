@@ -23,9 +23,10 @@
 #' @param region the Region object in which the density grid will be created
 #' @param x.space the intervals in the grid in the x direction
 #' @param y.space the intervals in the grid in the y direction
-#' @param buffer the width of the buffer region for generating the density grid. If not supplied DSsim will use the maximum value provided for the x.space or y.space.
 #' @param constant a value describing a constant density across the surface. If not supplied a default value of 1 is used for all strata.
-#' @param density.gam \code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.
+#' @param fitted.model \code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.
+#' @param density.formula a formula of x and/or y describing the
+#' density surface.
 #' @param density.surface Object of class \code{list}; list of
 #'  data.frames with the columns x, y and density. There must be one
 #'  data.frame for each strata.
@@ -58,7 +59,7 @@
 #'                        amplitude = -0.9)
 #' plot(density)
 #'
-make.density <- function(region = make.region(), x.space = 20, y.space = NULL, buffer = numeric(0), constant = numeric(0), density.gam = NULL, density.surface = list(),){
+make.density <- function(region = make.region(), x.space = 20, y.space = NULL, constant = numeric(0), fitted.model = NULL, density.formula = NULL, density.surface = list()){
   # Check if the user has supplied a y.space value
   if(is.null(y.space)){
     # If not set it equal to x.space
@@ -68,10 +69,12 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, b
   est.grid.points <- (sum(region@area)/(x.space)^2)*(x.space/y.space)
   if(est.grid.points < 25){
     stop("Your grid spacing will result in less than 25 grid cells. Please reduce your x.space (and optionally your y.space) argument.", call. = FALSE)
-  }else if(est.grid.points > 25000){
-    stop("Your grid spacing will result in more than 25,000 grid cells. Please increase your x.space (and optionally your y.space) argument.", call. = FALSE)
-  }else if(est.grid.points > 5000){
-    warning("Your grid spacing arguments x.space (and y.space) will result in more than 5000 grid cells being generated. This could take a little time!", call. = FALSE, immediate. = TRUE)
+  }else if(est.grid.points > 50000){
+    stop("Your grid spacing will result in more than 50,000 grid cells. Please increase your x.space (and optionally your y.space) argument.", call. = FALSE)
+  }else if(est.grid.points > 30000){
+    warning("Your grid spacing arguments x.space (and y.space) will result in more than 30,000 grid cells being generated. You might have time to grab a coffee!", call. = FALSE, immediate. = TRUE)
+  }else if(est.grid.points > 10000){
+    warning("Your grid spacing arguments x.space (and y.space) will result in more than 10,000 grid cells being generated. This could take a moment!", call. = FALSE, immediate. = TRUE)
   }
   # Find the number of strata
   no.strata <- length(region@strata.name)
@@ -92,7 +95,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, b
     }
   }
   # Make density object
-  density <- new(Class = "Density", region = region, strata.name = region@strata.name, density.surface = density.surface, x.space = x.space, y.space = y.space, constant = constant, density.gam = density.gam, buffer = buffer)
+  density <- new(Class = "Density", region = region, strata.name = region@strata.name, density.surface = density.surface, x.space = x.space, y.space = y.space, constant = constant, model.fit = fitted.model, density.formula)
   return(density)
 }
 

@@ -6,6 +6,7 @@ Imports:
     Distance,
     sf,
     sp,
+    ggplot2,
     methods
 Suggests:
     testthat,
@@ -62,9 +63,7 @@ Collate:
     'description.summary.R'
     'generate.pop.D.R'
     'generate.pop.N.R'
-    'get.density.sf.R'
-    'get.surface.constant.R'
-    'get.surface.gam.R'
+    'get.density surface.R'
     'message.handler.R'
     'modify.strata.for.analysis.R'
     'rtpois.R'
