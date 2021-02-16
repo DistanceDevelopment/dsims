@@ -1,9 +1,9 @@
 library(dsims)
 library(testthat)
+library(mgcv)
 
 context("Constructor Checks")
 
-#' @importFrom mgcv gam
 test_that("Can create objects or return correct error / warning messages", {
 
   #Set up data
@@ -29,7 +29,7 @@ test_that("Can create objects or return correct error / warning messages", {
 
   # Fit a gam to the density surface
   ddata <- density@density.surface[[1]]
-  fit.gam <- mgcv::gam(density~s(x,y), data = ddata)
+  fit.gam <- gam(density~s(x,y), data = ddata)
 
   # Try creating a density object from the gam results
   density2 <- make.density(region, x.space = 20, fitted.model = fit.gam)

@@ -7,6 +7,8 @@ Imports:
     sf,
     sp,
     ggplot2,
+    mgcv,
+    rgeos,
     methods
 Suggests:
     testthat,
@@ -63,7 +65,7 @@ Collate:
     'description.summary.R'
     'generate.pop.D.R'
     'generate.pop.N.R'
-    'get.density surface.R'
+    'get.density.surface.R'
     'message.handler.R'
     'modify.strata.for.analysis.R'
     'rtpois.R'

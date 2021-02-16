@@ -17,7 +17,7 @@ make.population.description(
 
 \item{density}{the Density object describing the distribution of the individuals / clusters (see \link{make.density}).}
 
-\item{covariates}{Named list with one named entry per individual level covariate. Cluster sizes can be defined here. Each list entry should be another list with either one element or one element per strata allowing different population structures per strata. Each element of these lists should either be a data.frame containing 2 columns, the first the level (level) and the second the probability (prob). The cluster size entry in the list must be named 'size'. Alternatively the list element may be another list specifying the distribution in the first element and a named list in the second element with the distribution parameter.}
+\item{covariates}{Named list with one named entry per individual level covariate. Cluster sizes can be defined here, it must be named 'size'. Each list entry should be another list with either one element or one element per strata allowing different population structures per strata. Each element of these lists should either be a data.frame containing 2 columns, the first the level (level) and the second the probability (prob). The cluster size entry in the list must be named 'size'. Alternatively the list element may be another list specifying the distribution in the first element and a named list in the second element with the distribution parameter.}
 
 \item{N}{the number of individuals / clusters in a population (1000 by default)}
 
@@ -29,12 +29,17 @@ object of class Population.Description
 }
 \description{
 Creates an object which describes a population. The values in this object
-will be used to create instances of the population
+will be used to create instances of the population.
 }
 \details{
-#' The \code{covariates} argument should specify a list with one named
-element per covariate. If specifying the covariate values via a distribution
-this should be done in the form of a list. The first element should be one of
+The \code{covariates} argument should specify a list with one named
+element per covariate. The population covariate values can either be described
+by dataframes representing discrete covariates or by distributions.
+If specifying the covariate values via a distribution
+this should be done in the form of a list, the list should first contain the
+distribution and then specify
+
+The first element should be one of
 the following: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'
 distribution refers to a zero truncated Poisson distribution. The corresponding
 parameters that you must supply are detailed below. These should be added to a named
@@ -49,50 +54,7 @@ See examples for implementation.
               }
 }
 \examples{
-# An example population can be created from the default values:
-# - the default region
-# - a constant density surface
-# - and a population size of 1000
-pop.desc <- make.population.description()
-
-# To view an instance of this population
-pop <- generate.population(pop.desc, make.detectability(), make.region())
-plot(make.region())
-plot(pop)
-
-# An example population with covariates which vary by strata
-# Make a multi strata region
-poly1 <- data.frame(x = c(0,0,100,100,0), y = c(0,100,100,0,0))
-poly2 <- data.frame(x = c(200,200,300,300,200), y = c(10,110,110,10,10))
-coords <- list(list(poly1), list(poly2))
-region <- make.region(coords = coords)
-density <- make.density(region)
-
-# Cluzter size is a zero truncated poisson with mean = 5 in strata 1 and a poisson with
-# lambda = 30 in strata 2.
-covariate.list <- list()
-covariate.list$size <- list(list("ztruncpois", list(mean = 5)),
-                            list("poisson", list(lambda = 30)))
-
-# Animal height is generated from a lognormal distribution for both strata
-covariate.list$height <- list(list("lognormal", list(meanlog = log(2), sdlog = log(1.25))))
-
-# Animal sex is discrete/categorical, there are more females than males in strata 1 and equal
-# numbers in strata 2
-covariate.list$sex <- list(data.frame(level = c("male", "female"), prob = c(0.45,0.55)),
-                           data.frame(level = c("male", "female"), prob = c(0.5,0.5)))
-
-# Create covariate description
-pop.desc <- make.population.description(region.obj = region,
-                                        density.obj = density,
-                                        covariates = covariate.list,
-                                        N = c(10,10))
-
-# To view the covariate values
-pop <- generate.population(pop.desc, detect = make.detectability(), region)
-pop@population
-# Note that the covariate values have not affected the detectability (the scale parameter) to
-# do this we need to set the cov.param argument in make.detectability. See ?make.detectability
+# Create population description example
 }
 \seealso{
 \code{\link{make.region}}, \code{\link{make.density}}, \code{\link{make.detectability}}

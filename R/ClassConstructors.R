@@ -140,50 +140,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #' @author Laura Marshall
 #' @seealso \code{\link{make.region}}, \code{\link{make.density}}, \code{\link{make.detectability}}
 #' @examples
-#' # An example population can be created from the default values:
-#' # - the default region
-#' # - a constant density surface
-#' # - and a population size of 1000
-#' pop.desc <- make.population.description()
-#'
-#' # To view an instance of this population
-#' pop <- generate.population(pop.desc, make.detectability(), make.region())
-#' plot(make.region())
-#' plot(pop)
-#'
-#' # An example population with covariates which vary by strata
-#' # Make a multi strata region
-#' poly1 <- data.frame(x = c(0,0,100,100,0), y = c(0,100,100,0,0))
-#' poly2 <- data.frame(x = c(200,200,300,300,200), y = c(10,110,110,10,10))
-#' coords <- list(list(poly1), list(poly2))
-#' region <- make.region(coords = coords)
-#' density <- make.density(region)
-#'
-#' # Cluzter size is a zero truncated poisson with mean = 5 in strata 1 and a poisson with
-#' # lambda = 30 in strata 2.
-#' covariate.list <- list()
-#' covariate.list$size <- list(list("ztruncpois", list(mean = 5)),
-#'                             list("poisson", list(lambda = 30)))
-#'
-#' # Animal height is generated from a lognormal distribution for both strata
-#' covariate.list$height <- list(list("lognormal", list(meanlog = log(2), sdlog = log(1.25))))
-#'
-#' # Animal sex is discrete/categorical, there are more females than males in strata 1 and equal
-#' # numbers in strata 2
-#' covariate.list$sex <- list(data.frame(level = c("male", "female"), prob = c(0.45,0.55)),
-#'                            data.frame(level = c("male", "female"), prob = c(0.5,0.5)))
-#'
-#' # Create covariate description
-#' pop.desc <- make.population.description(region.obj = region,
-#'                                         density.obj = density,
-#'                                         covariates = covariate.list,
-#'                                         N = c(10,10))
-#'
-#' # To view the covariate values
-#' pop <- generate.population(pop.desc, detect = make.detectability(), region)
-#' pop@population
-#' # Note that the covariate values have not affected the detectability (the scale parameter) to
-#' # do this we need to set the cov.param argument in make.detectability. See ?make.detectability
+#' # Create population description example
 make.population.description <- make.pop.description <- function(region = make.region(), density = make.density(), covariates = list(), N = numeric(0), fixed.N = TRUE){
   # Check all covariates are named
   if(any(names(covariates) == "")){
@@ -268,54 +225,6 @@ make.population.description <- make.pop.description <- function(region = make.re
 #' @examples
 #' # The default values create a detectability object with a half normal
 #' # detection function with scale parameter 25 and truncation distance 50.
-#' detect <- make.detectability()
-#' detect
-#'
-#' # To include covariate parameters which affect detecability,
-#' # first you need to make sure the population has covariates defined
-#' # see examples in ?make.population.description
-#' # Multi-strata covariate example
-#' # Make a multi strata region
-#' poly1 <- data.frame(x = c(0,0,100,100,0), y = c(0,100,100,0,0))
-#' poly2 <- data.frame(x = c(200,200,300,300,200), y = c(10,110,110,10,10))
-#' coords <- list(list(poly1), list(poly2))
-#' region <- make.region(coords = coords)
-#' density <- make.density(region)
-#' # Create the population description
-#' covariate.list <- list()
-#' covariate.list$size <- list(list("ztruncpois", list(mean = 3)),
-#'                             list("ztruncpois", list(mean = 5)))
-#' covariate.list$height <- list(list("lognormal", list(meanlog = log(2), sdlog = log(1.25))))
-#' covariate.list$sex <- list(data.frame(level = c("male", "female"), prob = c(0.45,0.55)),
-#'                            data.frame(level = c("male", "female"), prob = c(0.5,0.5)))
-#' pop.desc <- make.population.description(region.obj = region,
-#'                                         density.obj = density,
-#'                                         covariates = covariate.list,
-#'                                         N = c(10,10))
-#'
-#' # In this example height and sex have a global effect where as the effects of size on
-#' # detectability vary by strata.
-#' cov.params <- list(size = c(log(1.05), log(1.1)),
-#'                    height = log(1.2),
-#'                    sex = data.frame(level = c("male", "female"),
-#'                                     param = c(log(1), log(0.6))))
-#'
-#' detect <- make.detectability(key.function = "hn", scale.param = 20,
-#'                              truncation = 50, cov.param = cov.params)
-#'
-#' plot(detect, pop.desc)
-#'
-#' # If we want the effects of sex to be strata specific we can define detectability as follows:
-#' cov.params <- list(size = c(0.05, 0.1),
-#'                    height = 0.2,
-#'                    sex = data.frame(level = c("male", "female","male", "female"),
-#'                                     strata = c("A", "A", "B", "B"),
-#'                                     param = c(0,-0.5, 0.1, -0.25)))
-#'
-#' detect <- make.detectability(key.function = "hn", scale.param = c(20, 25),
-#'                              truncation = 60, cov.param = cov.params)
-#' plot(detect, pop.desc)
-#'
 make.detectability <- function(key.function = "hn", scale.param = 25, shape.param = numeric(0), cov.param = list(), truncation = 50){
   # Passes all arguments to function to make a new instance of the class
   detectability <- new(Class = "Detectability", key.function = key.function, scale.param = scale.param, shape.param = shape.param, cov.param = cov.param, truncation = truncation)
@@ -438,86 +347,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' @importFrom dssd make.region make.design
 #' @author Laura Marshall
 #' @examples
-#' \dontrun{
 #' # A basic line transect simulation example
-#' sim <- make.simulation()
-#' check.sim.setup(sim)
-#' sim <- run(sim)
-#' summary(sim)
-#'
-#' # A basic point transect simulation example
-#' sim <- make.simulation(design.obj = make.design("point"))
-#' check.sim.setup(sim)
-#' sim <- run(sim)
-#' summary(sim)
-#' # Note % bias levels will vary due to low number of repetitions
-#' # set by default in these examples
-#'
-#' # To increase the number of repetitions
-#' sim <- make.simulation(reps = 100)
-#' sim <- run(sim)
-#' summary(sim)
-#' }
-#'
-#' coords <- gaps <- list()
-#' coords[[1]] <- list(data.frame(x = c(0,1000,1000,0,0), y = c(0,0,
-#'  1000,1000,0)))
-#' gaps[[1]] <- list(data.frame(x = c(400,600,500,350,400), y = c(100,
-#'  250,600,120,100)))
-#'
-#' region <- make.region(region.name = "study.area", units = "m",
-#'  coords = coords, gaps = gaps)
-#' plot(region)
-#'
-#' \dontrun{
-#' data(transects.shp)
-#' #Edit the pathway below to point to an empty folder where the
-#' #transect shapefile will be saved
-#' shapefile.pathway <- "C:/..."
-#' write.shapefile(transects.shp, paste(shapefile.pathway,"/transects_1",
-#'  sep = ""))
-#'
-#' parallel.design <- make.design(transect.type = "Line",
-#'  design.details = c("Parallel","Systematic"), region = region,
-#'  design.axis = 0, spacing = 100, plus.sampling =FALSE,
-#'  path = shapefile.pathway)
-#'
-#' pop.density <- make.density(region.obj = region, x.space = 10,
-#'  y.space = 10, constant = 0.5)
-#' pop.density <- add.hotspot(pop.density, centre = c(50, 200),
-#'  sigma = 100, amplitude = 0.1)
-#' pop.density <- add.hotspot(pop.density, centre = c(500, 700),
-#'  sigma = 900, amplitude = 0.05)
-#' pop.density <- add.hotspot(pop.density, centre = c(300, 100),
-#'  sigma = 100, amplitude = -0.15)
-#'
-#' plot(pop.density)
-#' plot(region, add = TRUE)
-#'
-#' pop.description <- make.population.description(N = 1000,
-#'  density.obj = pop.density, region = region, fixed.N = TRUE)
-#'
-#' detect <- make.detectability(key.function = "hn", scale.param = 15,
-#'  truncation = 30)
-#'
-#' ddf.analyses <- make.ddf.analysis.list(dfmodel = list(~cds(key = "hn",
-#'  formula = ~1),~cds(key = "hr", formula = ~1)), method = "ds",
-#'  criteria = "AIC")
-#'
-#' my.simulation <- make.simulation(reps = 10, single.transect.set = TRUE,
-#'  region.obj = region, design.obj = parallel.design,
-#'  population.description.obj = pop.description,
-#'  detectability.obj = detect, ddf.analyses.list = ddf.analyses)
-#'
-#' survey <- run.survey(my.simulation)
-#'
-#' plot(survey.results)
-#'
-#' my.simulation <- run(my.simulation)
-#'
-#' summary(my.simulation)
-#' }
-#'
 make.simulation <- function(reps = 10, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis()){
 
   # Make the results arrays and store in a list

@@ -41,15 +41,12 @@ Note that if we were to assume that there were 300 groups in the St Andrews bay 
 
 For the purposes of simulation you will likely want to test over a range of plausible animal distributions as if you knew exactly how many you were going to find at any given location you probably wouldn't be doing the study! When testing non-uniform coverage designs you may want to try out worst case scenarios, when density in the area of higher or lower coverage differs to majority of the survey region. This will give an idea of the degree of potential bias which could be introduced. In this example for the equal spaced zigzag design as it is generated in a convex hull the areas with differing coverage are likely to be at the very top and very bottom of the survey region. In the density grid below these areas are shown to have lower animal density than the rest of the survey region, a likely scenario when a study region has been constructed in order to catch the range of a population of interest.
 
-```{r densitydepend, echo=FALSE}
-#' @importFrom mgcv gam
-```
 
 ```{r density, fig.align='center', fig.cap="Figure 2: A density map representing a plausible distributions of animals within the study region.", fig.width=4, fig.height=4}
 
 # We first create a flat density grid
 density <- make.density(region = region,
-                        x.space = 350,
+                        x.space = 500,
                         constant = 1)
 
 # Now we can add some high and low points to give some spatial variability
@@ -79,7 +76,7 @@ density <- add.hotspot(object = density,
                        amplitude = -1)
 
 
-#plot(density)
+plot(density, region)
 
 
 
@@ -96,14 +93,15 @@ density.data <- density@density.surface[[1]]
 head(density.data)
 
 # Fit a simple gam to the data
-fit.gam <- mgcv::gam(density ~ s(x,y), data = density.data, family = gaussian(link="log"))
+library(mgcv)
+fit.gam <- gam(density ~ s(x,y), data = density.data, family = gaussian(link="log"))
 
 # Use the gam object to create a density object
 gam.density <- make.density(region = region,
                             x.space = 500,
                             fitted.model = fit.gam)
 
-#plot(gam.density)
+plot(gam.density, region)
 ```
 
 ### Other Population Parameters

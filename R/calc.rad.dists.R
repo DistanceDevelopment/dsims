@@ -1,5 +1,6 @@
 #' @importFrom graphics points
 #' @importFrom sf as_Spatial
+#' @importFrom rgeos gIntersects
 calc.rad.dists <- function(population, transects, plot = FALSE){
   # Calculates the possible detection distances to the transects
   # Arguments:

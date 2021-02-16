@@ -1,6 +1,7 @@
 #' @importFrom graphics points
 #' @importFrom sp Polygon Polygons SpatialPolygons
 #' @importFrom sf as_Spatial
+#' @importFrom rgeos gIntersects
 calc.perp.dists <- function(population, transects, plot = FALSE){
   # Calculates the possible detection distances to the transects
   # Arguments:

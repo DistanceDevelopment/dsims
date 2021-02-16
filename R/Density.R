@@ -129,7 +129,9 @@ setMethod("add.hotspot","Density",
 #' @param title plot title
 #' @return ggplot object
 #' @rdname plot.Density-methods
-#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes
+#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw
+#' @importFrom grDevices gray
+#' @importFrom stats density
 #' @exportMethod plot
 setMethod(
   f = "plot",
@@ -188,7 +190,9 @@ setMethod(
 #' @param title plot title
 #' @return ggplot object
 #' @rdname plot.Density-methods
-#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes
+#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw
+#' @importFrom grDevices gray
+#' @importFrom stats density
 #' @exportMethod plot
 setMethod(
   f = "plot",

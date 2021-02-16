@@ -5,7 +5,7 @@
         ],
         "path" : "",
         "projectRelative" : true,
-        "query" : "slot",
+        "query" : "rgeos::",
         "regex" : false
     }
 }
