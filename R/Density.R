@@ -129,7 +129,7 @@ setMethod("add.hotspot","Density",
 #' @param title plot title
 #' @return ggplot object
 #' @rdname plot.Density-methods
-#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw
+#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw scale_colour_viridis_c
 #' @importFrom grDevices gray
 #' @importFrom stats density
 #' @exportMethod plot
@@ -169,8 +169,9 @@ setMethod(
 
     # Create the plot object
     ggplot.obj <- ggplot() +
-      geom_sf(data = plot.data, mapping = aes(fill = density), lwd = 0) +
+      geom_sf(data = plot.data, mapping = aes(fill = density, colour = density)) +
       scale_fill_viridis_c() +
+      scale_colour_viridis_c() +
       ggtitle(title)
 
     # return the plot object incase the user wants to modify
@@ -190,7 +191,7 @@ setMethod(
 #' @param title plot title
 #' @return ggplot object
 #' @rdname plot.Density-methods
-#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw
+#' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw scale_colour_viridis_c
 #' @importFrom grDevices gray
 #' @importFrom stats density
 #' @exportMethod plot
@@ -233,8 +234,9 @@ setMethod(
 
     # Create the plot object
     ggplot.obj <- ggplot() +
-      geom_sf(data = plot.data, mapping = aes(fill = density), lwd = 0) +
+      geom_sf(data = plot.data, mapping = aes(fill = density, colour=density)) +
       scale_fill_viridis_c() +
+      scale_colour_viridis_c() +
       geom_sf(data = sf.region, fill = NA, color = gray(.2), lwd = 0.2) +
       ggtitle(title)
 
@@ -282,6 +284,9 @@ setMethod(
         density.summary <- rbind(density.summary, tmp.data)
       }
     }
+    attributes(density.summary$ave.N) <- NULL
+    attributes(density.summary$ave.D) <- NULL
+
     # Create a new Density.Summary object
     density.summary <- new(Class = "Density.Summary",
                            summary = density.summary)
