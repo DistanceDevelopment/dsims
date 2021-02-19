@@ -22,103 +22,56 @@ setClass("Survey", representation(population = "Population",
 #' @rdname plot-methods
 #' @export
 #' @importFrom graphics par
+#' @importFrom gridExtra grid.arrange
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes
+#' @importFrom sf st_as_sf
 setMethod(
   f="plot",
   signature=c("Survey", "Region"),
   definition=function(x, y, ...){
     # Set up plot parameters
-    args <- list(...)
+    # 4 plot for survey
+    p <- list()
 
-    if("strata.col" %in% names(args)){
-      strata.col <- args$strata.col
-      if(length(strata.col) <- length(y@strata.name)){
-        multiply <- ceiling(length(y@strata.name)/length(strata.col))
-        strata.col <- rep(strata.col, multiply)
-      }
-    }else{
-      strata.col <- rep("ivory1", length(y@strata.name))
-    }
-    transect.col <- ifelse("transect.col" %in% names(args), args$transect.col, 4)
-    population.col <- ifelse("population.col" %in% names(args), args$population.col, 2)
-    detect.col <- ifelse("detect.col" %in% names(args), args$detect.col, "cyan")
-    cov.areas <- ifelse("covered.areas" %in% names(args), args$covered.areas, FALSE)
-    lwd <- ifelse("lwd" %in% names(args), args$lwd, 1)
-    # Region info
-    region <- y
-    sf.region <- region@region
-    sf.column <- attr(sf.region, "sf_column")
-    bbox <- sf::st_bbox(sf.region)
-    if(length(region@units) > 0){
-      x.label <- paste("x-coords (", region@units, ")", sep = "")
-      y.label <- paste("y-coords (", region@units, ")", sep = "")
-    }else{
-      x.label <- "x.coordinates"
-      y.label <- "y.coordinates"
-    }
-    # Samplers info
-    samps <- x@transect
-    sf.column.samps <- attr(samps@samplers, "sf_column")
-    bbox.samps <- sf::st_bbox(samps@samplers)
-    # Population info
-    pop <- x@population@population
-    # Plot format
-    orig.opts <- par(mfrow = c(2,2))
-    on.exit(par(orig.opts))
-    # Plot 1 - region and transects
-    # plot region
-    plot(c(0,0), col = "white",
-         xlim = c(min(bbox$xmin,bbox.samps$xmin), max(bbox$xmax,bbox.samps$xmax)),
-         ylim = c(min(bbox$ymin,bbox.samps$ymin), max(bbox$ymax,bbox.samps$ymax)),
-         main = "Transects", xlab = x.label, ylab = y.label)
-    for(i in seq(along = sf.region[[sf.column]])){
-      plot(sf.region[[sf.column]][[i]], add = TRUE, col = strata.col[i])
-    }
-    # plot transects
-    plot(samps@samplers[[sf.column.samps]], col = transect.col, lwd = lwd, add = TRUE)
+    sf.region <- y@region
+    transects <- x@transect@samplers
 
-    # Plot 2 - region and population
-    # plot region
-    plot(c(0,0), col = "white",
-         xlim = c(bbox$xmin, bbox$xmax), ylim = c(bbox$ymin, bbox$ymax),
-         main = "Population", xlab = x.label, ylab = y.label)
-    for(i in seq(along = sf.region[[sf.column]])){
-      plot(sf.region[[sf.column]][[i]], add = TRUE, col = strata.col[i])
-    }
-    # plot population
-    points(pop$x, pop$y, pch = 20, col = population.col)
+    p[[1]] <- ggplot() + theme_set(theme_bw()) +
+      geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
+      geom_sf(data = transects, mapping = aes(), colour = "blue") +
+      ggtitle("Transects")
 
-    # Plot 3 - region, population and detections (covered areas optional)
-    plot(c(0,0), col = "white",
-         xlim = c(min(bbox$xmin,bbox.samps$xmin), max(bbox$xmax,bbox.samps$xmax)),
-         ylim = c(min(bbox$ymin,bbox.samps$ymin), max(bbox$ymax,bbox.samps$ymax)),
-         main = "Survey", xlab = x.label, ylab = y.label)
-    for(i in seq(along = sf.region[[sf.column]])){
-      plot(sf.region[[sf.column]][[i]], add = TRUE, col = strata.col[i])
-    }
-    # plot covered areas
-    if(cov.areas){
-      cov.area.shape <- x@transect@cov.area.polys
-      sf.col.ca <- attr(cov.area.shape, "sf_column")
-      cov.area.shape <- cov.area.shape[[sf.col.ca]]
-      for(i in seq(along = cov.area.shape)){
-        plot(cov.area.shape[[i]], add = T)
-      }
-    }
-    # plot transects
-    plot(samps@samplers[[sf.column.samps]], col = transect.col, lwd = lwd, add = TRUE)
-    # plot population
-    points(pop$x, pop$y, pch = 20, col = population.col)
-    # add detections
-    points(x@dist.data$x, x@dist.data$y, pch = 20, col = detect.col)
+    pop.df <- x@population@population
+    pts <- sp::SpatialPoints(data.frame(x = pop.df$x, y = pop.df$y))
+    pts.sf <- sf::st_as_sf(pts)
+    sf::st_crs(pts.sf) <- sf::st_crs(sf.region)
 
-    # Plot 4 - histogram of detection distances
-    hist.xlab <- ifelse(class(x@transect) == "Line.Transect", "perpendicular distance", "radial distance")
-    if(length(region@units) > 0){
-      hist.xlab <- paste(hist.xlab, " (", region@units, ")", sep = "")
-    }
-    hist(x@dist.data$distance, main = "Detection Distances", xlab = hist.xlab)
+    p[[2]] <- ggplot() + theme_set(theme_bw()) +
+      geom_sf(data = sf.region, color = gray(.2), lwd = 0.1, fill = "lightgrey") +
+      geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
+      ggtitle("Population")
 
-    return(invisible(x))
+    distdata <- na.omit(x@dist.data)
+    pts2 <- sp::SpatialPoints(data.frame(x = distdata$x, y = distdata$y))
+    detect.sf <- sf::st_as_sf(pts2)
+    sf::st_crs(detect.sf) <- sf::st_crs(sf.region)
+
+
+    p[[3]] <- ggplot() + theme_set(theme_bw()) +
+      geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
+      geom_sf(data = transects, mapping = aes(), colour = "blue") +
+      geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
+      geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
+      ggtitle("Detections")
+
+
+    p[[4]] <- ggplot(distdata, aes(x=distance)) + theme_set(theme_bw()) +
+      geom_histogram(color="black", fill="lightgrey", bins = nclass.Sturges(distdata$distance)) +
+      ggtitle("Detection Distances")
+
+    gridExtra::grid.arrange(grobs=p)
+
+    return(invisible(p))
   }
 )
 
@@ -135,56 +88,44 @@ setMethod(
 #' @rdname plot-methods
 #' @export
 #' @importFrom graphics par
+#' @importFrom gridExtra grid.arrange
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes
+#' @importFrom sf st_as_sf
 setMethod(
   f="plot",
   signature=c("Survey"),
   definition=function(x, y = NULL, ...){
-    # Set up plot parameters
-    args <- list(...)
 
-    transect.col <- ifelse("transect.col" %in% names(args), args$transect.col, 4)
-    population.col <- ifelse("population.col" %in% names(args), args$population.col, 2)
-    detect.col <- ifelse("detect.col" %in% names(args), args$detect.col, "cyan")
-    cov.areas <- ifelse("covered.areas" %in% names(args), args$covered.areas, TRUE)
-    lwd <- ifelse("lwd" %in% names(args), args$lwd, 1)
-    # Samplers info
-    samps <- x@transect
-    sf.column.samps <- attr(samps@samplers, "sf_column")
-    bbox.samps <- sf::st_bbox(samps@cov.area.polys)
-    # Population info
-    pop <- x@population@population
-    x.range <- range(pop$x)
-    y.range <- range(pop$y)
-    # Plot format
-    orig.opts <- par(mfrow = c(1,2))
-    on.exit(par(orig.opts))
-    # Plot 1 - region and transects
-    # plot region
-    plot(c(0,0), col = "white",
-         xlim = c(min(bbox.samps$xmin, x.range[1]), max(bbox.samps$xmax,x.range[2])),
-         ylim = c(min(bbox.samps$ymin,y.range[1]), max(bbox.samps$ymax,y.range[2])),
-         main = "Survey", xlab = "x.coordinates", ylab = "y.coordinate")
-    # plot covered areas
-    if(cov.areas){
-      cov.area.shape <- x@transect@cov.area.polys
-      sf.col.ca <- attr(cov.area.shape, "sf_column")
-      cov.area.shape <- cov.area.shape[[sf.col.ca]]
-      for(i in seq(along = cov.area.shape)){
-        plot(cov.area.shape[[i]], add = T)
-      }
-    }
-    # plot transects
-    plot(samps@samplers[[sf.column.samps]], col = transect.col, lwd = lwd, add = TRUE)
-    # plot population
-    points(pop$x, pop$y, pch = 20, col = population.col)
-    # add detections
-    points(x@dist.data$x, x@dist.data$y, pch = 20, col = detect.col)
+    p <- list()
+    # Set up data
+    # Transects
+    transects <- x@transect@samplers
+    covered.areas <- x@transect@cov.area.polys
+    # Population
+    pop.df <- x@population@population
+    pts <- sp::SpatialPoints(data.frame(x = pop.df$x, y = pop.df$y))
+    pts.sf <- sf::st_as_sf(pts)
+    sf::st_crs(pts.sf) <- sf::st_crs(transects)
+    # Detections
+    distdata <- na.omit(x@dist.data)
+    pts2 <- sp::SpatialPoints(data.frame(x = distdata$x, y = distdata$y))
+    detect.sf <- sf::st_as_sf(pts2)
+    sf::st_crs(detect.sf) <- sf::st_crs(transects)
 
-    # Plot 4 - histogram of detection distances
-    hist.xlab <- ifelse(class(x@transect) == "Line.Transect", "perpendicular distance", "radial distance")
-    hist(x@dist.data$distance, main = "Detection Distances", xlab = hist.xlab)
+    p[[1]] <- ggplot() + theme_set(theme_bw()) +
+      geom_sf(data = covered.areas, color = gray(.2), lwd = 0.1) +
+      geom_sf(data = transects, mapping = aes(), colour = "blue") +
+      geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
+      geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
+      ggtitle("Example survey")
 
-    return(invisible(x))
+    p[[2]] <- ggplot(distdata, aes(x=distance)) + theme_set(theme_bw()) +
+      geom_histogram(color="black", fill="lightgrey", bins = nclass.Sturges(distdata$distance)) +
+      ggtitle("Detection Distances")
+
+    gridExtra::grid.arrange(grobs=p)
+
+    return(invisible(p))
   }
 )
 
