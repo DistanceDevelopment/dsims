@@ -22,8 +22,9 @@ setClass("Survey", representation(population = "Population",
 #' @rdname plot-methods
 #' @export
 #' @importFrom graphics par
+#' @importFrom grDevices nclass.Sturges
 #' @importFrom gridExtra grid.arrange
-#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim
 #' @importFrom sf st_as_sf
 setMethod(
   f="plot",
@@ -31,6 +32,7 @@ setMethod(
   definition=function(x, y, ...){
     # Set up plot parameters
     # 4 plot for survey
+    suppressWarnings(invisible(gc()))
     p <- list()
 
     sf.region <- y@region
@@ -65,8 +67,10 @@ setMethod(
       ggtitle("Detections")
 
 
+    bins <- nclass.Sturges(distdata$distance)
+    breaks <- seq(0, max(distdata$distance), length = bins)
     p[[4]] <- ggplot(distdata, aes(x=distance)) + theme_set(theme_bw()) +
-      geom_histogram(color="black", fill="lightgrey", bins = nclass.Sturges(distdata$distance)) +
+      geom_histogram(color="black", fill="lightgrey", breaks = breaks ) +
       ggtitle("Detection Distances")
 
     gridExtra::grid.arrange(grobs=p)
@@ -88,14 +92,15 @@ setMethod(
 #' @rdname plot-methods
 #' @export
 #' @importFrom graphics par
+#' @importFrom grDevices nclass.Sturges
 #' @importFrom gridExtra grid.arrange
-#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim
 #' @importFrom sf st_as_sf
 setMethod(
   f="plot",
   signature=c("Survey"),
   definition=function(x, y = NULL, ...){
-
+    suppressWarnings(invisible(gc()))
     p <- list()
     # Set up data
     # Transects
@@ -119,8 +124,10 @@ setMethod(
       geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
       ggtitle("Example survey")
 
+    bins <- nclass.Sturges(distdata$distance)
+    breaks <- seq(0, max(distdata$distance), length = bins)
     p[[2]] <- ggplot(distdata, aes(x=distance)) + theme_set(theme_bw()) +
-      geom_histogram(color="black", fill="lightgrey", bins = nclass.Sturges(distdata$distance)) +
+      geom_histogram(color="black", fill="lightgrey", breaks = breaks ) +
       ggtitle("Detection Distances")
 
     gridExtra::grid.arrange(grobs=p)
