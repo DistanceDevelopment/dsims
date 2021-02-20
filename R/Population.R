@@ -63,9 +63,7 @@ setValidity("Population",
 
 #' Plot
 #'
-#' Plots an S4 object of class 'Population'. Requires that the
-#' associated region has already been plotted. This function adds
-#' the locations of the individuals/clusters in the population.
+#' Unused, will give a warning that the region must also be supplied.
 #'
 #' @param x object of class Population
 #' @param y not used
@@ -77,11 +75,46 @@ setMethod(
   f="plot",
   signature="Population",
   definition=function(x, y, ...){
-    points(x@population$x, x@population$y, col = 2, pch = 20, ...)
+    warning("To plot the population please provide the Region as well as the Population.", call. = FALSE, immediate. = TRUE)
     invisible(x)
   }
 )
 
+
+#' Plot
+#'
+#' Plots an S4 object of class 'Population'. Requires that the
+#' associated region has already been plotted. This function adds
+#' the locations of the individuals/clusters in the population.
+#'
+#' @param x object of class Population
+#' @param y object of class Region
+#' @param ... other general plot parameters
+#' @rdname plot.Population-methods
+#' @importFrom graphics points
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes
+#' @importFrom sf st_as_sf
+#' @exportMethod plot
+setMethod(
+  f="plot",
+  signature=c("Population","Region"),
+  definition=function(x, y, ...){
+    # Get region
+    sf.region <- y@region
+    # Turn population into sf object
+    pop.df <- x@population
+    pts <- sp::SpatialPoints(data.frame(x = pop.df$x, y = pop.df$y))
+    pts.sf <- sf::st_as_sf(pts)
+    sf::st_crs(pts.sf) <- sf::st_crs(sf.region)
+
+    ggplot.obj <- ggplot() + theme_set(theme_bw()) +
+      geom_sf(data = sf.region, color = gray(.2), lwd = 0.1, fill = "lightgrey") +
+      geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
+      ggtitle("Population")
+
+    return(ggplot.obj)
+  }
+)
 
 
 
