@@ -74,7 +74,9 @@ density <- add.hotspot(object = density,
                        centre = c(-150000, 6240000),
                        sigma = 10000,
                        amplitude = -0.9)
-plot(density)
+
+# Plot the density
+plot(density, region)
 
 }
 \seealso{

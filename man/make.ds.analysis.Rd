@@ -7,7 +7,6 @@
 make.ds.analysis(
   dfmodel = list(~1),
   key = "hn",
-  adjustment = list(),
   truncation = numeric(0),
   cutpoints = numeric(0),
   er.var = "R2",
@@ -23,13 +22,6 @@ make.ds.analysis(
 \item{key}{key function to use; "hn" gives half-normal (default) and "hr" gives
 hazard-rate.}
 
-\item{adjustment}{a way of providing information about the adjustment term options. A
-list of options for adjustment parameters. In the case of multiple models this should
-be a list of option lists, one for each model. Note adjustment terms can only be
-included when there are no covariates in the model. The adjustment options include:
-adjustment - "cos" (recommended), "herm" or "poly", order - the order of the adjustment
-terms and scale - either "width" or "scale". See details for more information.}
-
 \item{truncation}{distance can be supplied as (numeric, e.g. 5) or percentage (as a
 string, e.g. "15\%"). By default for exact distances the maximum observed
 distance is used as the right truncation. Note that any value supplied as a string
@@ -44,8 +36,7 @@ that if data has columns distbegin and distend then these will be used as bins i
 required. Defaults to "R2" for line transects and "P3" for point transects. See
 \code{mrds::varn} for more information / options.}
 
-\item{control.opts}{A list of control options: method - optimisation method,
-initial.values - a list of names starting values, see mrds}
+\item{control.opts}{A list of control options: method - optimisation method,}
 
 \item{group.strata}{Dataframe with two columns ("design.id" and "analysis.id"). The
 former gives the strata names as defined in the design (i.e. the region object) the
@@ -64,8 +55,26 @@ the minimum criteria value.
 }
 \examples{
 
-# To incorporate model selection between a 'hn' and 'hr' model:
-ds.analyses <- make.ds.analysis(dfmodel = ~1, key = "hn")
+# Model selection considering both a half-normal and a hazard-rate model
+# using AIC criteria and truncating 5\% of the data
+ds.analyses <- make.ds.analysis(dfmodel = ~1,
+                                key = c("hn", "hr"),
+                                truncation = "5\%",
+                                criteria = "AIC")
+
+# Model selection considering both a half-normal with no covariates and with size
+# as a covariate using AIC criteria and truncating at 500
+ds.analyses <- make.ds.analysis(dfmodel = list(~1, ~size),
+                                key = "hn",
+                                truncation = 500,
+                                criteria = "AIC")
+
+# Model selection considering both a half-normal with no covariates and with size
+# as a covariate and a hazard rate, using AIC criteria and truncating at 500
+ds.analyses <- make.ds.analysis(dfmodel = list(~1, ~size, ~1),
+                                key = c("hn", "hn", "hr"),
+                                truncation = 500,
+                                criteria = "AIC")
 
 }
 \seealso{

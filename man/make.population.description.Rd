@@ -17,12 +17,11 @@ make.population.description(
 
 \item{density}{the Density object describing the distribution of the individuals / clusters (see \link{make.density}).}
 
-\item{covariates}{Named list with one named entry per individual level covariate. Cluster sizes can be defined here, it must be named 'size'. Each list entry should be another list with either one element or one element per strata allowing different population structures per strata. Each element of these lists should either be a data.frame containing 2 columns, the first the level (level) and the second the probability (prob). The cluster size entry in the list must be named 'size'. Alternatively the list element may be another list specifying the distribution in the first element and a named list in the second element with the distribution parameter.}
+\item{covariates}{Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular ditribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.}
 
 \item{N}{the number of individuals / clusters in a population (1000 by default)}
 
-\item{fixed.N}{a logical value. If TRUE the population is generated from the value of N
-otherwise it is generated from the density description.}
+\item{fixed.N}{a logical value. If TRUE the population is generated from the value of N otherwise it is generated from the vaues in the density grid.}
 }
 \value{
 object of class Population.Description
@@ -32,19 +31,7 @@ Creates an object which describes a population. The values in this object
 will be used to create instances of the population.
 }
 \details{
-The \code{covariates} argument should specify a list with one named
-element per covariate. The population covariate values can either be described
-by dataframes representing discrete covariates or by distributions.
-If specifying the covariate values via a distribution
-this should be done in the form of a list, the list should first contain the
-distribution and then specify
-
-The first element should be one of
-the following: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'
-distribution refers to a zero truncated Poisson distribution. The corresponding
-parameters that you must supply are detailed below. These should be added to a named
-list (each element named with the parameter name) containing the parameter values.
-See examples for implementation.
+Inidividual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
 
 \tabular{lll}{ Distribution  \tab Parameters  \tab         \cr
                normal        \tab mean        \tab sd      \cr
@@ -54,10 +41,78 @@ See examples for implementation.
               }
 }
 \examples{
-# Create population description example
+# Create a basic rectangular study area
+region <- make.region()
+
+# Make a density grid (large spacing for speed)
+density <- make.density(region = region,
+                        x.space = 200,
+                        y.space = 100,
+                        constant = 1)
+density <- add.hotspot(density, centre = c(1000, 100), sigma = 250, amplitude = 10)
+
+# Define some covariate values for out population
+covs <- list()
+covs$size <- list(distribution = "ztruncpois", mean = 5)
+
+# Define the population description
+popdsc <- make.population.description(region = region,
+                                      density = density,
+                                      covariates = covs,
+                                      N = 200)
+
+# define the detecability
+detect <- make.detectability(key.function = "hn", scale.param = 25, truncation = 50)
+
+# generate an example population
+pop <- generate.population(popdsc, region = region, detectability = detect)
+
+plot(pop, region)
+
+# Multi-strata example (make sf shape)
+s1 = matrix(c(0,0,0,2,1,2,1,0,0,0),ncol=2, byrow=TRUE)
+s2 = matrix(c(1,0,1,2,2,2,2,0,1,0),ncol=2, byrow=TRUE)
+pol1 = sf::st_polygon(list(s1))
+pol2 = sf::st_polygon(list(s2))
+sfc <- sf::st_sfc(pol1,pol2)
+strata.names <- c("low", "high")
+sf.pol <- sf::st_sf(strata = strata.names, geom = sfc)
+
+region <- make.region(region.name = "Multi-strata Eg",
+                      strata.name = strata.names,
+                      shape = sf.pol)
+
+density <- make.density(region = region,
+                        x.space = 0.2,
+                        constant = c(20,50))
+
+covs <- list()
+covs$size <- list(list(distribution = "poisson", lambda = 25),
+                  list(distribution = "poisson", lambda = 15))
+covs$sex <- data.frame(level = rep(c("male", "female"),2),
+                      prob = c(0.5, 0.5, 0.6, 0.4),
+                      strata = c(rep("low",2),rep("high",2)))
+
+# Define the population description (this time using the density to determine
+# the population size)
+popdesc <- make.population.description(region = region,
+                                       density = density,
+                                       covariates = covs,
+                                       fixed.N = FALSE)
+
+# define the detecability (see make.detectability to alter detection function
+# for different covariate values)
+detect <- make.detectability(key.function = "hn", scale.param = 25, truncation = 50)
+
+# generate an example population
+pop <- generate.population(popdesc, region = region, detectability = detect)
+
+plot(pop, region)
+
+
 }
 \seealso{
-\code{\link{make.region}}, \code{\link{make.density}}, \code{\link{make.detectability}}
+\code{\link{make.simulation}} \code{\link{make.detectability}} \code{\link{make.density}}
 }
 \author{
 Laura Marshall

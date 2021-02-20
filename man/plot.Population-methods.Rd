@@ -2,18 +2,23 @@
 % Please edit documentation in R/Population.R
 \name{plot,Population,ANY-method}
 \alias{plot,Population,ANY-method}
+\alias{plot,Population,Region-method}
 \title{Plot}
 \usage{
 \S4method{plot}{Population,ANY}(x, y, ...)
+
+\S4method{plot}{Population,Region}(x, y, ...)
 }
 \arguments{
 \item{x}{object of class Population}
 
-\item{y}{not used}
+\item{y}{object of class Region}
 
 \item{...}{other general plot parameters}
 }
 \description{
+Unused, will give a warning that the region must also be supplied.
+
 Plots an S4 object of class 'Population'. Requires that the
 associated region has already been plotted. This function adds
 the locations of the individuals/clusters in the population.

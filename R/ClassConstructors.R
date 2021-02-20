@@ -57,7 +57,9 @@
 #'                        centre = c(-150000, 6240000),
 #'                        sigma = 10000,
 #'                        amplitude = -0.9)
-#' plot(density)
+#'
+#' # Plot the density
+#' plot(density, region)
 #'
 make.density <- function(region = make.region(), x.space = 20, y.space = NULL, constant = numeric(0), fitted.model = NULL, density.formula = NULL, density.surface = list()){
   # Check if the user has supplied a y.space value
@@ -105,20 +107,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #' Creates an object which describes a population. The values in this object
 #' will be used to create instances of the population.
 #'
-#' @details
-#' The \code{covariates} argument should specify a list with one named
-#' element per covariate. The population covariate values can either be described
-#' by dataframes representing discrete covariates or by distributions.
-#' If specifying the covariate values via a distribution
-#' this should be done in the form of a list, the list should first contain the
-#' distribution and then specify
-#'
-#' The first element should be one of
-#' the following: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'
-#' distribution refers to a zero truncated Poisson distribution. The corresponding
-#' parameters that you must supply are detailed below. These should be added to a named
-#' list (each element named with the parameter name) containing the parameter values.
-#' See examples for implementation.
+#' @details Inidividual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
 #'
 #' \tabular{lll}{ Distribution  \tab Parameters  \tab         \cr
 #'                normal        \tab mean        \tab sd      \cr
@@ -129,18 +118,85 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #'
 #' @param region the Region object in which this population exists (see \link{make.region}).
 #' @param density the Density object describing the distribution of the individuals / clusters (see \link{make.density}).
-#' @param covariates Named list with one named entry per individual level covariate. Cluster sizes can be defined here, it must be named 'size'. Each list entry should be another list with either one element or one element per strata allowing different population structures per strata. Each element of these lists should either be a data.frame containing 2 columns, the first the level (level) and the second the probability (prob). The cluster size entry in the list must be named 'size'. Alternatively the list element may be another list specifying the distribution in the first element and a named list in the second element with the distribution parameter.
+#' @param covariates Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular ditribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.
 #' @param N the number of individuals / clusters in a population (1000 by default)
-#' @param fixed.N a logical value. If TRUE the population is generated from the value of N
-#' otherwise it is generated from the density description.
+#' @param fixed.N a logical value. If TRUE the population is generated from the value of N otherwise it is generated from the vaues in the density grid.
 #' @return object of class Population.Description
 #' @export
 #' @importFrom methods new
 #' @importFrom dssd make.region
 #' @author Laura Marshall
-#' @seealso \code{\link{make.region}}, \code{\link{make.density}}, \code{\link{make.detectability}}
+#' @seealso \code{\link{make.simulation}} \code{\link{make.detectability}} \code{\link{make.density}}
 #' @examples
-#' # Create population description example
+#' # Create a basic rectangular study area
+#' region <- make.region()
+#'
+#' # Make a density grid (large spacing for speed)
+#' density <- make.density(region = region,
+#'                         x.space = 200,
+#'                         y.space = 100,
+#'                         constant = 1)
+#' density <- add.hotspot(density, centre = c(1000, 100), sigma = 250, amplitude = 10)
+#'
+#' # Define some covariate values for out population
+#' covs <- list()
+#' covs$size <- list(distribution = "ztruncpois", mean = 5)
+#'
+#' # Define the population description
+#' popdsc <- make.population.description(region = region,
+#'                                       density = density,
+#'                                       covariates = covs,
+#'                                       N = 200)
+#'
+#' # define the detecability
+#' detect <- make.detectability(key.function = "hn", scale.param = 25, truncation = 50)
+#'
+#' # generate an example population
+#' pop <- generate.population(popdsc, region = region, detectability = detect)
+#'
+#' plot(pop, region)
+#'
+#' # Multi-strata example (make sf shape)
+#' s1 = matrix(c(0,0,0,2,1,2,1,0,0,0),ncol=2, byrow=TRUE)
+#' s2 = matrix(c(1,0,1,2,2,2,2,0,1,0),ncol=2, byrow=TRUE)
+#' pol1 = sf::st_polygon(list(s1))
+#' pol2 = sf::st_polygon(list(s2))
+#' sfc <- sf::st_sfc(pol1,pol2)
+#' strata.names <- c("low", "high")
+#' sf.pol <- sf::st_sf(strata = strata.names, geom = sfc)
+#'
+#' region <- make.region(region.name = "Multi-strata Eg",
+#'                       strata.name = strata.names,
+#'                       shape = sf.pol)
+#'
+#' density <- make.density(region = region,
+#'                         x.space = 0.2,
+#'                         constant = c(20,50))
+#'
+#' covs <- list()
+#' covs$size <- list(list(distribution = "poisson", lambda = 25),
+#'                   list(distribution = "poisson", lambda = 15))
+#' covs$sex <- data.frame(level = rep(c("male", "female"),2),
+#'                       prob = c(0.5, 0.5, 0.6, 0.4),
+#'                       strata = c(rep("low",2),rep("high",2)))
+#'
+#' # Define the population description (this time using the density to determine
+#' # the population size)
+#' popdesc <- make.population.description(region = region,
+#'                                        density = density,
+#'                                        covariates = covs,
+#'                                        fixed.N = FALSE)
+#'
+#' # define the detecability (see make.detectability to alter detection function
+#' # for different covariate values)
+#' detect <- make.detectability(key.function = "hn", scale.param = 25, truncation = 50)
+#'
+#' # generate an example population
+#' pop <- generate.population(popdesc, region = region, detectability = detect)
+#'
+#' plot(pop, region)
+#'
+#'
 make.population.description <- make.pop.description <- function(region = make.region(), density = make.density(), covariates = list(), N = numeric(0), fixed.N = TRUE){
   # Check all covariates are named
   if(any(names(covariates) == "")){
@@ -223,8 +279,49 @@ make.population.description <- make.pop.description <- function(region = make.re
 #' @importFrom methods new
 #' @author Laura Marshall
 #' @examples
-#' # The default values create a detectability object with a half normal
-#' # detection function with scale parameter 25 and truncation distance 50.
+#' # Multi-strata example (make sf shape)
+#' s1 = matrix(c(0,0,0,2,1,2,1,0,0,0),ncol=2, byrow=TRUE)
+#' s2 = matrix(c(1,0,1,2,2,2,2,0,1,0),ncol=2, byrow=TRUE)
+#' pol1 = sf::st_polygon(list(s1))
+#' pol2 = sf::st_polygon(list(s2))
+#' sfc <- sf::st_sfc(pol1,pol2)
+#' strata.names <- c("low", "high")
+#' sf.pol <- sf::st_sf(strata = strata.names, geom = sfc)
+#'
+#' region <- make.region(region.name = "Multi-strata Eg",
+#'                       strata.name = strata.names,
+#'                       shape = sf.pol)
+#'
+#' density <- make.density(region = region,
+#'                         x.space = 0.2,
+#'                         constant = c(20,50))
+#'
+#' covs <- list()
+#' covs$size <- list(list(distribution = "poisson", lambda = 25),
+#'                   list(distribution = "poisson", lambda = 15))
+#' covs$sex <- data.frame(level = rep(c("male", "female"),2),
+#'                       prob = c(0.5, 0.5, 0.6, 0.4),
+#'                       strata = c(rep("low",2),rep("high",2)))
+#'
+#' # Define the population description (this time using the density to determine
+#' # the population size)
+#' popdesc <- make.population.description(region = region,
+#'                                        density = density,
+#'                                        covariates = covs,
+#'                                        fixed.N = FALSE)
+#'
+#' cov.param <- list()
+#' cov.param$size <- c(log(1.02),log(1.005))
+#' cov.param$sex <- data.frame(level = c("male", "female"),
+#'                             param = c(log(1.5), 0))
+#'
+#' # define the detecability
+#' detect <- make.detectability(key.function = "hn",
+#'                              scale.param = 0.08,
+#'                              truncation = 0.2)
+#'
+#' plot(detect, popdesc)
+#'
 make.detectability <- function(key.function = "hn", scale.param = 25, shape.param = numeric(0), cov.param = list(), truncation = 50){
   # Passes all arguments to function to make a new instance of the class
   detectability <- new(Class = "Detectability", key.function = key.function, scale.param = scale.param, shape.param = shape.param, cov.param = cov.param, truncation = truncation)
@@ -242,12 +339,6 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #'  (see \code{?Distance::ds} for further details)
 #' @param key key function to use; "hn" gives half-normal (default) and "hr" gives
 #' hazard-rate.
-#' @param adjustment a way of providing information about the adjustment term options. A
-#' list of options for adjustment parameters. In the case of multiple models this should
-#' be a list of option lists, one for each model. Note adjustment terms can only be
-#' included when there are no covariates in the model. The adjustment options include:
-#' adjustment - "cos" (recommended), "herm" or "poly", order - the order of the adjustment
-#' terms and scale - either "width" or "scale". See details for more information.
 #' @param truncation distance can be supplied as (numeric, e.g. 5) or percentage (as a
 #' string, e.g. "15\%"). By default for exact distances the maximum observed
 #' distance is used as the right truncation. Note that any value supplied as a string
@@ -260,7 +351,6 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #'  required. Defaults to "R2" for line transects and "P3" for point transects. See
 #'  \code{mrds::varn} for more information / options.
 #' @param control.opts A list of control options: method - optimisation method,
-#'  initial.values - a list of names starting values, see mrds
 #' @param group.strata Dataframe with two columns ("design.id" and "analysis.id"). The
 #' former gives the strata names as defined in the design (i.e. the region object) the
 #' second specifies how they should be grouped (into less strata) for the analyses
@@ -272,12 +362,29 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' @seealso \code{ds} in \code{library(Distance)}
 #' @examples
 #'
-#' # To incorporate model selection between a 'hn' and 'hr' model:
-#' ds.analyses <- make.ds.analysis(dfmodel = ~1, key = "hn")
+#' # Model selection considering both a half-normal and a hazard-rate model
+#' # using AIC criteria and truncating 5% of the data
+#' ds.analyses <- make.ds.analysis(dfmodel = ~1,
+#'                                 key = c("hn", "hr"),
+#'                                 truncation = "5%",
+#'                                 criteria = "AIC")
+#'
+#' # Model selection considering both a half-normal with no covariates and with size
+#' # as a covariate using AIC criteria and truncating at 500
+#' ds.analyses <- make.ds.analysis(dfmodel = list(~1, ~size),
+#'                                 key = "hn",
+#'                                 truncation = 500,
+#'                                 criteria = "AIC")
+#'
+#' # Model selection considering both a half-normal with no covariates and with size
+#' # as a covariate and a hazard rate, using AIC criteria and truncating at 500
+#' ds.analyses <- make.ds.analysis(dfmodel = list(~1, ~size, ~1),
+#'                                 key = c("hn", "hn", "hr"),
+#'                                 truncation = 500,
+#'                                 criteria = "AIC")
 #'
 make.ds.analysis <- function(dfmodel = list(~1),
                              key = "hn",
-                             adjustment = list(),
                              truncation = numeric(0),
                              cutpoints = numeric(0),
                              er.var = "R2",
@@ -310,13 +417,23 @@ make.ds.analysis <- function(dfmodel = list(~1),
       stop("The first cutpoint must be 0 or the left truncation distance!")
     }
   }
-
-
   if(!("list" %in% class(dfmodel))){
     dfmodel <- list(dfmodel)
   }
+  if((length(dfmodel) > 1 && length(key) > 1) && length(dfmodel) != length(key)){
+    stop("The number of df models differs from the number of key functions", call. = FALSE)
+  }
+  if(length(dfmodel) == 1 && length(key) > 1){
+    tmp <- list()
+    for(i in seq(along = key)){
+      tmp[[i]] <- dfmodel[[1]]
+    }
+    dfmodel <- tmp
+  }else if(length(dfmodel) > 1 && length(key) == 1){
+    key <- rep(key, length(dfmodel))
+  }
   # Create class instance
-  ds.analysis <- new(Class = "DS.Analysis", dfmodel = dfmodel, key = key, adjustment = adjustment, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria)
+  ds.analysis <- new(Class = "DS.Analysis", dfmodel = dfmodel, key = key, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria)
   return(ds.analysis)
 }
 
@@ -339,15 +456,76 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'  created by a call to \link{make.population.description}
 #' @param detectability and object of class Detectabolity created by a call to
 #'  \link{make.detectability}
-#' @param ds.analysis a list of objects of class DS.Analysis created by
+#' @param ds.analysis an objects of class DS.Analysis created by
 #'  a call to\link{make.ds.analysis}
 #' @return object of class Simulation
 #' @export
 #' @importFrom methods new
 #' @importFrom dssd make.region make.design
 #' @author Laura Marshall
+#' @seealso \code{\link{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link{make.design}}
 #' @examples
-#' # A basic line transect simulation example
+#' # Create a basic rectangular study area
+#' region <- make.region()
+#'
+#' # Make a density grid (large spacing for speed)
+#' density <- make.density(region = region,
+#'                         x.space = 200,
+#'                         y.space = 100,
+#'                         constant = 1)
+#' density <- add.hotspot(density, centre = c(1000, 100), sigma = 250, amplitude = 10)
+#'
+#' # Define the population description
+#' popdsc <- make.population.description(region = region,
+#'                                       density = density,
+#'                                       N = 200)
+#'
+#' # Define the detecability
+#' detect <- make.detectability(key.function = "hn",
+#'                              scale.param = 25,
+#'                              truncation = 50)
+#'
+#' # Define the design
+#' design <- make.design(region = region,
+#'                       transect.type = "line",
+#'                       design = "systematic",
+#'                       samplers = 20,
+#'                       design.angle = 0,
+#'                       truncation = 50)
+#'
+#' # Define the analyses
+#' ds.analyses <- make.ds.analysis(dfmodel = ~1,
+#'                                 key = c("hn", "hr"),
+#'                                 truncation = "5%",
+#'                                 criteria = "AIC")
+#'
+#' # Put all the components together in the simulation
+#' simulation <- make.simulation(reps = 9999,
+#'                               design = design,
+#'                               population.description = popdsc,
+#'                               detectability = detect,
+#'                               ds.analysis = ds.analyses)
+#'
+#' # run an example survey to check the setup
+#' survey <- run.survey(simulation)
+#' plot(survey, region)
+#'
+#' \donttest{
+#' # Run the simulation
+#' simulation <- run.simulation(simulation)
+#' summary(simulation)
+#' }
+#'
+#' # A fast running example for CRAN - please note that you need many replicates to
+#' # obtain meaningful simulation results!
+#' simulation <- make.simulation(reps = 1,
+#'                               design = design,
+#'                               population.description = popdsc,
+#'                               detectability = detect,
+#'                               ds.analysis = ds.analyses)
+#' simulation <- run.simulation(simulation)
+#' summary(simulation)
+#'
 make.simulation <- function(reps = 10, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis()){
 
   # Make the results arrays and store in a list

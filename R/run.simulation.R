@@ -21,7 +21,6 @@
 #' @importFrom parallel detectCores makeCluster clusterEvalQ stopCluster parLapply
 #' @rdname run.simulation-methods
 #' @seealso \code{\link{make.simulation}}
-
 run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, save.data = FALSE,
                            load.data = FALSE, data.path = character(), counter = TRUE,
                            progress.file = character(), ...){

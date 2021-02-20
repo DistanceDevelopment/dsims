@@ -52,7 +52,7 @@ setClass(Class = "DS.Analysis", representation(dfmodel = "list",
 setMethod(
   f="initialize",
   signature="DS.Analysis",
-  definition=function(.Object, dfmodel, key, adjustment, truncation, cutpoints, er.var, control.opts, group.strata, criteria){
+  definition=function(.Object, dfmodel, key, adjustment = list(), truncation, cutpoints, er.var, control.opts, group.strata, criteria){
     # Pre-processing
     #make sure these are characters not factors
     group.strata$design.id <- as.character(group.strata$design.id)
@@ -101,6 +101,9 @@ setValidity("DS.Analysis",
               er.var.estimators <- c("R2","R3","R4","S1","S2","O1","O2","O3","P2","P3")
               if(!(object@er.var %in% er.var.estimators)){
                 return(paste("The er.var argument must be one of: '", paste(er.var.estimators, collapse = "', '"), "'.",  sep = ""))
+              }
+              if(!all(names(object@control.opts) %in% c("method"))){
+                warning("Additional values provided to control options will be ignored. Only method is currently implemented.", immediate. = TRUE, call. = FALSE)
               }
               return(TRUE)
             }

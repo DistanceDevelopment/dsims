@@ -46,7 +46,70 @@ The \code{make.simulation} function is now set up so that by
   line) it can run a simple simulation example. See examples.
 }
 \examples{
-# A basic line transect simulation example
+# Create a basic rectangular study area
+region <- make.region()
+
+# Make a density grid (large spacing for speed)
+density <- make.density(region = region,
+                        x.space = 200,
+                        y.space = 100,
+                        constant = 1)
+density <- add.hotspot(density, centre = c(1000, 100), sigma = 250, amplitude = 10)
+
+# Define the population description
+popdsc <- make.population.description(region = region,
+                                      density = density,
+                                      N = 200)
+
+# Define the detecability
+detect <- make.detectability(key.function = "hn",
+                             scale.param = 25,
+                             truncation = 50)
+
+# Define the design
+design <- make.design(region = region,
+                      transect.type = "line",
+                      design = "systematic",
+                      samplers = 20,
+                      design.angle = 0,
+                      truncation = 50)
+
+# Define the analyses
+ds.analyses <- make.ds.analysis(dfmodel = ~1,
+                                key = c("hn", "hr"),
+                                truncation = "5\%",
+                                criteria = "AIC")
+
+# Put all the components together in the simulation
+simulation <- make.simulation(reps = 9999,
+                              design = design,
+                              population.description = popdsc,
+                              detectability = detect,
+                              ds.analysis = ds.analyses)
+
+# run an example survey to check the setup
+survey <- run.survey(simulation)
+plot(survey, region)
+
+\donttest{
+# Run the simulation
+simulation <- run.simulation(simulation)
+summary(simulation)
+}
+
+# A fast running example for CRAN - please note that you need many replicates to
+# obtain meaningful simulation results!
+simulation <- make.simulation(reps = 1,
+                              design = design,
+                              population.description = popdsc,
+                              detectability = detect,
+                              ds.analysis = ds.analyses)
+simulation <- run.simulation(simulation)
+summary(simulation)
+
+}
+\seealso{
+\code{\link{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link{make.design}} \code{\link{make.}}
 }
 \author{
 Laura Marshall

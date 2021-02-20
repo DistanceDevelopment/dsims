@@ -137,6 +137,7 @@ setMethod(
   f = "plot",
   signature = c("Density"),
   definition = function(x, y, strata = "all", title = ""){
+    suppressWarnings(invisible(gc()))
     # Extract strata names
     strata.names <- x@strata.name
     # Extract plot data
@@ -199,6 +200,7 @@ setMethod(
   f = "plot",
   signature = c("Density","Region"),
   definition = function(x, y, strata = "all", title = ""){
+    suppressWarnings(invisible(gc()))
     # Extract strata names
     strata.names <- x@strata.name
     # Extract plot data
