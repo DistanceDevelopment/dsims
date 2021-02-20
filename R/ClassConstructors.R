@@ -167,13 +167,13 @@ make.population.description <- make.pop.description <- function(region = make.re
         strat.names <- region@strata.name
         if("strata" %in% names(covariates[[cov]][[i]]) && length(covariates[[cov]]) == 1 && length(strat.names) > 1){
           strat.names.check <- unique(covariates[[cov]][[i]]$strata)
-          if(sort(strat.names) != sort(strat.names.check)){
+          if(any(sort(strat.names) != sort(strat.names.check))){
             stop(paste("The strata names in the covariate dataframe for ", cov.names[cov], " do not match the strata names in the region object.", sep = ""), call. = FALSE)
           }
           # Separte this table out into separate list elements
           for(j in seq(along = strat.names)){
             cov.dataframe <- covariates[[cov]][[i]]
-            strat.list[[j]] <- cov.dataframe[cov.dataframe$strata == strat.names[j],]
+            strat.list[[j]] <- cov.dataframe[cov.dataframe$strata == strat.names[j],c("level","prob")]
           }
         }
       }else if(class(covariates[[cov]][[i]]) == "list"){
