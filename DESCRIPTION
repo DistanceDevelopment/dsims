@@ -63,6 +63,7 @@ Collate:
     'create.bins.R'
     'create.results.arrays.R'
     'description.summary.R'
+    'dsims-package.R'
     'generate.pop.D.R'
     'generate.pop.N.R'
     'get.density.surface.R'
