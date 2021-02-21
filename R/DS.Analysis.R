@@ -17,7 +17,7 @@
 #'  either "cos" (recommended), "herm" or "poly", order - the orders of
 #'  the adjustment terms to fit, scale - the scale by which the distances
 #'  in the adjustment terms are divided. See details.
-#' @slot truncation Object of class \code{"character"}; Specifies
+#' @slot truncation Object of class \code{"list"}; Specifies
 #'  the truncation distance for the analyses.
 #' @slot cutpoints Object of class \code{"character"}; gives the
 #'  cutpoints of the bins for binned data analysis.

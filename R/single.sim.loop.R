@@ -88,8 +88,34 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     }
   }
   #Find how many animals were in the covered region
-  if(length(simulation@ds.analysis@truncation) > 0){
-    n.in.covered <- length(which(dists.in.covered <= simulation@ds.analysis@truncation))
+  truncation.list <- simulation@ds.analysis@truncation
+  if(length(truncation.list) > 0){
+    if(length(truncation.list[[1]]) == 1){
+      if(is.double(truncation.list[[1]])){
+        right <- truncation.list[[1]]
+      }else{
+        right.p <- as.numeric(sub("%","",simulation@ds.analysis@truncation[[1]]))
+        right <- quantile(dists.in.covered, probs=1-right.p/100, na.rm=TRUE)
+      }
+      left <- 0
+    }else{
+      if(is.double(truncation.list[[1]]$right)){
+        right <- truncation.list[[1]]$right
+      }else{
+        right.p <- as.numeric(sub("%","",simulation@ds.analysis@truncation[[1]]$right))
+        right <- quantile(dists.in.covered, probs=1-right.p/100, na.rm=TRUE)
+      }
+      if(is.double(truncation.list[[1]]$left)){
+        left <- truncation.list[[1]]$left
+      }else{
+        left.p <- as.numeric(sub("%","",simulation@ds.analysis@truncation[[1]]$left))
+        left <- quantile(dists.in.covered, probs=left.p/100, na.rm=TRUE)
+      }
+    }
+    # Find how many data points are between the truncation distances
+    dists.in.covered <- dists.in.covered[dists.in.covered >= left]
+    dists.in.covered <- dists.in.covered[dists.in.covered <= right]
+    n.in.covered <- length(dists.in.covered)
   }else{
     n.in.covered <- length(dists.in.covered)
   }
