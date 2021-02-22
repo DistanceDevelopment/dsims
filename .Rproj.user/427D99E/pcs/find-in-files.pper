@@ -5,7 +5,7 @@
         ],
         "path" : "",
         "projectRelative" : true,
-        "query" : "<<-",
+        "query" : "simulation@results$filename[i]",
         "regex" : false
     }
 }

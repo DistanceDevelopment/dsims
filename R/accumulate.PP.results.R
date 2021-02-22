@@ -11,7 +11,6 @@ accumulate.PP.results <- function(simulation, results){
       simulation@results$clusters$D[,,i] <- results[[i]]$clusters$D[,,i]
       simulation@results$expected.size[,,i] <- results[[i]]$expected.size[,,i]
     }
-    simulation@results$filename[i] <- results[[i]]$filename
   }
   return(simulation)
 }

@@ -8,22 +8,19 @@
 #' @param run.parallel logical option to use multiple processors
 #' @param max.cores integer maximum number of cores to use, if not specified then
 #' one less than the number available will be used.
-#' @param save.data logical allows the datasets from the simulation to be
-#' saved to file
-#' @param load.data logical allows the datasets to be loaded from file rather than
-#' simulated afresh.
-#' @param data.path character file path to the data files.
 #' @param counter logical indicates if you would like to see the progress counter.
 #' @param progress.file character file to output progress to for Distance for Windows
 #' @param ... will allow further options to be implemented
 #' @return an object of class simulation which now includes the results
 #' @export
 #' @importFrom parallel detectCores makeCluster clusterEvalQ stopCluster parLapply
+#' @importFrom rstudioapi versionInfo
 #' @rdname run.simulation-methods
 #' @seealso \code{\link{make.simulation}}
-run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, save.data = FALSE,
-                           load.data = FALSE, data.path = character(), counter = TRUE,
+run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, counter = TRUE,
                            progress.file = character(), ...){
+  save.data <- load.data <- FALSE
+  data.path <- character()
   #Process ... arguments
   args <- list(...)
   transect.path <- character(0)
@@ -45,9 +42,9 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, sav
   }
   #Reset results arrays
   simulation@results <- create.results.arrays(simulation@reps,
-                                          simulation@design@region,
-                                          simulation@ds.analysis,
-                                          simulation@population.description)
+                                              simulation@design@region,
+                                              simulation@ds.analysis,
+                                              simulation@population.description)
   #reset the error/warning message
   test <- try(simulation@warnings, silent = TRUE)
   if(class(test) == "list"){
@@ -83,10 +80,9 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, sav
   }
   if(run.parallel){
     # intitialise the cluster
-    myCluster <- makeCluster(nCores)
-    clusterEvalQ(myCluster, {
-      require(DSsim)
-      require(shapefiles)
+    myCluster <- parallel::makeCluster(nCores)
+    parallel::clusterEvalQ(myCluster, {
+      require(dsims)
     })
     on.exit(stopCluster(myCluster))
     if(counter){

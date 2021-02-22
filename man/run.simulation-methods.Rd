@@ -8,9 +8,6 @@ run.simulation(
   simulation,
   run.parallel = FALSE,
   max.cores = NA,
-  save.data = FALSE,
-  load.data = FALSE,
-  data.path = character(),
   counter = TRUE,
   progress.file = character(),
   ...
@@ -23,14 +20,6 @@ run.simulation(
 
 \item{max.cores}{integer maximum number of cores to use, if not specified then
 one less than the number available will be used.}
-
-\item{save.data}{logical allows the datasets from the simulation to be
-saved to file}
-
-\item{load.data}{logical allows the datasets to be loaded from file rather than
-simulated afresh.}
-
-\item{data.path}{character file path to the data files.}
 
 \item{counter}{logical indicates if you would like to see the progress counter.}
 
