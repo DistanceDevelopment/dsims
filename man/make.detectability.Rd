@@ -2,7 +2,7 @@
 % Please edit documentation in R/ClassConstructors.R
 \name{make.detectability}
 \alias{make.detectability}
-\title{Creates a Detectablility object}
+\title{Creates a Detectability object}
 \usage{
 make.detectability(
   key.function = "hn",

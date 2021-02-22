@@ -45,7 +45,7 @@ is to create a grid with constant values (to which high and low areas can later
 be added) or pass in a fitted \code{mgcv gam}. The gam model should only be fitted
 with x and y as explanatory variables. Additionally the user has the option to
 create an equally spaced grid themselves describing the density of objects at
-eack grid point. There should be one data.frame with x, y and density values per
+each grid point. There should be one data.frame with x, y and density values per
 strata and these are grouped together in a list. Care must be taken to then provide
 make.density with the correct x and y spacing values. If you plan on trying multiple
 animal distributions by adding high and low areas to a constant surface if is

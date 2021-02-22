@@ -12,15 +12,15 @@ vignette: >
 
 ## Distance Sampling Simulations
 
-This vignette introduces the basic procedure for setting up and running a distance sampling simulation using dsims [@dsims-pkg]. The dsims package uses the distance sampling survey design package dssd [@dssd-pkg] to define the design and generate the suveys (sets of transects). For futher details on defining designs please refer to the dssd vignettes. dsims was designed to be largely similar to the DSsim package [@DSsim-pkg] in terms of work flow, functions and arguments. The main differences in terms of its use lie in the definition of the designs which can now be generated in R via the dssd package and the definition of analyses. Analyses are now defined using terminology based on the Distance package [@Distance-pkg]. In addition, the underlying functionality now makes use of the sf package [@sf-pkg] for improved efficiency.
+This vignette introduces the basic procedure for setting up and running a distance sampling simulation using dsims [@dsims-pkg]. The dsims package uses the distance sampling survey design package dssd [@dssd-pkg] to define the design and generate the surveys (sets of transects). For further details on defining designs please refer to the dssd vignettes. dsims was designed to be largely similar to the DSsim package [@DSsim-pkg] in terms of work flow, functions and arguments. The main differences in terms of its use lie in the definition of the designs which can now be generated in R via the dssd package and the definition of analyses. Analyses are now defined using terminology based on the Distance package [@Distance-pkg]. In addition, the underlying functionality now makes use of the sf package [@sf-pkg] for improved efficiency.
 
 Distance Sampling techniques provide design based estimates of density and abundance for populations, the accuracy of these estimates relies on valid survey design. While general rules of thumb can help guide our design choices, simulations emulating a specific set of survey characteristics can often help us achieve more optimal results for individual studies.
 
-Simulations, for example, can help us maximise our precision across a range of possible scenarios, perhaps allocating effort in relation to a range of predicted density distributions. They can also help us investigate the possible effects of using a more efficent design but which may not have completely uniform coverage probablity across the study region. The specifics of each of these scenarios and many others will be particular to the study in question and hence why simulation can be a powerful tool in survey design.
+Simulations, for example, can help us maximise our precision across a range of possible scenarios, perhaps allocating effort in relation to a range of predicted density distributions. They can also help us investigate the possible effects of using a more efficient design but which may not have completely uniform coverage probability across the study region. The specifics of each of these scenarios and many others will be particular to the study in question and hence why simulation can be a powerful tool in survey design.
 
 ## Setting up the Region
 
-We will use the St Andrews bay as an example study area for these simulations. This is a single strata study region which has been projected into metres. We will first load the dsims package, this will also automatically load the dssd package. Next we will obtain the location of the shapefile within the dssd design package which is then passed to the \code{make.region} function to create our study area. We do not need to pass in the units as these are already defined in the shapfile projection.
+We will use the St Andrews bay as an example study area for these simulations. This is a single strata study region which has been projected into metres. We will first load the dsims package, this will also automatically load the dssd package. Next we will obtain the location of the shapefile within the dssd design package which is then passed to the \code{make.region} function to create our study area. We do not need to pass in the units as these are already defined in the shapefile projection.
 
 ```{r region, fig.align='center', fig.cap="Figure 1: The study region.", fig.width=6, fig.height=4}
 library(dsims)
@@ -35,7 +35,7 @@ plot(region)
 
 ### Population Density Grid
 
-The first step in defining your study population is to set up the densty grid. One way to do this is to initially create a flat surface and then add hot and low spots to represent where you think you might have areas of higher and lower density of animals. We will first of all demonstrate this approach. 
+The first step in defining your study population is to set up the density grid. One way to do this is to initially create a flat surface and then add hot and low spots to represent where you think you might have areas of higher and lower density of animals. We will first of all demonstrate this approach. 
 
 Note that if we were to assume that there were 300 groups in the St Andrews bay study area (which is a fairly large number!) this would only give us an average density of 3.04-07 groups per square metre. For this simulation, as we will use a fixed population size, we do not need to worry about the absolute values of the density surface. Instead, it can be simpler to work with larger values and be aware that we are instead defining a relative density surface. So where we create a surface to have a density of twice that in another area that relationship will be maintained (be it at much smaller absolute values) when we later generate the population.
 
@@ -128,13 +128,13 @@ pop.desc <- make.population.description(region = region,
 
 ## Coverage Grid
 
-It is good practice to create a coverage grid over your study area to assess how coverage probability varies spatially across your study area for any specified designs. For designs where there may be non-uniform converage, we advise coverage probability is assessed prior to running any simulations. However, as this step is not essential for running simulations we will omit it here and refer you to the dssd vignettes for further details. 
+It is good practice to create a coverage grid over your study area to assess how coverage probability varies spatially across your study area for any specified designs. For designs where there may be non-uniform coverage, we advise coverage probability is assessed prior to running any simulations. However, as this step is not essential for running simulations we will omit it here and refer you to the dssd vignettes for further details. 
 
 ## Defining the Design
 
 dsims working together with dssd provides a number of point and line transect designs. Further details on defining designs can be found in the dssd help and vignettes. We also provide examples online at \url{https://examples.distancesampling.org/}.
 
-For the purposes of these simulations we will compare two line transect designs, firstly systematically spaced parallel lines and secondly equal spaced zigzag lines. The zigzag design will be generated within a convex hull to try to minimise the off-effot transit time between the ends of transects. 
+For the purposes of these simulations we will compare two line transect designs, firstly systematically spaced parallel lines and secondly equal spaced zigzag lines. The zigzag design will be generated within a convex hull to try to minimise the off-effort transit time between the ends of transects. 
 
 The design angles for each design were selected so that the transects run perpendicular to the coast. The way the two designs are defined meant that this was 90 degrees for the parallel line design and 0 for the zigzag design. Both designs assumed a minus sampling protocol and the truncation distance was set at 750m from the transect. The spacings for each design were selected to give the same trackline lengths of around 450 km (this was assessed by running the coverage simulations for these designs using \code{run.coverage}, see help in dssd). the trackline lengths can be thought of as an indicator of the cost of the survey as they give the total travel time (both on and off effort) from the beginning of the first transect to the end of the last transect.
 
@@ -266,7 +266,7 @@ plot(eg.zigzag.survey, region)
 
 
 
-## Running the Simualtion
+## Running the Simulation
 
 The simulations can be run as follows. 
 
@@ -280,7 +280,7 @@ sim.zigzag <- run.simulation(sim.zigzag)
 
 ## Simulation Results
 
-The simulation results will look the same as DSsim for now. Will add these over the wekend.
+The simulation results will look the same as DSsim for now. To be added!
 
 ```{r simresults, echo=FALSE}
 load("files/sim.parallel.ROBJ")

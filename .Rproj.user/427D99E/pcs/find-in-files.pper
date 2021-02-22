@@ -5,7 +5,7 @@
         ],
         "path" : "",
         "projectRelative" : true,
-        "query" : "simulation@results$filename[i]",
+        "query" : "make.detectablity",
         "regex" : false
     }
 }

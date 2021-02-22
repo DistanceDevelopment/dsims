@@ -69,7 +69,7 @@ setMethod(
 
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(distdata$distance), length = bins)
-    p[[4]] <- ggplot(distdata, aes(x=distance)) + theme_set(theme_bw()) +
+    p[[4]] <- ggplot(distdata, aes(x=distdata$distance)) + theme_set(theme_bw()) +
       geom_histogram(color="black", fill="lightgrey", breaks = breaks ) +
       ggtitle("Detection Distances")
 
@@ -126,7 +126,7 @@ setMethod(
 
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(distdata$distance), length = bins)
-    p[[2]] <- ggplot(distdata, aes(x=distance)) + theme_set(theme_bw()) +
+    p[[2]] <- ggplot(distdata, aes(x=distdata$distance)) + theme_set(theme_bw()) +
       geom_histogram(color="black", fill="lightgrey", breaks = breaks ) +
       ggtitle("Detection Distances")
 

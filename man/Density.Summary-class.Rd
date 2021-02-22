@@ -11,7 +11,7 @@ summary of the density grids for each strata.
 \section{Slots}{
 
 \describe{
-\item{\code{summary}}{a summary of the average abundances and densitites for
+\item{\code{summary}}{a summary of the average abundances and densities for
 each strata.}
 }}
 

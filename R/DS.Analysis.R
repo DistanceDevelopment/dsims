@@ -4,7 +4,7 @@
 #' @title Class "DS.Analysis"
 #'
 #' @description Class \code{"DDF.Analysis"} is an S4 class describing a basic
-#'  detection function model wto be fitted to distance sampling data.
+#'  detection function model to be fitted to distance sampling data.
 #'
 #' @name DS.Analysis-class
 #' @title S4 Class "DS.Analysis"

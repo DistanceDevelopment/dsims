@@ -3,7 +3,7 @@
 #' summary of the density grids for each strata.
 #' @name Density.Summary-class
 #' @docType class
-#' @slot summary a summary of the average abundances and densitites for
+#' @slot summary a summary of the average abundances and densities for
 #' each strata.
 #' @keywords classes
 #' @seealso \code{\link{make.density}}

@@ -21,7 +21,7 @@ make.simulation(
 \item{population.description}{an object of class Population.Description
 created by a call to \link{make.population.description}}
 
-\item{detectability}{and object of class Detectabolity created by a call to
+\item{detectability}{and object of class Detectability created by a call to
 \link{make.detectability}}
 
 \item{ds.analysis}{an objects of class DS.Analysis created by
@@ -51,7 +51,7 @@ region <- make.region()
 
 # Make a density grid (large spacing for speed)
 density <- make.density(region = region,
-                        x.space = 200,
+                        x.space = 300,
                         y.space = 100,
                         constant = 1)
 density <- add.hotspot(density, centre = c(1000, 100), sigma = 250, amplitude = 10)
@@ -77,7 +77,7 @@ design <- make.design(region = region,
 # Define the analyses
 ds.analyses <- make.ds.analysis(dfmodel = ~1,
                                 key = c("hn", "hr"),
-                                truncation = "5\%",
+                                truncation = 50,
                                 criteria = "AIC")
 
 # Put all the components together in the simulation
@@ -91,21 +91,9 @@ simulation <- make.simulation(reps = 9999,
 survey <- run.survey(simulation)
 plot(survey, region)
 
-\donttest{
-# Run the simulation
-simulation <- run.simulation(simulation)
-summary(simulation)
-}
-
-# A fast running example for CRAN - please note that you need many replicates to
-# obtain meaningful simulation results!
-simulation <- make.simulation(reps = 1,
-                              design = design,
-                              population.description = popdsc,
-                              detectability = detect,
-                              ds.analysis = ds.analyses)
-simulation <- run.simulation(simulation)
-summary(simulation)
+# Run the simulation - not run because it would take a long time!
+#simulation <- run.simulation(simulation)
+#summary(simulation)
 
 }
 \seealso{

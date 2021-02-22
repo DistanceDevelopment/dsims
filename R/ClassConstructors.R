@@ -13,7 +13,7 @@
 #' be added) or pass in a fitted \code{mgcv gam}. The gam model should only be fitted
 #' with x and y as explanatory variables. Additionally the user has the option to
 #' create an equally spaced grid themselves describing the density of objects at
-#' eack grid point. There should be one data.frame with x, y and density values per
+#' each grid point. There should be one data.frame with x, y and density values per
 #' strata and these are grouped together in a list. Care must be taken to then provide
 #' make.density with the correct x and y spacing values. If you plan on trying multiple
 #' animal distributions by adding high and low areas to a constant surface if is
@@ -107,7 +107,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #' Creates an object which describes a population. The values in this object
 #' will be used to create instances of the population.
 #'
-#' @details Inidividual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
+#' @details Individual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
 #'
 #' \tabular{lll}{ Distribution  \tab Parameters  \tab         \cr
 #'                normal        \tab mean        \tab sd      \cr
@@ -118,9 +118,9 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #'
 #' @param region the Region object in which this population exists (see \link{make.region}).
 #' @param density the Density object describing the distribution of the individuals / clusters (see \link{make.density}).
-#' @param covariates Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular ditribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.
+#' @param covariates Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular distribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.
 #' @param N the number of individuals / clusters in a population (1000 by default)
-#' @param fixed.N a logical value. If TRUE the population is generated from the value of N otherwise it is generated from the vaues in the density grid.
+#' @param fixed.N a logical value. If TRUE the population is generated from the value of N otherwise it is generated from the values in the density grid.
 #' @return object of class Population.Description
 #' @export
 #' @importFrom methods new
@@ -262,7 +262,7 @@ make.population.description <- make.pop.description <- function(region = make.re
   return(pop.description)
 }
 
-#' @title Creates a Detectablility object
+#' @title Creates a Detectability object
 #' @description
 #' The detectability of the population is described by the values in this
 #' class.
@@ -461,7 +461,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'  \link{make.design}
 #' @param population.description an object of class Population.Description
 #'  created by a call to \link{make.population.description}
-#' @param detectability and object of class Detectabolity created by a call to
+#' @param detectability and object of class Detectability created by a call to
 #'  \link{make.detectability}
 #' @param ds.analysis an objects of class DS.Analysis created by
 #'  a call to\link{make.ds.analysis}
@@ -477,7 +477,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'
 #' # Make a density grid (large spacing for speed)
 #' density <- make.density(region = region,
-#'                         x.space = 200,
+#'                         x.space = 300,
 #'                         y.space = 100,
 #'                         constant = 1)
 #' density <- add.hotspot(density, centre = c(1000, 100), sigma = 250, amplitude = 10)
@@ -503,7 +503,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' # Define the analyses
 #' ds.analyses <- make.ds.analysis(dfmodel = ~1,
 #'                                 key = c("hn", "hr"),
-#'                                 truncation = "5%",
+#'                                 truncation = 50,
 #'                                 criteria = "AIC")
 #'
 #' # Put all the components together in the simulation
@@ -517,21 +517,9 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' survey <- run.survey(simulation)
 #' plot(survey, region)
 #'
-#' \donttest{
-#' # Run the simulation
-#' simulation <- run.simulation(simulation)
-#' summary(simulation)
-#' }
-#'
-#' # A fast running example for CRAN - please note that you need many replicates to
-#' # obtain meaningful simulation results!
-#' simulation <- make.simulation(reps = 1,
-#'                               design = design,
-#'                               population.description = popdsc,
-#'                               detectability = detect,
-#'                               ds.analysis = ds.analyses)
-#' simulation <- run.simulation(simulation)
-#' summary(simulation)
+#' # Run the simulation - not run because it would take a long time!
+#' #simulation <- run.simulation(simulation)
+#' #summary(simulation)
 #'
 make.simulation <- function(reps = 10, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis()){
 

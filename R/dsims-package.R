@@ -14,12 +14,12 @@
 #' of interest.
 #'
 #' This package interfaces with the survey design package dssd to create the survey
-#' regions, designs and generate the survey transects. It will evenually replace the
+#' regions, designs and generate the survey transects. It will eventually replace the
 #' R library DSsim which relies on survey transects already being contained in
 #' shapefiles rather than being generated in R. It is also superior to DSsim in
 #' that it utilises the simple features (sf) library.
 #'
-#'  The main functions in this pacakge are: \link{make.density}, \link{make.population.description}, \link{make.detectablity}, \link{make.ds.analyses}, \link{make.simulation}, \link{run.survey} and \link{run.simulation}. See also \link{make.region} and \link{make.design} in the dssd package for examples of how to define study regions and designs.
+#'  The main functions in this package are: \link{make.density}, \link{make.population.description}, \link{make.detectability}, \link{make.ds.analysis}, \link{make.simulation}, \link{run.survey} and \link{run.simulation}. See also \link{make.region} and \link{make.design} in the dssd package for examples of how to define study regions and designs.
 #'
 #' Further information on distance sampling methods and example code is available at \url{http://distancesampling.org/R/}.
 #'

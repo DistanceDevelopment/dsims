@@ -17,11 +17,11 @@ make.population.description(
 
 \item{density}{the Density object describing the distribution of the individuals / clusters (see \link{make.density}).}
 
-\item{covariates}{Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular ditribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.}
+\item{covariates}{Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular distribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.}
 
 \item{N}{the number of individuals / clusters in a population (1000 by default)}
 
-\item{fixed.N}{a logical value. If TRUE the population is generated from the value of N otherwise it is generated from the vaues in the density grid.}
+\item{fixed.N}{a logical value. If TRUE the population is generated from the value of N otherwise it is generated from the values in the density grid.}
 }
 \value{
 object of class Population.Description
@@ -31,7 +31,7 @@ Creates an object which describes a population. The values in this object
 will be used to create instances of the population.
 }
 \details{
-Inidividual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
+Individual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The 'ztruncpois'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
 
 \tabular{lll}{ Distribution  \tab Parameters  \tab         \cr
                normal        \tab mean        \tab sd      \cr
