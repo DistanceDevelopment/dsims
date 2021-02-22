@@ -24,7 +24,7 @@ created by a call to \link{make.population.description}}
 \item{detectability}{and object of class Detectabolity created by a call to
 \link{make.detectability}}
 
-\item{ds.analysis}{a list of objects of class DS.Analysis created by
+\item{ds.analysis}{an objects of class DS.Analysis created by
 a call to\link{make.ds.analysis}}
 }
 \value{
@@ -109,7 +109,7 @@ summary(simulation)
 
 }
 \seealso{
-\code{\link{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link{make.design}} \code{\link{make.}}
+\code{\link{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link{make.design}}
 }
 \author{
 Laura Marshall

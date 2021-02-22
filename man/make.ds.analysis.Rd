@@ -22,10 +22,8 @@ make.ds.analysis(
 \item{key}{key function to use; "hn" gives half-normal (default) and "hr" gives
 hazard-rate.}
 
-\item{truncation}{distance can be supplied as (numeric, e.g. 5) or percentage (as a
-string, e.g. "15\%"). By default for exact distances the maximum observed
-distance is used as the right truncation. Note that any value supplied as a string
-will be interpreted as a \% even without the \% symbol.}
+\item{truncation}{absolute truncation distance in simulation units matching the
+region units.}
 
 \item{cutpoints}{if the data are binned, this vector gives the cutpoints of the bins.
 Ensure that the first element is 0 (or the left truncation distance) and the last
@@ -59,7 +57,7 @@ the minimum criteria value.
 # using AIC criteria and truncating 5\% of the data
 ds.analyses <- make.ds.analysis(dfmodel = ~1,
                                 key = c("hn", "hr"),
-                                truncation = "5\%",
+                                truncation = 500,
                                 criteria = "AIC")
 
 # Model selection considering both a half-normal with no covariates and with size

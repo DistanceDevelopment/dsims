@@ -202,50 +202,51 @@ test_that("Can create objects or return correct error / warning messages", {
   # Test analysis creation
 
   # Truncation checks
-  expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
-                                key = rep("hn",3),
-                                cutpoints = seq(0,25, length = 4),
-                                truncation = "15%"),
-               "Truncation cannot be supplied as a percentage with binned data.")
+  # expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
+  #                               key = rep("hn",3),
+  #                               cutpoints = seq(0,25, length = 4),
+  #                               truncation = "15%"),
+  #              "Truncation cannot be supplied as a percentage with binned data.")
 
   expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
                                 key = rep("hn",3),
                                 cutpoints = seq(0,25, length = 4),
-                                truncation = list(left="1",right="15%")),
-               "The first cutpoint must be 0 or the left truncation distance!")
+                                truncation = list(left=1,right=25)),
+               "Truncation must be supplied as a single numeric value giving the absolute truncation distance.")
 
-  expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
-                                key = rep("hn",3),
-                                cutpoints = seq(0,25, length = 4),
-                                truncation = list(left="1",righ="15%")),
-               "Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".")
+  # expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
+  #                               key = rep("hn",3),
+  #                               cutpoints = seq(0,25, length = 4),
+  #                               truncation = list(left="1",righ="15%")),
+  #              "Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".")
 
-  expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
-                                key = rep("hn",3),
-                                cutpoints = seq(0,25, length = 4),
-                                truncation = c("1","15%")),
-               "Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".")
+  # expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
+  #                               key = rep("hn",3),
+  #                               cutpoints = seq(0,25, length = 4),
+  #                               truncation = c("1","15%")),
+  #              "Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".")
 
   expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
                                 key = c("hn","zz","uf"),
-                                truncation = "5%"),
+                                truncation = 25),
                "All key function values should be either 'hn' or 'hr'.")
 
   expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
                                 key = c("hn","hr","hr"),
-                                truncation = "5%",
+                                truncation = 25,
                                 criteria = "QIC"),
                "This selection criteria is not currently supported, please select from 'AIC', 'BIC' or 'AICc'.")
 
   expect_error(make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
                                 key = c("hn","hr","hr"),
-                                truncation = "5%",
+                                truncation = 25,
                                 er.var = "ZZ",
                                 criteria = "AIC"),
                "The er.var argument must be one of: 'R2', 'R3', 'R4', 'S1', 'S2', 'O1', 'O2', 'O3', 'P2', 'P3'.")
 
   analysis <- make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
-                               key = c("hn","hr","hr"))
+                               key = c("hn","hr","hr"),
+                               truncation = 25)
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Create a design - no need to test as tested in dssd
@@ -264,6 +265,9 @@ test_that("Can create objects or return correct error / warning messages", {
                          population.description = pop.descrp,
                          detectability = detect,
                          ds.analysis = analysis)
+
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Test anaysis options
 
   survey <- run.survey(sim)
 

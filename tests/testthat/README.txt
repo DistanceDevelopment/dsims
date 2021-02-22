@@ -12,6 +12,8 @@ General Testing:
 - Hazard-rate detectability - check it runs and produces hazard-rate shape
 - Uniform detection function - check it runs and produces uniform detection probability
 - test that calling ds directly gives same results as calling it through generic tests
+- test that with size in the model all sizes have the same scale params and check ordering tmp <- unique(eg.zigzag.survey@population@population[,c("size","scale.param")])
+expect_equal(order(tmp$size), order(tmp$scale.param))
 
 Input testing:
 
@@ -35,6 +37,12 @@ Special specific testing:
 - Test grouped strata analysis
 
 - Implement and test when only some of the points record distances (not in beta version)
+
+- Unit testing, check that add.summary.results calculates correct summary results depending on use.max.reps
+
+- Strata specific versus global detection function parameters. (Cluster sizes parameter values can be defined here. Each list entry will either be a data.frame containing 2 or 3 columns: level, param and where desired strata. If the region has multiple strata but this column is omitted then the values will be assumed to apply globally. )
+
+- Test generate.pop.D
 
 
 

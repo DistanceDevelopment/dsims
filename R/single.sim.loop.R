@@ -95,7 +95,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
         right <- truncation.list[[1]]
       }else{
         right.p <- as.numeric(sub("%","",simulation@ds.analysis@truncation[[1]]))
-        right <- quantile(dists.in.covered, probs=1-right.p/100, na.rm=TRUE)
+        right <- quantile(na.omit(dist.data$distance), probs=1-right.p/100, na.rm=TRUE)
       }
       left <- 0
     }else{
@@ -103,13 +103,13 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
         right <- truncation.list[[1]]$right
       }else{
         right.p <- as.numeric(sub("%","",simulation@ds.analysis@truncation[[1]]$right))
-        right <- quantile(dists.in.covered, probs=1-right.p/100, na.rm=TRUE)
+        right <- quantile(na.omit(dist.data$distance), probs=1-right.p/100, na.rm=TRUE)
       }
       if(is.double(truncation.list[[1]]$left)){
         left <- truncation.list[[1]]$left
       }else{
         left.p <- as.numeric(sub("%","",simulation@ds.analysis@truncation[[1]]$left))
-        left <- quantile(dists.in.covered, probs=left.p/100, na.rm=TRUE)
+        left <- quantile(na.omit(dist.data$distance), probs=left.p/100, na.rm=TRUE)
       }
     }
     # Find how many data points are between the truncation distances

@@ -339,10 +339,8 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #'  (see \code{?Distance::ds} for further details)
 #' @param key key function to use; "hn" gives half-normal (default) and "hr" gives
 #' hazard-rate.
-#' @param truncation distance can be supplied as (numeric, e.g. 5) or percentage (as a
-#' string, e.g. "15\%"). By default for exact distances the maximum observed
-#' distance is used as the right truncation. Note that any value supplied as a string
-#' will be interpreted as a \% even without the \% symbol.
+#' @param truncation absolute truncation distance in simulation units matching the
+#' region units.
 #' @param cutpoints if the data are binned, this vector gives the cutpoints of the bins.
 #'  Ensure that the first element is 0 (or the left truncation distance) and the last
 #'  is the distance to the end of the furthest bin. (Default NULL, no binning.) Note
@@ -366,7 +364,7 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' # using AIC criteria and truncating 5% of the data
 #' ds.analyses <- make.ds.analysis(dfmodel = ~1,
 #'                                 key = c("hn", "hr"),
-#'                                 truncation = "5%",
+#'                                 truncation = 500,
 #'                                 criteria = "AIC")
 #'
 #' # Model selection considering both a half-normal with no covariates and with size
@@ -397,16 +395,25 @@ make.ds.analysis <- function(dfmodel = list(~1),
   #   # Doing this means left trunction is not currently possible with binned data
   #   truncation <- numeric(0)
   # }
-  if("list" %in% class(truncation)){
-    if(!all(c("left","right") %in% names(truncation))){
-      stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
+  if(!is.double(truncation) || length(truncation) > 1){
+    stop("Truncation must be supplied as a single numeric value giving the absolute truncation distance.", call. = FALSE)
+  }else if("list" %in% class(truncation)){
+    if(length(truncation[[1]]) > 1 || !is.double(truncation[[1]])){
+      stop("Truncation must be supplied as a single numeric value giving the absolute truncation distance.", call. = FALSE)
     }
   }else{
-    if(length(truncation) > 1){
-      stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
-    }
     truncation <- list(truncation)
   }
+  # if("list" %in% class(truncation)){
+  #   if(!all(c("left","right") %in% names(truncation))){
+  #     stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
+  #   }
+  # }else{
+  #   if(length(truncation) > 1){
+  #     stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
+  #   }
+  #   truncation <- list(truncation)
+  # }
   # make sure that the first bin starts 0 or left
   if(length(cutpoints) > 0){
     if(!is.null(truncation$left)){

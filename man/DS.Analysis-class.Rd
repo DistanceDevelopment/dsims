@@ -23,7 +23,7 @@ either "cos" (recommended), "herm" or "poly", order - the orders of
 the adjustment terms to fit, scale - the scale by which the distances
 in the adjustment terms are divided. See details.}
 
-\item{\code{truncation}}{Object of class \code{"character"}; Specifies
+\item{\code{truncation}}{Object of class \code{"list"}; Specifies
 the truncation distance for the analyses.}
 
 \item{\code{cutpoints}}{Object of class \code{"character"}; gives the
