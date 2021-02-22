@@ -32,6 +32,9 @@ test_that("Test creation and data generation", {
   expect_true(class(survey@transect) == "Line.Transect")
 
   sim <- run.simulation(sim)
-  temp <- summary(sim, description.summary = FALSE)
+  summary(sim, description.summary = FALSE)
+
+  sim <- run.simulation(sim, run.parallel = TRUE)
+  summary(sim)
 
 })

@@ -9,7 +9,9 @@ Imports:
     ggplot2,
     mgcv,
     rgeos,
-    methods
+    methods,
+    rstudioapi,
+    gridExtra
 Suggests:
     testthat,
     parallel,

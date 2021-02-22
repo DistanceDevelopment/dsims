@@ -79,6 +79,16 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     }
   }
   if(run.parallel){
+    # there is an issue with parallel on some machines for some versions of R and R studio
+    ## WORKAROUND: https://github.com/rstudio/rstudio/issues/6692
+    ## Revert to 'sequential' setup of PSOCK cluster in RStudio v1.3.959 or lower on macOS with R v4.0.0 or higher
+    if (Sys.getenv("RSTUDIO") == "1" && !nzchar(Sys.getenv("RSTUDIO_TERM")) &&
+        Sys.info()["sysname"] == "Darwin" && getRversion() >= "4.0.0") {
+      if(rstudioapi::versionInfo()$version < "1.3.1056"){
+        #warning(paste("The combination of versions of R-studio and R you are using on your mac may lead to an error when running in parallel. Please run the following command to try to correct this before running the simulation again (alternatively try updating R-studio): parallel:::setDefaultClusterOptions(setup_strategy = \"sequential\")", sep = ""), immediate. = TRUE, call. = FALSE)
+        eval(parse(text = "parallel:::setDefaultClusterOptions(setup_strategy = \"sequential\")"))
+      }
+    }
     # intitialise the cluster
     myCluster <- parallel::makeCluster(nCores)
     parallel::clusterEvalQ(myCluster, {
