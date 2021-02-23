@@ -1,6 +1,6 @@
 Package: dsims
 Depends:
-    dssd
+    dssd (>= 0.2.2)
 Imports:
     mrds,
     Distance,
