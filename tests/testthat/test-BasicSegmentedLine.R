@@ -1,7 +1,7 @@
 library(dsims)
 library(testthat)
 
-context("Basic line transect example")
+context("Basic segmented line transect example")
 
 test_that("Test creation and data generation", {
 
@@ -17,6 +17,8 @@ test_that("Test creation and data generation", {
                                truncation = 50)
   design <- make.design(region = region,
                         transect.type = "line",
+                        design = "segmentedgrid",
+                        seg.length = 50,
                         samplers = 20,
                         truncation = 50)
   analysis <- make.ds.analysis(dfmodel = ~1,
@@ -29,10 +31,13 @@ test_that("Test creation and data generation", {
                          ds.analysis = analysis)
 
   survey <- run.survey(sim)
-  expect_true(class(survey@transect) == "Line.Transect")
+  expect_true(class(survey@transect) == "Segment.Transect")
 
+  undebug(single.sim.loop)
+  undebug(store.dht.results)
   sim.serial <- run.simulation(sim)
   #summary(sim.serial, description.summary = FALSE)
+
 
   sim.para <- run.simulation(sim, run.parallel = TRUE)
   # summary(sim.para)
