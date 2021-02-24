@@ -179,19 +179,6 @@ setMethod(
     }else{
       truncation <- analysis@truncation
     }
-    # Data Prep
-    # if binned analysis add distbegin and distend cols
-    if(length(analysis@cutpoints) > 0){
-      # bin data
-      dist.data <- dist.data[dist.data$distance <= max(analysis@cutpoints),]
-      dist.data <- create.bins(dist.data, cutpoints = analysis@cutpoints)
-    }
-    # Make sure there is a detected column
-    #if(is.null(dist.data$detected)){
-    #  dist.data$detected <- rep(1, nrow(dist.data))
-    #}
-
-
     # Fit models
     models <- list()
     IC <- numeric()
@@ -208,7 +195,7 @@ setMethod(
                                                      adjustment = adjustment[i],
                                                      order = order[i],
                                                      scale = scale[i],
-                                                     cutpoints = NULL, #analysis@cutpoints,
+                                                     cutpoints = analysis@cutpoints,
                                                      monotonicity = monotonicity[i],
                                                      er.var = analysis@er.var,
                                                      method = method,
