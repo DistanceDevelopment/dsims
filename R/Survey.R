@@ -38,7 +38,10 @@ setMethod(
     sf.region <- y@region
     transects <- x@transect@samplers
 
-    p[[1]] <- ggplot() + theme_set(theme_bw()) +
+    orig.theme <- theme_set(theme_bw())
+    on.exit(theme_set(orig.theme))
+
+    p[[1]] <- ggplot() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       ggtitle("Transects")
@@ -48,7 +51,7 @@ setMethod(
     pts.sf <- sf::st_as_sf(pts)
     sf::st_crs(pts.sf) <- sf::st_crs(sf.region)
 
-    p[[2]] <- ggplot() + theme_set(theme_bw()) +
+    p[[2]] <- ggplot() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1, fill = "lightgrey") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
       ggtitle("Population")
@@ -59,22 +62,25 @@ setMethod(
     sf::st_crs(detect.sf) <- sf::st_crs(sf.region)
 
 
-    p[[3]] <- ggplot() + theme_set(theme_bw()) +
+    p[[3]] <- ggplot() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
       geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
       ggtitle("Detections")
 
+    theme_set(theme_classic())
 
     bins <- nclass.Sturges(distdata$distance)
-    breaks <- seq(0, max(distdata$distance), length = bins)
-    p[[4]] <- ggplot(distdata, aes(x=distdata$distance)) + theme_set(theme_bw()) +
-      geom_histogram(color="black", fill="lightgrey", breaks = breaks ) +
-      ggtitle("Detection Distances")
+    breaks <- seq(0, max(na.omit(distdata$distance)), length = bins)
+    p[[4]] <- ggplot(data=distdata, aes(x=distdata$distance)) +
+      geom_histogram(breaks=breaks,
+                     col="black",
+                     fill="grey",
+                     alpha = .2) +
+      labs(title="Detection Distances", x="distance")
 
     gridExtra::grid.arrange(grobs=p)
-
     return(invisible(p))
   }
 )
@@ -117,7 +123,10 @@ setMethod(
     detect.sf <- sf::st_as_sf(pts2)
     sf::st_crs(detect.sf) <- sf::st_crs(transects)
 
-    p[[1]] <- ggplot() + theme_set(theme_bw()) +
+    orig.theme <- theme_set(theme_bw())
+    on.exit(theme_set(orig.theme))
+
+    p[[1]] <- ggplot() +
       geom_sf(data = covered.areas, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
@@ -126,9 +135,15 @@ setMethod(
 
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(distdata$distance), length = bins)
-    p[[2]] <- ggplot(distdata, aes(x=distdata$distance)) + theme_set(theme_bw()) +
-      geom_histogram(color="black", fill="lightgrey", breaks = breaks ) +
-      ggtitle("Detection Distances")
+
+    theme_set(theme_classic())
+
+    p[[2]] <- ggplot(data=distdata, aes(x=distdata$distance)) +
+      geom_histogram(breaks=breaks,
+                     col="black",
+                     fill="grey",
+                     alpha = .2) +
+      labs(title="Detection Distances", x="distance")
 
     gridExtra::grid.arrange(grobs=p)
 
