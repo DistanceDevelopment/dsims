@@ -10,7 +10,7 @@ analyse.data(analysis, data.obj, ...)
 
 \S4method{analyse.data}{DS.Analysis,Survey}(analysis, data.obj, warnings = list(), ...)
 
-\S4method{analyse.data}{DS.Analysis,data.frame}(analysis, data.obj, warnings = list(), ...)
+\S4method{analyse.data}{DS.Analysis,data.frame}(analysis, data.obj, warnings = list(), transect = "line", ...)
 }
 \arguments{
 \item{analysis}{an object of class DS.Analysis}
@@ -20,6 +20,9 @@ analyse.data(analysis, data.obj, ...)
 \item{...}{optional arguments including the following:}
 
 \item{warnings}{a list of warnings and how many times they arose}
+
+\item{transect}{character value either "line" or "point" specifying type of
+transect used in survey}
 }
 \value{
 a list containing an S3 ddf object and optionally an S3 dht object relating to the model with the minimum criteria.
