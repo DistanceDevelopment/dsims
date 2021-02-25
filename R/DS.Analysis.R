@@ -173,6 +173,11 @@ setMethod(
     }else{
       truncation <- analysis@truncation
     }
+    if(length(analysis@cutpoints) == 0){
+      cutpoints <- NULL
+    }else{
+      cutpoints <- analysis@cutpoints
+    }
     # Fit models
     models <- list()
     IC <- numeric()
@@ -189,7 +194,7 @@ setMethod(
                                                      adjustment = adjustment[i],
                                                      order = order[i],
                                                      scale = scale[i],
-                                                     cutpoints = analysis@cutpoints,
+                                                     cutpoints = cutpoints,
                                                      monotonicity = monotonicity[i],
                                                      er.var = analysis@er.var,
                                                      method = method,
