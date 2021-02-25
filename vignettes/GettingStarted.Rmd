@@ -20,13 +20,14 @@ Simulations, for example, can help us maximise our precision across a range of p
 
 ## Setting up the Region
 
-We will use the St Andrews bay as an example study area for these simulations. This is a single strata study region which has been projected into metres. We will first load the dsims package, this will also automatically load the dssd package. Next we will obtain the location of the shapefile within the dssd design package which is then passed to the \code{make.region} function to create our study area. We do not need to pass in the units as these are already defined in the shapefile projection.
+We will use the St Andrews bay as an example study area for these simulations. This is a single strata study region which has been projected into metres. We will first load the dsims package, this will also automatically load the dssd package. Next we will obtain the location of the shapefile within the dssd design package which is then passed to the \code{make.region} function to create our study area. As this shapefile does not have a projection recorded (in an associated .prj file) we tell dsims that the units are metres.
 
 ```{r region, fig.align='center', fig.cap="Figure 1: The study region.", fig.width=6, fig.height=4}
 library(dsims)
 shapefile.name <- system.file("extdata", "StAndrew.shp", package = "dssd")
 region <- make.region(region.name = "St Andrews bay",
-                      shape = shapefile.name)
+                      shape = shapefile.name,
+                      units = "m")
 plot(region)
 ```
 
@@ -75,8 +76,8 @@ density <- add.hotspot(object = density,
                        sigma = 10000,
                        amplitude = -1)
 
-
-plot(density, region)
+# I will choose to plot in km rather than metres (scale = 0.001)
+plot(density, region, scale = 0.001)
 
 
 

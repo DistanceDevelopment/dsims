@@ -127,6 +127,8 @@ setMethod("add.hotspot","Density",
 #' @param strata the strata name or number to be plotted. By default
 #' all strata will be plotted.
 #' @param title plot title
+#' @param scale used to scale the x and y values in the plot (warning may give
+#' unstable results when a projection is defined for the study area!)
 #' @return ggplot object
 #' @rdname plot.Density-methods
 #' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw scale_colour_viridis_c
@@ -136,7 +138,7 @@ setMethod("add.hotspot","Density",
 setMethod(
   f = "plot",
   signature = c("Density"),
-  definition = function(x, y, strata = "all", title = ""){
+  definition = function(x, y, strata = "all", title = "", scale = 1){
     suppressWarnings(invisible(gc()))
     # Extract strata names
     strata.names <- x@strata.name
@@ -147,29 +149,30 @@ setMethod(
       }
     }
     # set up plot data
-    sf.column <- attr(x@density.surface[[1]], "sf_column")
+    density.surface <- x@density.surface[[1]]
+    sf.column <- attr(density.surface, "sf_column")
+    # Scaling plot
+    density.surface[, sf.column] <- density.surface[, sf.column]*scale
+
     if(strata == "all"){
-      plot.data <- x@density.surface[[1]][,c("density", sf.column)]
+      plot.data <- density.surface[,c("density", sf.column)]
       if(title == ""){
         title <- x@region.name
       }
     }else if(is.numeric(strata)){
-      plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata.names[strata],c("density", sf.column)]
+      plot.data <- density.surface[density.surface$strata == strata.names[strata],c("density", sf.column)]
       if(title == ""){
         title <- strata.names[strata]
       }
     }else if(is.character(strata)){
-      plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata,c("density", sf.column)]
+      plot.data <- density.surface[density.surface$strata == strata,c("density", sf.column)]
       if(title == ""){
         title <- strata
       }
     }
-    # Set theme
-    tmp <- theme_set(theme_bw())
-    on.exit(theme_set(tmp))
 
     # Create the plot object
-    ggplot.obj <- ggplot() +
+    ggplot.obj <- ggplot() + theme_bw() +
       geom_sf(data = plot.data, mapping = aes(fill = density, colour = density)) +
       scale_fill_viridis_c() +
       scale_colour_viridis_c() +
@@ -190,6 +193,8 @@ setMethod(
 #' @param strata the strata name or number to be plotted. By default
 #' all strata will be plotted.
 #' @param title plot title
+#' @param scale used to scale the x and y values in the plot (warning may give
+#' unstable results when a projection is defined for the study area!)
 #' @return ggplot object
 #' @rdname plot.Density-methods
 #' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw scale_colour_viridis_c
@@ -199,7 +204,7 @@ setMethod(
 setMethod(
   f = "plot",
   signature = c("Density","Region"),
-  definition = function(x, y, strata = "all", title = ""){
+  definition = function(x, y, strata = "all", title = "", scale = 1){
     suppressWarnings(invisible(gc()))
     # Extract strata names
     strata.names <- x@strata.name
@@ -210,32 +215,36 @@ setMethod(
       }
     }
     # set up plot data
-    sf.column <- attr(x@density.surface[[1]], "sf_column")
+    density.surface <- x@density.surface[[1]]
+    sf.column <- attr(density.surface, "sf_column")
+    # Scaling plot
+    density.surface[, sf.column] <- density.surface[, sf.column]*scale
+
     if(strata == "all"){
-      plot.data <- x@density.surface[[1]][,c("density", sf.column)]
+      plot.data <- density.surface[,c("density", sf.column)]
       if(title == ""){
         title <- x@region.name
       }
     }else if(is.numeric(strata)){
-      plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata.names[strata],c("density", sf.column)]
+      plot.data <- density.surface[density.surface$strata == strata.names[strata],c("density", sf.column)]
       if(title == ""){
         title <- strata.names[strata]
       }
     }else if(is.character(strata)){
-      plot.data <- x@density.surface[[1]][x@density.surface[[1]]$strata == strata,c("density", sf.column)]
+      plot.data <- density.surface[density.surface$strata == strata,c("density", sf.column)]
       if(title == ""){
         title <- strata
       }
     }
-    # Set theme
-    tmp <- theme_set(theme_bw())
-    on.exit(theme_set(tmp))
 
     # Extract region data
     sf.region <- y@region
+    sf.column <- attr(sf.region, "sf_column")
+    # Scaling plot
+    sf.region[, sf.column] <- sf.region[, sf.column]*scale
 
     # Create the plot object
-    ggplot.obj <- ggplot() +
+    ggplot.obj <- ggplot() + theme_bw() +
       geom_sf(data = plot.data, mapping = aes(fill = density, colour=density)) +
       scale_fill_viridis_c() +
       scale_colour_viridis_c() +

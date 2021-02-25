@@ -5,9 +5,9 @@
 \alias{plot,Density,Region-method}
 \title{Plot}
 \usage{
-\S4method{plot}{Density,ANY}(x, y, strata = "all", title = "")
+\S4method{plot}{Density,ANY}(x, y, strata = "all", title = "", scale = 1)
 
-\S4method{plot}{Density,Region}(x, y, strata = "all", title = "")
+\S4method{plot}{Density,Region}(x, y, strata = "all", title = "", scale = 1)
 }
 \arguments{
 \item{x}{object of class Density}
@@ -18,6 +18,9 @@
 all strata will be plotted.}
 
 \item{title}{plot title}
+
+\item{scale}{used to scale the x and y values in the plot (warning may give
+unstable results when a projection is defined for the study area!)}
 }
 \value{
 ggplot object
