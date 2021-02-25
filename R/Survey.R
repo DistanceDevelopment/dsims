@@ -24,7 +24,7 @@ setClass("Survey", representation(population = "Population",
 #' @importFrom graphics par
 #' @importFrom grDevices nclass.Sturges
 #' @importFrom gridExtra grid.arrange
-#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim theme_classic labs
 #' @importFrom sf st_as_sf
 setMethod(
   f="plot",
@@ -69,11 +69,10 @@ setMethod(
       geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
       ggtitle("Detections")
 
-    theme_set(theme_classic())
-
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(na.omit(distdata$distance)), length = bins)
     p[[4]] <- ggplot(data=distdata, aes(x=distdata$distance)) +
+      theme_classic() +
       geom_histogram(breaks=breaks,
                      col="black",
                      fill="grey",
@@ -100,7 +99,7 @@ setMethod(
 #' @importFrom graphics par
 #' @importFrom grDevices nclass.Sturges
 #' @importFrom gridExtra grid.arrange
-#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim theme_classic labs
 #' @importFrom sf st_as_sf
 setMethod(
   f="plot",
@@ -136,9 +135,8 @@ setMethod(
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(distdata$distance), length = bins)
 
-    theme_set(theme_classic())
-
     p[[2]] <- ggplot(data=distdata, aes(x=distdata$distance)) +
+      theme_classic() +
       geom_histogram(breaks=breaks,
                      col="black",
                      fill="grey",
