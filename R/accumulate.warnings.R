@@ -12,5 +12,4 @@ accumulate.warnings <- function(warnings.list){
   }else{
     return(list())
   }
-
 }

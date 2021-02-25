@@ -125,7 +125,7 @@ setMethod(
                        Survey.LT = "line",
                        Survey.PT = "point")
     #Call analyse.data on model and dataset
-    analysis <- analyse.data(analysis, dist.data, transect = transect)
+    analysis <- analyse.data(analysis, dist.data, transect = transect, warnings = warnings)
     return(analysis)
   }
 )
