@@ -23,6 +23,7 @@
 #' @slot detectability Object of class \code{"Detectability"}; a
 #'  description of the detectability of the population.
 #' @slot ds.analysis Object of class \code{"DS.Analysis"}
+#' @slot add.options a list to expand simulation options in the future.
 #' @slot ddf.param.ests Object of class \code{"array"}; stores the
 #'  parameters associated with the detection function.
 #' @slot results A \code{"list"} of \code{"arrays"}; stores
@@ -56,6 +57,7 @@ setClass("Simulation", representation(reps = "numeric",
                                       population.description = "Population.Description",
                                       detectability = "Detectability",
                                       ds.analysis = "DS.Analysis",
+                                      add.options = "list",
                                       ddf.param.ests = "array",
                                       results = "list",
                                       warnings = "list"))
