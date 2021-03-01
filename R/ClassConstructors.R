@@ -274,7 +274,7 @@ make.population.description <- make.pop.description <- function(region = make.re
 #' @param cov.param Named list with one named entry per individual level covariate. Covariate parameter values should be defined on the log scale (rather than the natural scale), this is the same scale as provided in the ddf output in mrds and also in the MCDS output in Distance. Cluster sizes parameter values can be defined here. Each list entry will either be a data.frame containing 2 or 3 columns: level, param and where desired strata. If the region has multiple strata but this column is omitted then the values will be assumed to apply globally. The cluster size entry in the list must be named 'size'. Alternatively the list element may a numeric vector with either a single value to be applied globally or a value for each strata.
 #' @param truncation the maximum perpendicular (or radial) distance at which
 #'   objects may be detected from a line (or point) transect.
-#' @return object of class Detectablility
+#' @return object of class Detectability
 #' @export
 #' @importFrom methods new
 #' @author Laura Marshall
@@ -445,7 +445,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 }
 
 #' @title Creates a Simulation object
-#' @description This creates a simulation with all the information necessary for DSsim
+#' @description This creates a simulation with all the information necessary for dsims
 #' to generate a population, create or read in transects, simulate the survey process
 #' and fit detection functions and estimate density / abundance. This function can be
 #' used by itself based on default values to create a simple line transect example, see
