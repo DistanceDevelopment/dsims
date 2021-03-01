@@ -31,6 +31,8 @@ description of the detectability of the population.}
 
 \item{\code{ds.analysis}}{Object of class \code{"DS.Analysis"}}
 
+\item{\code{add.options}}{a list to expand simulation options in the future.}
+
 \item{\code{ddf.param.ests}}{Object of class \code{"array"}; stores the
 parameters associated with the detection function.}
 
