@@ -46,11 +46,8 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
                                               simulation@ds.analysis,
                                               simulation@population.description)
   #reset the error/warning message
-  test <- try(simulation@warnings, silent = TRUE)
-  if(class(test) == "list"){
-    simulation@warnings$message <- list()
-    simulation@warnings$counter <- list()
-  }
+  simulation@warnings$message <- list()
+  simulation@warnings$counter <- list()
   #check the data.path ends in "/"
   if(length(data.path) > 0){
     temp.path <- strsplit(data.path, split = "")
@@ -137,16 +134,14 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
   simulation@results <- add.summary.results(results = simulation@results,
                                             model.count = length(simulation@ds.analysis@dfmodel))
   #Process warnings
-  test <- try(simulation@warnings, silent = TRUE)
-  if(class(test) == "list"){
-    if(length(simulation@warnings$message) > 0){
-      message("Summary of warnings and errors:")
-      for(i in seq(along = simulation@warnings$message)){
-        message(paste(simulation@warnings$message[[i]], " (occurred ", simulation@warnings$counter[[i]], " times)"))
-      }
-      message("-----")
+  if(length(simulation@warnings$message) > 0){
+    message("Summary of warnings and errors:")
+    for(i in seq(along = simulation@warnings$message)){
+      message(paste(simulation@warnings$message[[i]], " (occurred ", simulation@warnings$counter[[i]], " times)"))
     }
+    message("-----")
   }
+
   return(simulation)
 }
 
