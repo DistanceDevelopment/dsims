@@ -132,22 +132,16 @@ setMethod(
 
 #' @rdname analyse.data-methods
 #' @param warnings a list of warnings and how many times they arose
+#' @param transect character value either "line" or "point" specifying type of
+#' transect used in survey
 #' @export
 #' @importFrom Distance ds
 #' @importFrom stats AIC BIC
 setMethod(
   f="analyse.data",
   signature=c("DS.Analysis", "data.frame"),
-  definition=function(analysis, data.obj, warnings = list(), ...){
+  definition=function(analysis, data.obj, warnings = list(), transect = "line", ...){
     dist.data <- data.obj
-    # deal with ... arguments
-    args <- list(...)
-    if(!"transect" %in% names(args)){
-      #assume it is a line transect if it is missing
-      transect <- "line"
-    }else{
-      transect <- args$transect
-    }
     # deal with adjustment arguments
     if(length(analysis@adjustment) == 0){
       adjustment <- NULL
@@ -179,6 +173,11 @@ setMethod(
     }else{
       truncation <- analysis@truncation
     }
+    if(length(analysis@cutpoints) == 0){
+      cutpoints <- NULL
+    }else{
+      cutpoints <- analysis@cutpoints
+    }
     # Fit models
     models <- list()
     IC <- numeric()
@@ -195,7 +194,7 @@ setMethod(
                                                      adjustment = adjustment[i],
                                                      order = order[i],
                                                      scale = scale[i],
-                                                     cutpoints = analysis@cutpoints,
+                                                     cutpoints = cutpoints,
                                                      monotonicity = monotonicity[i],
                                                      er.var = analysis@er.var,
                                                      method = method,
