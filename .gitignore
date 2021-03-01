@@ -12,3 +12,8 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
+*.pper
+.Rproj.user/427D99E/persistent-state
+.Rproj.user/427D99E/sources/prop/8E616061
+.Rproj.user/427D99E/sources/prop/INDEX
+.Rproj.user/shared/notebooks/paths
