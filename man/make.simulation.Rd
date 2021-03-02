@@ -25,14 +25,14 @@ created by a call to \link{make.population.description}}
 \link{make.detectability}}
 
 \item{ds.analysis}{an objects of class DS.Analysis created by
-a call to\link{make.ds.analysis}}
+a call to \link{make.ds.analysis}}
 }
 \value{
 object of class Simulation
 }
 \description{
-This creates a simulation with all the information necessary for DSsim
-to generate a population, create or read in transects, simulate the survey process
+This creates a simulation with all the information necessary for dsims
+to generate a population, create transects, simulate the survey process
 and fit detection functions and estimate density / abundance. This function can be
 used by itself based on default values to create a simple line transect example, see
 Examples below. To create more complex simulations it is advisable to define the

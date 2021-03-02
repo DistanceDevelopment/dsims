@@ -25,10 +25,8 @@ hazard-rate.}
 \item{truncation}{absolute truncation distance in simulation units matching the
 region units.}
 
-\item{cutpoints}{if the data are binned, this vector gives the cutpoints of the bins.
-Ensure that the first element is 0 (or the left truncation distance) and the last
-is the distance to the end of the furthest bin. (Default NULL, no binning.) Note
-that if data has columns distbegin and distend then these will be used as bins if cutpoints is not specified. If both are specified, cutpoints has precedence.}
+\item{cutpoints}{supply a vector of cutpoints if you wish the simulation to perform
+binned analyses.}
 
 \item{er.var}{encounter rate variance estimator to use when abundance estimates are
 required. Defaults to "R2" for line transects and "P3" for point transects. See
@@ -76,7 +74,7 @@ ds.analyses <- make.ds.analysis(dfmodel = list(~1, ~size, ~1),
 
 }
 \seealso{
-\code{ds} in \code{library(Distance)}
+\code{\link{ds}} \code{\link{make.simulation}}
 }
 \author{
 Laura Marshall

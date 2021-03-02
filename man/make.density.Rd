@@ -29,8 +29,8 @@ make.density(
 density surface.}
 
 \item{density.surface}{Object of class \code{list}; list of
-data.frames with the columns x, y and density. There must be one
-data.frame for each strata.}
+an sf grid recording the density grid polygons and density vaulues within those
+polygons.}
 }
 \value{
 object of class Density
@@ -43,12 +43,8 @@ of animals.
 There are multiple ways to create the density grid. The most straight forward
 is to create a grid with constant values (to which high and low areas can later
 be added) or pass in a fitted \code{mgcv gam}. The gam model should only be fitted
-with x and y as explanatory variables. Additionally the user has the option to
-create an equally spaced grid themselves describing the density of objects at
-each grid point. There should be one data.frame with x, y and density values per
-strata and these are grouped together in a list. Care must be taken to then provide
-make.density with the correct x and y spacing values. If you plan on trying multiple
-animal distributions by adding high and low areas to a constant surface if is
+with x and y as explanatory variables. If you plan on trying multiple
+animal distributions by adding high and low areas to a constant surface it is
 recommended to make a copy of the initial flat density grid object as the first
 step in grid generation is computationally intensive and can take a little while
 to complete, especially if you have a fine density grid.

@@ -26,7 +26,7 @@ half-normal "hn", hazard rate "hr" or uniform "uf")}
 objects may be detected from a line (or point) transect.}
 }
 \value{
-object of class Detectablility
+object of class Detectability
 }
 \description{
 The detectability of the population is described by the values in this
@@ -66,16 +66,21 @@ popdesc <- make.population.description(region = region,
 
 cov.param <- list()
 cov.param$size <- c(log(1.02),log(1.005))
-cov.param$sex <- data.frame(level = c("male", "female"),
-                            param = c(log(1.5), 0))
+cov.param$sex <- data.frame(level = c("male", "female", "male", "female"),
+                            param = c(log(1.5), 0, log(1.7), log(1.2)),
+                            strata = c("low","low","high","high"))
 
 # define the detecability
 detect <- make.detectability(key.function = "hn",
                              scale.param = 0.08,
+                             cov.param = cov.param,
                              truncation = 0.2)
 
 plot(detect, popdesc)
 
+}
+\seealso{
+\code{\link{make.simulation}} \code{\link{make.population.description}} \code{\link{make.density}}
 }
 \author{
 Laura Marshall
