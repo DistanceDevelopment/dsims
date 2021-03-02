@@ -164,12 +164,9 @@ setMethod(
         title <- strata
       }
     }
-    # Set theme
-    tmp <- theme_set(theme_bw())
-    on.exit(theme_set(tmp))
 
     # Create the plot object
-    ggplot.obj <- ggplot() +
+    ggplot.obj <- ggplot() + theme_bw() +
       geom_sf(data = plot.data, mapping = aes(fill = density, colour = density)) +
       scale_fill_viridis_c() +
       scale_colour_viridis_c() +
@@ -227,15 +224,12 @@ setMethod(
         title <- strata
       }
     }
-    # Set theme
-    tmp <- theme_set(theme_bw())
-    on.exit(theme_set(tmp))
 
     # Extract region data
     sf.region <- y@region
 
     # Create the plot object
-    ggplot.obj <- ggplot() +
+    ggplot.obj <- ggplot() + theme_bw() +
       geom_sf(data = plot.data, mapping = aes(fill = density, colour=density)) +
       scale_fill_viridis_c() +
       scale_colour_viridis_c() +

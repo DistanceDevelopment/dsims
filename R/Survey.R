@@ -38,10 +38,7 @@ setMethod(
     sf.region <- y@region
     transects <- x@transect@samplers
 
-    orig.theme <- theme_set(theme_bw())
-    on.exit(theme_set(orig.theme))
-
-    p[[1]] <- ggplot() +
+    p[[1]] <- ggplot() + theme_bw() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       ggtitle("Transects")
@@ -51,7 +48,7 @@ setMethod(
     pts.sf <- sf::st_as_sf(pts)
     sf::st_crs(pts.sf) <- sf::st_crs(sf.region)
 
-    p[[2]] <- ggplot() +
+    p[[2]] <- ggplot() + theme_bw() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1, fill = "lightgrey") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
       ggtitle("Population")
@@ -62,7 +59,7 @@ setMethod(
     sf::st_crs(detect.sf) <- sf::st_crs(sf.region)
 
 
-    p[[3]] <- ggplot() +
+    p[[3]] <- ggplot() + theme_bw() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
@@ -71,7 +68,7 @@ setMethod(
 
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(na.omit(distdata$distance)), length = bins)
-    p[[4]] <- ggplot(data=distdata, aes(x=distdata$distance)) +
+    p[[4]] <- ggplot(data=distdata, aes(x=distance)) +
       theme_classic() +
       geom_histogram(breaks=breaks,
                      col="black",
@@ -122,10 +119,7 @@ setMethod(
     detect.sf <- sf::st_as_sf(pts2)
     sf::st_crs(detect.sf) <- sf::st_crs(transects)
 
-    orig.theme <- theme_set(theme_bw())
-    on.exit(theme_set(orig.theme))
-
-    p[[1]] <- ggplot() +
+    p[[1]] <- ggplot() + theme_bw() +
       geom_sf(data = covered.areas, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
@@ -135,7 +129,7 @@ setMethod(
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(distdata$distance), length = bins)
 
-    p[[2]] <- ggplot(data=distdata, aes(x=distdata$distance)) +
+    p[[2]] <- ggplot(data=distdata, aes(x=distance)) +
       theme_classic() +
       geom_histogram(breaks=breaks,
                      col="black",
