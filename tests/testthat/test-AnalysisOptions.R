@@ -59,8 +59,6 @@ test_that("Can create objects or return correct error / warning messages", {
   sel.model <- analyse.data(analyses, survey@dist.data)
   expect_equal(length(sel.model$model$ddf$fitted), nrow(survey@dist.data[!is.na(survey@dist.data$object),]))
 
-  # Test binned data
-
   # Test optim method
 
   # Test different er.var estimator

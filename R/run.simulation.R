@@ -2,14 +2,14 @@
 #'
 #' Runs the simulation and returns the simulation object with results. If
 #' running in parallel and max.cores is not specified it will default to using
-#' one less than the number of cores / threads on your machine.
+#' one less than the number of cores / threads on your machine. For example
+#' code see \code{\link{make.simulation}}
 #'
 #' @param simulation an object of class Simulation
 #' @param run.parallel logical option to use multiple processors
 #' @param max.cores integer maximum number of cores to use, if not specified then
 #' one less than the number available will be used.
 #' @param counter logical indicates if you would like to see the progress counter.
-#' @param progress.file character file to output progress to for Distance for Windows
 #' @param ... will allow further options to be implemented
 #' @return an object of class simulation which now includes the results
 #' @export
@@ -17,8 +17,7 @@
 #' @importFrom rstudioapi versionInfo
 #' @rdname run.simulation-methods
 #' @seealso \code{\link{make.simulation}}
-run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, counter = TRUE,
-                           progress.file = character(), ...){
+run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, counter = TRUE, ...){
   save.data <- load.data <- FALSE
   data.path <- character()
   #Process ... arguments
@@ -93,13 +92,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     })
     on.exit(stopCluster(myCluster))
     if(counter){
-      if(length(progress.file) > 0){
-        # Set up progress file
-        cat(0, file = progress.file)
-        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = TRUE, progress.file = progress.file, in.parallel = TRUE)
-      }else{
         results <- pbapply::pblapply(X= as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = FALSE)
-      }
     }else{
       results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE)
     }
@@ -123,7 +116,6 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
                                  load.data = load.data,
                                  data.path = data.path,
                                  counter = counter,
-                                 progress.file = progress.file,
                                  single.transect = FALSE,
                                  transect.path = character(0),
                                  save.transects = FALSE)

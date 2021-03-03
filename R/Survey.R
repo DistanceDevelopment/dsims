@@ -58,7 +58,6 @@ setMethod(
     detect.sf <- sf::st_as_sf(pts2)
     sf::st_crs(detect.sf) <- sf::st_crs(sf.region)
 
-
     p[[3]] <- ggplot() + theme_void() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
@@ -68,7 +67,7 @@ setMethod(
 
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(na.omit(distdata$distance)), length = bins)
-    p[[4]] <- ggplot(data=distdata, aes(x=distdata$distance)) +
+    p[[4]] <- ggplot(data=distdata, aes(x=distance)) +
       theme_classic() +
       geom_histogram(breaks=breaks,
                      col="black",
@@ -129,7 +128,7 @@ setMethod(
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(distdata$distance), length = bins)
 
-    p[[2]] <- ggplot(data=distdata, aes(x=distdata$distance)) +
+    p[[2]] <- ggplot(data=distdata, aes(x=distance)) +
       theme_classic() +
       geom_histogram(breaks=breaks,
                      col="black",

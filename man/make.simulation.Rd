@@ -25,14 +25,14 @@ created by a call to \link{make.population.description}}
 \link{make.detectability}}
 
 \item{ds.analysis}{an objects of class DS.Analysis created by
-a call to\link{make.ds.analysis}}
+a call to \link{make.ds.analysis}}
 }
 \value{
 object of class Simulation
 }
 \description{
-This creates a simulation with all the information necessary for DSsim
-to generate a population, create or read in transects, simulate the survey process
+This creates a simulation with all the information necessary for dsims
+to generate a population, create transects, simulate the survey process
 and fit detection functions and estimate density / abundance. This function can be
 used by itself based on default values to create a simple line transect example, see
 Examples below. To create more complex simulations it is advisable to define the
@@ -80,8 +80,9 @@ ds.analyses <- make.ds.analysis(dfmodel = ~1,
                                 truncation = 50,
                                 criteria = "AIC")
 
-# Put all the components together in the simulation
-simulation <- make.simulation(reps = 9999,
+# Put all the components together in the simulation (note no. of replicates
+# reps = 100 is too low for reliable results increase to 999 or more!)
+simulation <- make.simulation(reps = 100,
                               design = design,
                               population.description = popdsc,
                               detectability = detect,
@@ -91,9 +92,21 @@ simulation <- make.simulation(reps = 9999,
 survey <- run.survey(simulation)
 plot(survey, region)
 
-# Run the simulation - not run because it would take a long time!
-#simulation <- run.simulation(simulation)
-#summary(simulation)
+\donttest{
+# Run the simulation - warning this will take some time to run!
+simulation <- run.simulation(simulation)
+summary(simulation)
+}
+
+# Toy example for CRAN testing purposes - warning only 1 replicate
+# run so does not produce meaningful results!
+simulation <- make.simulation(reps = 1,
+                              design = design,
+                              population.description = popdsc,
+                              detectability = detect,
+                              ds.analysis = ds.analyses)
+simulation <- run.simulation(simulation)
+summary(simulation)
 
 }
 \seealso{

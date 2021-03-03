@@ -1,0 +1,36 @@
+dsims 0.1.0
+----------
+
+Introducing the new Distance Sampling Simulation package!
+
+dsims is our latest simulation package which interfaces with dssd so designs can be generated within R, thus making the simulation process a lot easier! Dsims also makes use of ggplot to produce cleaner looking graphics.
+
+Region and Design
+
+ * dsims can make use of the region creation and all the designs currently in dssd.
+
+Density
+
+ * dsims can generate density objects from constant values for each strata, from fitted mgcv gam objects with x and y as explantory covariates and from formulas of x and y.
+ * Density grids are stored as sf polygons with their associated x, y central coordinates and density value
+
+Population Description
+
+ * Populations can either be created with fixed population sizes or based on the densities in the density grid.
+ * Both discrete and continuous individual level covariates can be included in the population
+
+Detectablity
+
+ * The detectability of the population can be described by either half normal, hazard rate or uniform detection shapes. Parameters can vary by stratum
+ * Covariate parameters can be included to modify the scale parameter for each individual based on their covariate values.
+
+ Analyses
+
+ * A number of detection function analyses can be incorporated in a simulation and the model with the lowest criterion (AIC / AICc / BIC) will be selected.
+ * Defining analyses is based on the arguments which are passed to our Distance R library.
+
+ Simulations
+
+ * Simulations can be run in serial or parallel and their progress is output.
+ * The function run.survey can be used to create a single instance of a survey and check the simulation setup.
+

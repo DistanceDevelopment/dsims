@@ -112,3 +112,58 @@ test_that("Test stratified options and generating by density", {
   expect_equal(sum(D.summary$ave.N[1:3])/sum(D.summary$area[1:3]),sim.summary@individuals$D$Truth[3])
 
 })
+
+test_that("Test donttest example", {
+
+  s1 = matrix(c(0,0,0,2,1,2,1,0,0,0),ncol=2, byrow=TRUE)
+  s2 = matrix(c(1,0,1,2,2,2,2,0,1,0),ncol=2, byrow=TRUE)
+  pol1 = sf::st_polygon(list(s1))
+  pol2 = sf::st_polygon(list(s2))
+  sfc <- sf::st_sfc(pol1,pol2)
+  strata.names <- c("low", "high")
+  sf.pol <- sf::st_sf(strata = strata.names, geom = sfc)
+
+  region <- make.region(region.name = "Multi-strata Eg",
+                        strata.name = strata.names,
+                        shape = sf.pol)
+
+  density <- make.density(region = region,
+                          x.space = 0.2,
+                          constant = c(10,80))
+
+  covs <- list()
+  covs$size <- list(list(distribution = "poisson", lambda = 25),
+                    list(distribution = "poisson", lambda = 15))
+  covs$sex <- data.frame(level = rep(c("male", "female"),2),
+                         prob = c(0.5, 0.5, 0.6, 0.4),
+                         strata = c(rep("low",2),rep("high",2)))
+
+  # Define the population description (this time using the density to determine
+  # the population size)
+  popdesc <- make.population.description(region = region,
+                                         density = density,
+                                         covariates = covs,
+                                         fixed.N = FALSE)
+
+  # define the detecability (see make.detectability to alter detection function
+  # for different covariate values)
+  detect <- make.detectability(key.function = "hn", scale.param = 25, truncation = 50)
+
+  # generate an example population
+  # high <- low <- numeric()
+  # for(i in 1:250){
+  #   pop <- generate.population(popdesc, region = region, detectability = detect)
+  #   tbl.results <- table(pop@population$Region.Label)
+  #   high[i] <- tbl.results[["high"]]
+  #   low[i] <- tbl.results[["low"]]
+  # }
+  #
+  # mean(high) # Expected 160 (2*80)
+  # [1] 159.82
+  # mean(low) # Expected 20 (2*10)
+  # [1] 19.845
+  pop <- generate.population(popdesc, region = region, detectability = detect)
+
+  expect_true(all(pop@population$scale.param == pop@population$scale.param[1]))
+
+})

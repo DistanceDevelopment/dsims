@@ -35,7 +35,7 @@ test_that("Test creation and data generation", {
                          design = design,
                          population.description = pop.desc,
                          detectability = detect,
-                         ds.analysis = analysis)
+                         ds.analysis = analysis.bin)
 
   survey <- run.survey(sim)
   expect_true(class(survey@transect) == "Segment.Transect")

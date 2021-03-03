@@ -107,7 +107,7 @@ setMethod(
     pts.sf <- sf::st_as_sf(pts)
     sf::st_crs(pts.sf) <- sf::st_crs(sf.region)
 
-    ggplot.obj <- ggplot() + theme_set(theme_bw()) +
+    ggplot.obj <- ggplot() + theme_bw() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1, fill = "lightgrey") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
       ggtitle("Population")
