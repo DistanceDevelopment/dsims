@@ -2,34 +2,16 @@
 #' @importFrom methods new
 #' @importFrom mrds dht
 #single.simulation.loop <- function(i, object){
-single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, progress.file = "", in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE){
+single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE){
   # Input: i - integer representing the loop number
   #        simulation - an simulation of class Simulation
   #
   # Output: list of simulation results and warnings
   #
   # Display/write to file the progress of the simulation
-  if(counter){
-    if(length(progress.file) == 0){
-      # Write to terminal
-      message("\r", i, " out of ", simulation@reps,  " reps     \r", appendLF = FALSE)
-    }else{
-      # Calculate progress as an integer %
-      progress <- round(i/simulation@reps*100)
-      # Check if being run in parallel
-      if(in.parallel){
-        #If so load file to check if progress should be updated
-        old.progress <- try(scan(progress.file, what=integer()), silent = TRUE)
-        if(class(old.progress) == "integer"){
-          #Only update if this is the latest progress (when running in parallel things may not be processed in exactly the right order)
-          if(progress > old.progress){
-            try(cat(progress, file = progress.file), silent = TRUE)
-          }
-        }
-      }else{
-        cat(progress, file = progress.file)
-      }
-    }
+  if(counter && !in.parallel){
+    # Write to terminal
+    message("\r", i, " out of ", simulation@reps,  " reps     \r", appendLF = FALSE)
   }
   flush.console()
   if(!load.data){
