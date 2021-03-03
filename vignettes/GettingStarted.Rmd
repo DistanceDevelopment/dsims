@@ -12,19 +12,19 @@ vignette: >
 
 ## Distance Sampling Simulations
 
-This vignette introduces the basic procedure for setting up and running a distance sampling simulation using dsims [@dsims-pkg]. The dsims package uses the distance sampling survey design package dssd [@dssd-pkg] to define the design and generate the surveys (sets of transects). For further details on defining designs please refer to the dssd vignettes. dsims was designed to be largely similar to the DSsim package [@DSsim-pkg] in terms of work flow, functions and arguments. The main differences in terms of its use lie in the definition of the designs which can now be generated in R via the dssd package and the definition of analyses. Analyses are now defined using terminology based on the Distance package [@Distance-pkg]. In addition, the underlying functionality now makes use of the sf package [@sf-pkg] for improved efficiency.
+This vignette introduces the basic procedure for setting up and running a distance sampling simulation using 'dsims' [@dsims-pkg]. The 'dsims' package uses the distance sampling survey design package 'dssd' [@dssd-pkg] to define the design and generate the surveys (sets of transects). For further details on defining designs please refer to the 'dssd' vignettes. 'dsims' was designed to be largely similar to the 'DSsim' package [@DSsim-pkg] in terms of work flow, functions and arguments. The main differences in terms of its use lie in the definition of the designs which can now be generated in R using the 'dssd' package (these packages are automatically linked) and the definition of analyses. Analyses are now defined using terminology based on the 'Distance' package [@Distance-pkg]. In addition, the underlying functionality now makes use of the 'sf' package [@sf-pkg].
 
-Distance Sampling techniques provide design based estimates of density and abundance for populations, the accuracy of these estimates relies on valid survey design. While general rules of thumb can help guide our design choices, simulations emulating a specific set of survey characteristics can often help us achieve more optimal results for individual studies.
-
-Simulations, for example, can help us maximise our precision across a range of possible scenarios, perhaps allocating effort in relation to a range of predicted density distributions. They can also help us investigate the possible effects of using a more efficient design but which may not have completely uniform coverage probability across the study region. The specifics of each of these scenarios and many others will be particular to the study in question and hence why simulation can be a powerful tool in survey design.
+Distance Sampling techniques provide design based estimates of density and abundance for populations, the accuracy of these estimates relies on valid survey design. While general rules of thumb can help guide our design choices, simulations emulating a specific set of survey characteristics can often help us achieve more optimal and robust designs for individual studies. For example, simulations can help us investigate how effort allocation can affect our estimates or the effects of a more efficient design which has less uniform coverage probability. Due to the individual nature of each study, each with their specific set of characteristics, simulation can be a powerful tool in survey design.
 
 ## Setting up the Region
 
-We will use the St Andrews bay as an example study area for these simulations. This is a single strata study region which has been projected into metres. We will first load the dsims package, this will also automatically load the dssd package. Next we will obtain the location of the shapefile within the dssd design package which is then passed to the \code{make.region} function to create our study area. As this shapefile does not have a projection recorded (in an associated .prj file) we tell dsims that the units are metres.
+We will use the St Andrews bay area as an example study region for these simulations. This is a single strata study region which has been projected into metres. We will first load the 'dsims' package, this will also automatically load the 'dssd' package. As this shapefile does not have a projection recorded (in an associated .prj file) we tell 'dsims' that the units are metres.
 
 ```{r region, fig.align='center', fig.cap="Figure 1: The study region.", fig.width=3.8, fig.height=4}
 library(dsims)
+# Find the file path to the example shapefile in dssd
 shapefile.name <- system.file("extdata", "StAndrew.shp", package = "dssd")
+# Create the survey region object
 region <- make.region(region.name = "St Andrews bay",
                       shape = shapefile.name,
                       units = "m")
@@ -36,12 +36,13 @@ plot(region)
 
 ### Population Density Grid
 
-The first step in defining your study population is to set up the density grid. One way to do this is to initially create a flat surface and then add hot and low spots to represent where you think you might have areas of higher and lower density of animals. We will first of all demonstrate this approach. 
+The first step in defining your study population is to set up the density grid. One way to do this is to first create a flat surface and then add hot and low spots to represent where you think you might have areas of higher and lower density of animals. 
 
-Note that if we were to assume that there were 300 groups in the St Andrews bay study area (which is a fairly large number!) this would only give us an average density of 3.04-07 groups per square metre. For this simulation, as we will use a fixed population size, we do not need to worry about the absolute values of the density surface. Instead, it can be simpler to work with larger values and be aware that we are instead defining a relative density surface. So where we create a surface to have a density of twice that in another area that relationship will be maintained (be it at much smaller absolute values) when we later generate the population.
+If we were to assume that there were 300 groups in the St Andrews bay study area (which is a fairly large number!) this would only give us an average density of 3.04-07 groups per square metre. For this simulation, as we will use a fixed population size, we do not need to worry about the absolute values of the density surface. Instead, it can be simpler to work with larger values and be aware that we are defining a relative density surface. So where we create a surface to have a density of twice that in another area that relationship will be maintained (be it at much smaller absolute values) when we later generate the population.
 
-For the purposes of simulation you will likely want to test over a range of plausible animal distributions as if you knew exactly how many you were going to find at any given location you probably wouldn't be doing the study! When testing non-uniform coverage designs you may want to try out worst case scenarios, when density in the area of higher or lower coverage differs to majority of the survey region. This will give an idea of the degree of potential bias which could be introduced. In this example for the equal spaced zigzag design as it is generated in a convex hull the areas with differing coverage are likely to be at the very top and very bottom of the survey region. In the density grid below these areas are shown to have lower animal density than the rest of the survey region, a likely scenario when a study region has been constructed in order to catch the range of a population of interest.
+For the purposes of simulation you will likely want to test over a range of plausible animal distributions (if you knew exactly how many you were going to find at any given location you probably wouldn't be doing the study!). When testing non-uniform coverage designs it is advisable to try out worst case scenarios, i.e. set density in the area of higher or lower coverage to differ from the majority of the survey region. This will give an idea of the degree of potential bias which could be introduced. 
 
+In this example, for the equal spaced zigzag design, as it is generated in a convex hull the areas with differing coverage are likely to be at the very top and very bottom of the survey region. In the density grid below these areas are shown to have lower animal density than the rest of the survey region, a likely scenario when a study region has been constructed in order to catch the range of a population of interest.
 
 ```{r density, fig.align='center', fig.cap="Figure 2: A density map representing a plausible distributions of animals within the study region.", fig.width=4, fig.height=4}
 
@@ -83,7 +84,7 @@ plot(density, region, scale = 0.001)
 
 ```
 
-In some situations you may not need to rely on constructing a density distribution from scratch. Below we will demonstrate how to use a gam to construct the density surface. As I do not have data for this area I will use the density grid I created above as an example dataset. I will fit a gam to this data and then use this to create a new density object. As I need to restrict the predicted values to be greater than 0 I will use a log link with the gaussian error distribution. This can also be a useful trick if you want to turn something created using the above method, which can look a bit lumpy and bumpy, into a smoother distribution surface. The gam fitted must only use a smooth over x and y to fit the model as no other predictor covariates will be present in the density surface.
+In some situations you may not need to rely on constructing a density distribution from scratch. Now we will demonstrate how to use a gam to construct the density surface. As I do not have data for this area I will use the density grid I created above as an example dataset. I will fit a gam to this data and then use this to create a new density object. As I need to restrict the predicted values to be greater than zero, I will use a log link with the gaussian error distribution. This can also be a useful trick if you want to turn something created using the above method, which can look a bit lumpy and bumpy, into a smoother distribution surface. The gam fitted must only use a smooth over x and y to fit the model as no other predictor covariates will be present in the density surface.
 
 ```{r densitygam, fig.align='center', fig.cap="Figure 3: A density map representing a plausible distributions of animals within the study region.", fig.width=4, fig.height=4}
 
@@ -109,9 +110,9 @@ plot(gam.density, region, scale = 0.001)
 
 Once we have created a plausible animal density distribution we can go on to define other population parameters. We do this by constructing a population description. 
 
-We will assume animals occur in small clusters so we will first create a covariate list and define the distribution for cluster size (which must be named "size") as a zero-truncated Poisson distribution with mean equal to 3. For those of you familiar with DSsim please note the simplified format for defining population covariates. 
+We will assume animals occur in small clusters so we will first create a covariate list and define the distribution for cluster size (which must be named "size") as a zero-truncated Poisson distribution with mean equal to 3. For those of you familiar with 'DSsim' please note the simplified format for defining population covariates. 
 
-The other population value we have to define is the population size which now refers to the number of clusters, we will set this to 100. We then leave the fixed.N argument as the default TRUE to say we would like to generate the population based on the population size rather than the density surface.
+The other population value we have to define is the population size. As we have clusters in our population, N will refer to the number of clusters rather than individuals. We will set the number of clusters to be 100. We then leave the fixed.N argument as the default TRUE to say we would like to generate the population based on the population size rather than the density surface.
 
 ```{r popdesc}
 
@@ -129,15 +130,15 @@ pop.desc <- make.population.description(region = region,
 
 ## Coverage Grid
 
-It is good practice to create a coverage grid over your study area to assess how coverage probability varies spatially across your study area for any specified designs. For designs where there may be non-uniform coverage, we advise coverage probability is assessed prior to running any simulations. However, as this step is not essential for running simulations we will omit it here and refer you to the dssd vignettes for further details. 
+It is good practice to create a coverage grid over your study area to assess how coverage probability varies spatially across your study area for any specified designs. For designs where there may be non-uniform coverage, we advise coverage probability is assessed prior to running any simulations. However, as this step is not essential for running simulations we will omit it here and refer you to the 'dssd' vignettes for further details. 
 
 ## Defining the Design
 
-dsims working together with dssd provides a number of point and line transect designs. Further details on defining designs can be found in the dssd help and vignettes. We also provide examples online at \url{https://examples.distancesampling.org/}.
+'dsims' working together with 'dssd' provides a number of point and line transect designs. Further details on defining designs can be found in the 'dssd' help and vignettes. We also provide examples online at \url{https://examples.distancesampling.org/}.
 
-For the purposes of these simulations we will compare two line transect designs, firstly systematically spaced parallel lines and secondly equal spaced zigzag lines. The zigzag design will be generated within a convex hull to try to minimise the off-effort transit time between the ends of transects. 
+For these simulations we will compare two line transect designs, systematically spaced parallel lines and equal spaced zigzag lines. The zigzag design will be generated within a convex hull to try to minimise the off-effort transit time between the ends of transects. 
 
-The design angles for each design were selected so that the transects run perpendicular to the coast. The way the two designs are defined meant that this was 90 degrees for the parallel line design and 0 for the zigzag design. Both designs assumed a minus sampling protocol and the truncation distance was set at 750m from the transect. The spacings for each design were selected to give the same trackline lengths of around 450 km (this was assessed by running the coverage simulations for these designs using \code{run.coverage}, see help in dssd). the trackline lengths can be thought of as an indicator of the cost of the survey as they give the total travel time (both on and off effort) from the beginning of the first transect to the end of the last transect.
+The design angles for each design were selected so that the transects run roughly perpendicular to the coast. The way the two designs are defined means that this is 90 degrees for the parallel line design and 0 for the zigzag design. Both designs assumed a minus sampling protocol and the truncation distance was set at 750m from the transect. The spacings for each design were selected to give the same trackline lengths of around 450 km (this was assessed by running the coverage simulations for these designs using \code{run.coverage}, see help in 'dssd'). The trackline lengths can be thought of as an indicator of the cost of the survey as they give the total travel time (both on and off effort) from the beginning of the first transect to the end of the last transect.
 
 ```{r designs}
 parallel.design <- make.design(region = region, 
@@ -185,7 +186,7 @@ When setting the basic scale parameter along side covariate parameters values we
 $$\sigma_j = exp(log(\sigma_0)+\sum_{i=1}^{k}\beta_ix_{ij})$$
 where $j$ is the individual, $\sigma_0$ is the base line scale parameter (passed in as argument \code{scale.param} on the natural scale), the $\beta_i$'s are the covariate parameters passed in on the log scale for each covariate $i$ and the $x_{ij}$ values are the covariate values for covariate $i$ and individual $j$.
 
-We will assume a half normal detection function with a scale parameter of 400. We will set the truncation distance to be the same as the design at 750 m.  and set the covariate value on the log scale to log(1.05) = 0.049. We can check what our detection functions will look like for the different covariate values by plotting them. To plot the example detection functions we need to provide the population description as well as detectability. 
+We will assume a half normal detection function with a scale parameter of 400. We will set the truncation distance to be the same as the design at 750 m. and set the covariate slope coefficient on the log scale to log(1.05) = 0.049. We can check what our detection functions will look like for the different covariate values by plotting them. To plot the example detection functions we need to provide the population description as well as detectability. 
 
 ```{r detect, fig.align='center', fig.cap="Figure 6: Plot of the detection function for the mean group size (solid line) and for the 2.5 and 97.5 percentile values  of group size (dashed lines) for this population. ", fig.width=6, fig.height=4}
 
@@ -205,12 +206,12 @@ plot(detect, pop.desc)
 
 We can also calculate the average detection function for our mean cluster size of 3 as defined in our population description:
 
-$$\sigma_{size = 3} = exp(log(400)+log(1.05)*3) = 463.05 $$
+$$\sigma_{size = 3} = exp(log(300)+log(1.05)*3) = 347.3 $$
 
 
 ## Defining Analyses
 
-The final component to a simulation is the analysis or set of analyses you wish to fit to the simulated data. We will define a number of models and allow automatic model selection based on the minimum AIC value. The models included below are a half-normal with no covariates, a hazard rate with no covariates and a half-normal with cluster size as a covariate. We will leave the truncation value at 750 as previously defined (it must be <= to the truncation values used previously) and use the default error variance selection of "R2". See ?mrds::varn for descriptions of the various empirical variance estimators for encounter rate.
+The final component to a simulation is the analysis or set of analyses you wish to fit to the simulated data. We will define a number of models and allow automatic model selection based on the minimum AIC value. The models included below are a half-normal with no covariates, a hazard rate with no covariates and a half-normal with cluster size as a covariate. We will leave the truncation value at 750 as previously defined (it must be <= to the truncation values used previously). We will use the default error variance estimator "R2". See \code{?mrds::varn} for descriptions of the various empirical variance estimators for encounter rate.
 
 ```{r analysis}
 
@@ -244,7 +245,7 @@ sim.zigzag <- make.simulation(reps = 999,
 
 Once you have created a simulation we recommend you check to see what a simulated survey might look like. 
 
-```{r parallel.survey, fig.align='center', fig.cap="Figure 7: Example survey from systematic parallel design. Panels showing: top left - transects, top right - population, bottom left - survey detections, bottom right -  detection distances", fig.width=6, fig.height=6}
+```{r parallel.survey, fig.align='center', fig.cap="Figure 7: Example survey from systematic parallel design. Panels showing: top left - transects, top right - population, bottom left - transects, population and survey detections (cyan dots), bottom right -  histogram of detection distances", fig.width=6, fig.height=6}
 # Generate a single instance of a survey: a population, set of transects 
 # and the resulting distance data
 eg.parallel.survey <- run.survey(sim.parallel)
@@ -255,7 +256,7 @@ plot(eg.parallel.survey, region)
 ```
 
 
-```{r zigzag.survey, fig.align='center', fig.cap="Figure 8: Example survey from equal spaced zigzag design. Panels showing: top left - transects, top right - population, bottom left - survey detections, bottom right -  detection distances", fig.width=6, fig.height=6}
+```{r zigzag.survey, fig.align='center', fig.cap="Figure 8: Example survey from equal spaced zigzag design. Panels showing: top left - transects, top right - population, bottom left - transects, population and survey detections (cyan dots), bottom right -  histogram of detection distances", fig.width=6, fig.height=6}
 # Generate a single instance of a survey: a population, set of transects 
 # and the resulting distance data
 eg.zigzag.survey <- run.survey(sim.zigzag)
@@ -264,7 +265,6 @@ eg.zigzag.survey <- run.survey(sim.zigzag)
 plot(eg.zigzag.survey, region)
 
 ```
-
 
 
 ## Running the Simulation
@@ -292,23 +292,23 @@ Firstly, for the systematic parallel lines design we can see that there is very 
 
 We can also see that the 95% confidence intervals calculated for the abundance / density estimates are in fact capturing the true value around 97% of the time (CI.coverage.prob). We can also note that the observed standard deviation of the estimates of the mean is a bit lower than the mean se, meaning we are realising a lower variance than we would estimate. This is often seen with systematic designs as the default variance estimator assumes a completely random allocation of transect locations, systematic designs usually have lower variance.  
 
-Reassuringly, these results are as expected for the systematic parallel line design, as by definition it produces a very uniform coverage probability. Uniform coverage probability should lead to low bias. The only areas where this design might not produce uniform coverage is around the boundary where there could be minor edge effects due to the minus sampling.
+Reassuringly, these results are as expected for the systematic parallel line design. We expect low bias, as by definition, parallel line designs produce a very uniform coverage probability. The only areas where this design might not produce uniform coverage is around the boundary where there could be minor edge effects due to the minus sampling.
 
 ```{r summaryresultssp, echo=TRUE}
 summary(sim.parallel)
 ```
 
-We can now check the results for the zigag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running \code{run.coverage} but by itself this does not give much of an indication of the likely effects on the survey results. The degree of the impact on the survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have only run one density scenario here, if you have non-uniform coverage probability, it is advisable to test the effects under a range of plausible animal distributions.
+We can now check the results for the zigag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running \code{run.coverage} but by itself this does not give much of an indication of the likely effects on the survey results. The degree to which non-uniform coverage may affect survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have run only one density scenario here, if you have non-uniform coverage probability it is advisable to test the effects under a range of plausible animal distributions.
 
-Under this assumed distribution of animals, it looks like any effects of non-uniform coverage are going to have minimal effects on the estimates of abundance / density. For individuals the bias is around 2.5% and doe clusters it is 0.65%. The confidence intervals are also giving a coverage of 97%. 
+Under this assumed distribution of animals, it looks like any effects of non-uniform coverage are going to have minimal effects on the estimates of abundance / density. For individuals the bias is around 2.5% and for clusters it is 0.65%. Similar to the parallel line design, the confidence intervals are also giving a coverage of 97%. 
 
-What we can note is that the improved efficiency of this design has increased our on effort time and covered area and is thus giving us a bit better precision than the systematic parallel line design.
+What we can note is that the improved efficiency of this design has increased our on effort line length and corresponding covered area and is thus giving us a bit better precision than the systematic parallel line design.
 
 ```{r summaryresultszz, echo=TRUE}
 summary(sim.zigzag)
 ```
 
-Histograms of the estimates of abundance from each of the simulation replicates can also be viewed to check for the possible effects of extreme values or skewed distributions. We can see in Figure 9 that there were a couple of high estimates generated >500 for both the parallel line and zigzag designs. These probably represent datasets that were difficult to fit a model too (perhaps a chance spiked dataset). Most of the estimates are centred around truth. 
+Histograms of the estimates of abundance from each of the simulation replicates can also be viewed to check for the possible effects of extreme values or skewed distributions. 
 
 ```{r hist.results, fig.align='center', fig.cap="Figure 9: Left - histogram of estimates of abundance of clusters for systematic parallel design. Right - histogram of estimates of abundance of clusters for zigzag design.", fig.width=6, fig.height=4}
 par(mfrow = c(1,2))
@@ -316,8 +316,16 @@ histogram.N.ests(sim.parallel)
 histogram.N.ests(sim.zigzag)
 ```
 
+
+We can see in Figure 9 that there were a couple of high estimates generated >500 for both the parallel line and zigzag designs. These probably represent datasets that were difficult to fit a model too (perhaps a chance spiked dataset). Most of the estimates are centred around truth but these occasional high estimates may have increased the mean value slghtly and could be associated with the small amount of positive bias.
+
+```{r results2}
+mean()
+```
+
+
 ## Simulation Conclusions
 
-Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain a some precision. Just to re-iterate that the cost in accuracy will vary depending on the distribution of animals in the survey region. On that basis it might be sensible to run plausible worst case scenarios where the density of animals varies most in the areas which have the non-uniform coverage probabilities. Use \code{run.coverage} to assess where these regions area.
+Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain some precision. Just to re-iterate that the cost in accuracy will vary depending on the distribution of animals in the survey region. 
 
 ## Bibliography
