@@ -22,7 +22,7 @@ Suggests:
 VignetteBuilder: knitr
 Type: Package
 Title: Distance Sampling Simulations
-Version: 0.1.0
+Version: 0.1.0.9000
 Author: Laura Marshall <lhm@st-and.ac.uk>
 Maintainer: Laura Marshall <lhm@st-and.ac.uk>
 Description: Performs distance sampling simulations. 'dsims' repeatedly generates
@@ -41,6 +41,9 @@ Description: Performs distance sampling simulations. 'dsims' repeatedly generate
     et. al. (2004, ISBN-13: 978-0198509271). Find out more about estimating 
     animal/plant abundance with distance sampling at <http://distancesampling.org/>.
 License: GPL (>=2)
+Language: en-GB
+URL: http://github.com/DistanceDevelopment/dsims
+BugReports: https://github.com/DistanceDevelopment/dsims/issues
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
