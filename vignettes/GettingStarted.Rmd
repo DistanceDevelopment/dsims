@@ -138,7 +138,7 @@ It is good practice to create a coverage grid over your study area to assess how
 
 For these simulations we will compare two line transect designs, systematically spaced parallel lines and equal spaced zigzag lines. The zigzag design will be generated within a convex hull to try to minimise the off-effort transit time between the ends of transects. 
 
-The design angles for each design were selected so that the transects run roughly perpendicular to the coast. The way the two designs are defined means that this is 90 degrees for the parallel line design and 0 for the zigzag design. Both designs assumed a minus sampling protocol and the truncation distance was set at 750m from the transect. The spacings for each design were selected to give the same trackline lengths of around 450 km (this was assessed by running the coverage simulations for these designs using \code{run.coverage}, see help in 'dssd'). The trackline lengths can be thought of as an indicator of the cost of the survey as they give the total travel time (both on and off effort) from the beginning of the first transect to the end of the last transect.
+The design angles for each design were selected so that the transects run roughly perpendicular to the coast. The way the two designs are defined means that this is 90 degrees for the parallel line design and 0 for the zigzag design. Both designs assumed a minus sampling protocol and the truncation distance was set at 750m from the transect. The spacings for each design were selected to give the same trackline lengths of around 450 km (this was assessed by running the coverage simulations for these designs using 'run.coverage', see help in 'dssd'). The trackline lengths can be thought of as an indicator of the cost of the survey as they give the total travel time (both on and off effort) from the beginning of the first transect to the end of the last transect.
 
 ```{r designs}
 parallel.design <- make.design(region = region, 
@@ -184,7 +184,7 @@ Once we have defined both the population of interest and the design which we wil
 When setting the basic scale parameter along side covariate parameters values we need be aware of how the covariate parameter values are incorporated. The covariate parameter values provided adjust the value of the scale parameter on the log scale. The scale parameter for any individual ($\sigma_j$) can be calculated as: 
 
 $$\sigma_j = exp(log(\sigma_0)+\sum_{i=1}^{k}\beta_ix_{ij})$$
-where $j$ is the individual, $\sigma_0$ is the base line scale parameter (passed in as argument \code{scale.param} on the natural scale), the $\beta_i$'s are the covariate parameters passed in on the log scale for each covariate $i$ and the $x_{ij}$ values are the covariate values for covariate $i$ and individual $j$.
+where $j$ is the individual, $\sigma_0$ is the base line scale parameter (passed in as argument 'scale.param' on the natural scale), the $\beta_i$'s are the covariate parameters passed in on the log scale for each covariate $i$ and the $x_{ij}$ values are the covariate values for covariate $i$ and individual $j$.
 
 We will assume a half normal detection function with a scale parameter of 400. We will set the truncation distance to be the same as the design at 750 m. and set the covariate slope coefficient on the log scale to log(1.05) = 0.049. We can check what our detection functions will look like for the different covariate values by plotting them. To plot the example detection functions we need to provide the population description as well as detectability. 
 
@@ -211,7 +211,7 @@ $$\sigma_{size = 3} = exp(log(300)+log(1.05)*3) = 347.3 $$
 
 ## Defining Analyses
 
-The final component to a simulation is the analysis or set of analyses you wish to fit to the simulated data. We will define a number of models and allow automatic model selection based on the minimum AIC value. The models included below are a half-normal with no covariates, a hazard rate with no covariates and a half-normal with cluster size as a covariate. We will leave the truncation value at 750 as previously defined (it must be <= to the truncation values used previously). We will use the default error variance estimator "R2". See \code{?mrds::varn} for descriptions of the various empirical variance estimators for encounter rate.
+The final component to a simulation is the analysis or set of analyses you wish to fit to the simulated data. We will define a number of models and allow automatic model selection based on the minimum AIC value. The models included below are a half-normal with no covariates, a hazard rate with no covariates and a half-normal with cluster size as a covariate. We will leave the truncation value at 750 as previously defined (it must be <= to the truncation values used previously). We will use the default error variance estimator "R2". See '?mrds::varn' for descriptions of the various empirical variance estimators for encounter rate.
 
 ```{r analysis}
 
@@ -298,7 +298,7 @@ Reassuringly, these results are as expected for the systematic parallel line des
 summary(sim.parallel)
 ```
 
-We can now check the results for the zigag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running \code{run.coverage} but by itself this does not give much of an indication of the likely effects on the survey results. The degree to which non-uniform coverage may affect survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have run only one density scenario here, if you have non-uniform coverage probability it is advisable to test the effects under a range of plausible animal distributions.
+We can now check the results for the zigag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running 'run.coverage' but by itself this does not give much of an indication of the likely effects on the survey results. The degree to which non-uniform coverage may affect survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have run only one density scenario here, if you have non-uniform coverage probability it is advisable to test the effects under a range of plausible animal distributions.
 
 Under this assumed distribution of animals, it looks like any effects of non-uniform coverage are going to have minimal effects on the estimates of abundance / density. For individuals the bias is around 2.5% and for clusters it is 0.65%. Similar to the parallel line design, the confidence intervals are also giving a coverage of 97%. 
 
