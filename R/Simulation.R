@@ -485,7 +485,6 @@ setMethod(
                             sd.ESW = results$Detection[,"ESW","sd"])
     #Find how many iterations failed
     no.fails <- reps - included.reps
-    #print(individual.N.est)
     individuals <- list(summary = individual.summary, N = individual.N, D = individual.D)
     #Model selection table
     tab.model.selection <- table(results$Detection[,"SelectedModel",rep.index])

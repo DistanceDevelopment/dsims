@@ -123,7 +123,7 @@ setMethod(
   f="plot",
   signature="Detectability",
   definition=function(x, y, add = FALSE, plot.units = character(0), region.col = NULL, gap.col = NULL, main = "", ...){
-    cat("Please provide a population description as well as detectability to enable plotting.")
+    stop("Please provide a y argument of class Population.Description as well as detectability to enable plotting.", call. = FALSE)
   })
 
 #' Plot
