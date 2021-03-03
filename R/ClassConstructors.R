@@ -23,9 +23,9 @@
 #' @param fitted.model \code{gam} object created using \code{mgcv} with only x and y as explanatory covariates.
 #' @param density.formula a formula of x and/or y describing the
 #' density surface.
-#' @param density.surface Object of class \code{list}; list of
-#'  an sf grid recording the density grid polygons and density vaulues within those
-#'  polygons.
+#' @param density.surface Object of class \code{list}; an sf grid recording
+#' the density grid polygons, density values within those polygons and the
+#' central x and y coordinates.
 #' @return object of class Density
 #' @export
 #' @importFrom dssd make.region
