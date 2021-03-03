@@ -47,7 +47,7 @@ region <- make.region(region.name = "Multi-strata Eg",
                       shape = sf.pol)
 
 density <- make.density(region = region,
-                        x.space = 0.2,
+                        x.space = 0.22,
                         constant = c(20,50))
 
 covs <- list()

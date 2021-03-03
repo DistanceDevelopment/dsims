@@ -80,8 +80,9 @@ ds.analyses <- make.ds.analysis(dfmodel = ~1,
                                 truncation = 50,
                                 criteria = "AIC")
 
-# Put all the components together in the simulation
-simulation <- make.simulation(reps = 999,
+# Put all the components together in the simulation (note no. of replicates
+# reps = 100 is too low for reliable results increase to 999 or more!)
+simulation <- make.simulation(reps = 100,
                               design = design,
                               population.description = popdsc,
                               detectability = detect,
@@ -92,7 +93,7 @@ survey <- run.survey(simulation)
 plot(survey, region)
 
 \donttest{
-# Run the simulation - warning this will take a long time to run!
+# Run the simulation - warning this will take some time to run!
 simulation <- run.simulation(simulation)
 summary(simulation)
 }

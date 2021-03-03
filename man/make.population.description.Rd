@@ -83,9 +83,9 @@ sf.pol <- sf::st_sf(strata = strata.names, geom = sfc)
 region <- make.region(region.name = "Multi-strata Eg",
                       strata.name = strata.names,
                       shape = sf.pol)
-
+\donttest{
 density <- make.density(region = region,
-                        x.space = 0.2,
+                        x.space = 0.22,
                         constant = c(10,80))
 
 covs <- list()
@@ -110,7 +110,7 @@ detect <- make.detectability(key.function = "hn", scale.param = 25, truncation =
 pop <- generate.population(popdesc, region = region, detectability = detect)
 
 plot(pop, region)
-
+}
 
 }
 \seealso{

@@ -166,9 +166,9 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #' region <- make.region(region.name = "Multi-strata Eg",
 #'                       strata.name = strata.names,
 #'                       shape = sf.pol)
-#'
+#' \donttest{
 #' density <- make.density(region = region,
-#'                         x.space = 0.2,
+#'                         x.space = 0.22,
 #'                         constant = c(10,80))
 #'
 #' covs <- list()
@@ -193,7 +193,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #' pop <- generate.population(popdesc, region = region, detectability = detect)
 #'
 #' plot(pop, region)
-#'
+#' }
 #'
 make.population.description <- make.pop.description <- function(region = make.region(), density = make.density(), covariates = list(), N = numeric(0), fixed.N = TRUE){
   # Check all covariates are named
@@ -292,7 +292,7 @@ make.population.description <- make.pop.description <- function(region = make.re
 #'                       shape = sf.pol)
 #'
 #' density <- make.density(region = region,
-#'                         x.space = 0.2,
+#'                         x.space = 0.22,
 #'                         constant = c(20,50))
 #'
 #' covs <- list()
@@ -505,8 +505,9 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'                                 truncation = 50,
 #'                                 criteria = "AIC")
 #'
-#' # Put all the components together in the simulation
-#' simulation <- make.simulation(reps = 999,
+#' # Put all the components together in the simulation (note no. of replicates
+#' # reps = 100 is too low for reliable results increase to 999 or more!)
+#' simulation <- make.simulation(reps = 100,
 #'                               design = design,
 #'                               population.description = popdsc,
 #'                               detectability = detect,
@@ -517,7 +518,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' plot(survey, region)
 #'
 #' \donttest{
-#' # Run the simulation - warning this will take a long time to run!
+#' # Run the simulation - warning this will take some time to run!
 #' simulation <- run.simulation(simulation)
 #' summary(simulation)
 #' }
