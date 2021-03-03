@@ -2,7 +2,8 @@
 #'
 #' Runs the simulation and returns the simulation object with results. If
 #' running in parallel and max.cores is not specified it will default to using
-#' one less than the number of cores / threads on your machine.
+#' one less than the number of cores / threads on your machine. For example
+#' code see \code{\link{make.simulation}}
 #'
 #' @param simulation an object of class Simulation
 #' @param run.parallel logical option to use multiple processors

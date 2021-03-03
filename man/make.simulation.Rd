@@ -81,7 +81,7 @@ ds.analyses <- make.ds.analysis(dfmodel = ~1,
                                 criteria = "AIC")
 
 # Put all the components together in the simulation
-simulation <- make.simulation(reps = 9999,
+simulation <- make.simulation(reps = 999,
                               design = design,
                               population.description = popdsc,
                               detectability = detect,
@@ -91,9 +91,21 @@ simulation <- make.simulation(reps = 9999,
 survey <- run.survey(simulation)
 plot(survey, region)
 
-# Run the simulation - not run because it would take a long time!
-#simulation <- run.simulation(simulation)
-#summary(simulation)
+\donttest{
+# Run the simulation - warning this will take a long time to run!
+simulation <- run.simulation(simulation)
+summary(simulation)
+}
+
+# Toy example for CRAN testing purposes - warning only 1 replicate
+# run so does not produce meaningful results!
+simulation <- make.simulation(reps = 1,
+                              design = design,
+                              population.description = popdsc,
+                              detectability = detect,
+                              ds.analysis = ds.analyses)
+simulation <- run.simulation(simulation)
+summary(simulation)
 
 }
 \seealso{
