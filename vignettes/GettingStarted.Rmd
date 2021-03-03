@@ -316,11 +316,10 @@ histogram.N.ests(sim.parallel)
 histogram.N.ests(sim.zigzag)
 ```
 
-
-We can see in Figure 9 that there were a couple of high estimates generated >500 for both the parallel line and zigzag designs. These probably represent datasets that were difficult to fit a model too (perhaps a chance spiked dataset). Most of the estimates are centred around truth but these occasional high estimates may have increased the mean value slightly and could be associated with the small amount of positive bias.
+We can see in Figure 9 that there were a couple of high estimates generated >500 for both the parallel line and zigzag designs. These probably represent data sets that were difficult to fit a model too (perhaps a chance spiked data set). Most of the estimates are centered around truth but these occasional high estimates may have increased the mean value slightly and could be associated with the small amount of positive bias.
 
 ## Simulation Conclusions
 
-Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain some precision. Just to re-iterate that the cost in accuracy will vary depending on the distribution of animals in the survey region. 
+Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain some precision. Ir should be noted that the cost in accuracy will vary depending on the distribution of animals in the survey region. 
 
 ## Bibliography
