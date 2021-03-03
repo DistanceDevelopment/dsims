@@ -17,3 +17,5 @@
 *.Rproj
 cran-comments.md
 .Rhistory
+doc
+Meta

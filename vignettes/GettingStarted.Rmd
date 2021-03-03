@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 bibliography: refs.bib
 vignette: >
-  %\VignetteIndexEntry{dsims - getting started}
+  %\VignetteIndexEntry{Getting Started with dsims}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -269,7 +269,7 @@ plot(eg.zigzag.survey, region)
 
 ## Running the Simulation
 
-The simulations can be run as follows. 
+The simulations can be run as follows. Note that these will take some time to run!
 
 ```{r runsim, eval=FALSE}
 
@@ -281,13 +281,43 @@ sim.zigzag <- run.simulation(sim.zigzag)
 
 ## Simulation Results
 
-As these simulations take some time to run I have already run them and stored the results. We can load these and view the simulation results.
-
 ```{r simresults, echo=FALSE}
 load("files/sim.parallel.ROBJ")
 load("files/sim.zigzag.ROBJ")
-
-
 ```
+
+Once the simulations have run we can view a summary of the results. Viewing a summary of a simulation will first summarise the simulation setup and then if the simulation has been run provide a summary of the results. A glossary is also provided to aid interpretation of the results. Note that each run will produce slightly different results due to the random component of the generation of both the populations and the sets of survey transects.
+
+Firstly, for the systematic parallel lines design we can see that there is very low bias 1.85% for the estimated abundance / density of individuals. The bias is even lower at only 0.16% for the estimated abundance / density of clusters. Also we can see that the analyses have done a good job at estimating the mean cluster size, there is only 1.72% bias. 
+
+We can also see that the 95% confidence intervals calculated for the abundance / density estimates are in fact capturing the true value around 97% of the time (CI.coverage.prob). We can also note that the observed standard deviation of the estimates of the mean is a bit lower than the mean se, meaning we are realising a lower variance than we would estimate. This is often seen with systematic designs as the default variance estimator assumes a completely random allocation of transect locations, systematic designs usually have lower variance.  
+
+Reassuringly, these results are as expected for the systematic parallel line design, as by definition it produces a very uniform coverage probability. Uniform coverage probability should lead to low bias. The only areas where this design might not produce uniform coverage is around the boundary where there could be minor edge effects due to the minus sampling.
+
+```{r summaryresultssp, echo=TRUE}
+summary(sim.parallel)
+```
+
+We can now check the results for the zigag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running \code{run.coverage} but by itself this does not give much of an indication of the likely effects on the survey results. The degree of the impact on the survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have only run one density scenario here, if you have non-uniform coverage probability, it is advisable to test the effects under a range of plausible animal distributions.
+
+Under this assumed distribution of animals, it looks like any effects of non-uniform coverage are going to have minimal effects on the estimates of abundance / density. For individuals the bias is around 2.5% and doe clusters it is 0.65%. The confidence intervals are also giving a coverage of 97%. 
+
+What we can note is that the improved efficiency of this design has increased our on effort time and covered area and is thus giving us a bit better precision than the systematic parallel line design.
+
+```{r summaryresultszz, echo=TRUE}
+summary(sim.zigzag)
+```
+
+Histograms of the estimates of abundance from each of the simulation replicates can also be viewed to check for the possible effects of extreme values or skewed distributions. We can see in Figure 9 that there were a couple of high estimates generated >500 for both the parallel line and zigzag designs. These probably represent datasets that were difficult to fit a model too (perhaps a chance spiked dataset). Most of the estimates are centred around truth. 
+
+```{r hist.results, fig.align='center', fig.cap="Figure 9: Left - histogram of estimates of abundance of clusters for systematic parallel design. Right - histogram of estimates of abundance of clusters for zigzag design.", fig.width=6, fig.height=6}
+par(mfrow = c(1,2))
+histogram.N.ests(sim.parallel)
+histogram.N.ests(sim.zigzag)
+```
+
+## Simulation Conclusions
+
+Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain a some precision. Just to re-iterate that the cost in accuracy will vary depending on the distribution of animals in the survey region. On that basis it might be sensible to run plausible worst case scenarios where the density of animals varies most in the areas which have the non-uniform coverage probabilities. Use \code{run.coverage} to assess where these regions area.
 
 ## Bibliography
