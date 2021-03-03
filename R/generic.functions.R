@@ -6,9 +6,8 @@ NULL
 #'
 #' Uses the population description and detectability details to generate an
 #' instance of the population. Note that if the first argument supplied is
-#' of class Population.Description rather than class Simulation then a second
-#' argument \code{detectabity} must also be supplied and must be an object of
-#' class Detectability.
+#' of class Population.Description rather than class Simulation then
+#' detectability and region must also be supplied.
 #'
 #' @param object an object of class Simulation or Population.Description
 #' @param ... when this is called on an object of class Population.Description
@@ -21,24 +20,18 @@ setGeneric("generate.population", function(object, ...){standardGeneric ("genera
 
 #' S4 generic method to simulate a survey
 #'
-#' Simulates the process by which individuals / clusters are detected.
-#' Currently this is only implemented for line transect surveys. It returns an
-#' object of class LT.Survey.Results which contains a population, a set of
-#' transects, distance data and if requested region, sample and obs tables.
-#'
+#' Simulates the process by which individuals or clusters are detected. If
+#' a simulation is passed in then it will generate a population, set of
+#' transects and simulate the detection process. If a survey is passed in
+#' it will simply simulate the detection process. See
+#' \code{\link{make.simulation}} for example usage.
 #'
 #' @param object an object of class Simulation
-#' @param ... allows a region object to be passed in
-#' @return an object of class LT.Survey.Results
+#' @param ... allows extra arguments
+#' @return an object of class Survey
 #' @export
 #' @rdname run.survey-methods
-#' @examples
-#' \dontrun{
-#' survey <- run.survey(simulation)
-#'
-#' plot(survey)
-#' }
-#'
+#' @seealso \code{\link{make.simulation}}
 setGeneric(name = "run.survey", def = function(object, ...){standardGeneric ("run.survey")})
 
 #' S4 generic method to extract distance data

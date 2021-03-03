@@ -19,24 +19,20 @@ run.survey(object, ...)
 \arguments{
 \item{object}{an object of class Simulation}
 
-\item{...}{allows a region object to be passed in}
+\item{...}{allows extra arguments}
 
 \item{region}{an object of class Region.}
 }
 \value{
-an object of class LT.Survey.Results
+an object of class Survey
 }
 \description{
-Simulates the process by which individuals / clusters are detected.
-Currently this is only implemented for line transect surveys. It returns an
-object of class LT.Survey.Results which contains a population, a set of
-transects, distance data and if requested region, sample and obs tables.
+Simulates the process by which individuals or clusters are detected. If
+a simulation is passed in then it will generate a population, set of
+transects and simulate the detection process. If a survey is passed in
+it will simply simulate the detection process. See
+\code{\link{make.simulation}} for example usage.
 }
-\examples{
-\dontrun{
-survey <- run.survey(simulation)
-
-plot(survey)
-}
-
+\seealso{
+\code{\link{make.simulation}}
 }

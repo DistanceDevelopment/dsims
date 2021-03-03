@@ -26,6 +26,7 @@ setClass("Survey", representation(population = "Population",
 #' @importFrom gridExtra grid.arrange
 #' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim theme_classic labs theme_void
 #' @importFrom sf st_as_sf
+#' @importFrom rlang .data
 setMethod(
   f="plot",
   signature=c("Survey", "Region"),
@@ -67,7 +68,7 @@ setMethod(
 
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(na.omit(distdata$distance)), length = bins)
-    p[[4]] <- ggplot(data=distdata, aes(x=distance)) +
+    p[[4]] <- ggplot(data=distdata, aes(x = .data$distance)) +
       theme_classic() +
       geom_histogram(breaks=breaks,
                      col="black",
@@ -97,6 +98,7 @@ setMethod(
 #' @importFrom gridExtra grid.arrange
 #' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim theme_classic labs theme_void
 #' @importFrom sf st_as_sf
+#' @importFrom rlang .data
 setMethod(
   f="plot",
   signature=c("Survey"),
@@ -128,7 +130,7 @@ setMethod(
     bins <- nclass.Sturges(distdata$distance)
     breaks <- seq(0, max(distdata$distance), length = bins)
 
-    p[[2]] <- ggplot(data=distdata, aes(x=distance)) +
+    p[[2]] <- ggplot(data=distdata, aes(x = .data$distance)) +
       theme_classic() +
       geom_histogram(breaks=breaks,
                      col="black",
