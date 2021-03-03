@@ -11,7 +11,8 @@ Imports:
     rgeos,
     methods,
     rstudioapi,
-    gridExtra
+    gridExtra,
+    rlang
 Suggests:
     testthat,
     parallel,
