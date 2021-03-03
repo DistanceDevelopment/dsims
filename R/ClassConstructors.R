@@ -501,7 +501,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'
 #' # Define the analyses
 #' ds.analyses <- make.ds.analysis(dfmodel = ~1,
-#'                                 key = c("hn", "hr"),
+#'                                 key = "hn",
 #'                                 truncation = 50,
 #'                                 criteria = "AIC")
 #'

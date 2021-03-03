@@ -76,7 +76,7 @@ design <- make.design(region = region,
 
 # Define the analyses
 ds.analyses <- make.ds.analysis(dfmodel = ~1,
-                                key = c("hn", "hr"),
+                                key = "hn",
                                 truncation = 50,
                                 criteria = "AIC")
 
