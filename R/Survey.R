@@ -24,7 +24,7 @@ setClass("Survey", representation(population = "Population",
 #' @importFrom graphics par
 #' @importFrom grDevices nclass.Sturges
 #' @importFrom gridExtra grid.arrange
-#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim theme_classic labs
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim theme_classic labs theme_void
 #' @importFrom sf st_as_sf
 setMethod(
   f="plot",
@@ -38,10 +38,7 @@ setMethod(
     sf.region <- y@region
     transects <- x@transect@samplers
 
-    orig.theme <- theme_set(theme_bw())
-    on.exit(theme_set(orig.theme))
-
-    p[[1]] <- ggplot() +
+    p[[1]] <- ggplot() + theme_void() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       ggtitle("Transects")
@@ -51,7 +48,7 @@ setMethod(
     pts.sf <- sf::st_as_sf(pts)
     sf::st_crs(pts.sf) <- sf::st_crs(sf.region)
 
-    p[[2]] <- ggplot() +
+    p[[2]] <- ggplot() + theme_void() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1, fill = "lightgrey") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
       ggtitle("Population")
@@ -62,7 +59,7 @@ setMethod(
     sf::st_crs(detect.sf) <- sf::st_crs(sf.region)
 
 
-    p[[3]] <- ggplot() +
+    p[[3]] <- ggplot() + theme_void() +
       geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
@@ -99,7 +96,7 @@ setMethod(
 #' @importFrom graphics par
 #' @importFrom grDevices nclass.Sturges
 #' @importFrom gridExtra grid.arrange
-#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim theme_classic labs
+#' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes geom_histogram xlim theme_classic labs theme_void
 #' @importFrom sf st_as_sf
 setMethod(
   f="plot",
@@ -122,10 +119,7 @@ setMethod(
     detect.sf <- sf::st_as_sf(pts2)
     sf::st_crs(detect.sf) <- sf::st_crs(transects)
 
-    orig.theme <- theme_set(theme_bw())
-    on.exit(theme_set(orig.theme))
-
-    p[[1]] <- ggplot() +
+    p[[1]] <- ggplot() + theme_void() +
       geom_sf(data = covered.areas, color = gray(.2), lwd = 0.1) +
       geom_sf(data = transects, mapping = aes(), colour = "blue") +
       geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
