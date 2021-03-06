@@ -28,9 +28,9 @@ make.density(
 \item{density.formula}{a formula of x and/or y describing the
 density surface.}
 
-\item{density.surface}{Object of class \code{list}; list of
-an sf grid recording the density grid polygons and density vaulues within those
-polygons.}
+\item{density.surface}{Object of class \code{list}; an sf grid recording
+the density grid polygons, density values within those polygons and the
+central x and y coordinates.}
 }
 \value{
 object of class Density
