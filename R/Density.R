@@ -94,6 +94,45 @@ setValidity("Density",
   }
 )
 
+
+# GET / SET METHOD DEFINITIONS --------------------------------------------
+
+
+#' Method to get density values
+#'
+#' This method extracts the density values from a density object. It will
+#' optionally also return the x and y centre points for the density grid
+#' cells.
+#' @param density object of class Density
+#' @param coords if TRUE also returns x, y coordinates
+#' @return either returns a numeric vector of density values or a dataframe
+#' with columns x, y and density.
+#' @export
+#' @rdname get.densities-methods
+get.densities <- function(density, coords = FALSE){
+  dgrid <- density@density.surface[[1]]
+  if(coords){
+    return(data.frame(x = dgrid$x, y = dgrid$y, density = dgrid$density))
+  }else{
+    return(dgrid$densit)
+  }
+}
+
+
+#' Method to set density values
+#'
+#' This method sets the density values in a density object.
+#' @param density object of class Density
+#' @param densities a numeric vector of density values to update the
+#' density grid with.
+#' @return returns the Density object with updated density values
+#' @export
+#' @rdname set.densities-methods
+set.densities <- function(density, densities){
+  density@density.surface[[1]]$density <- densities
+  return(density)
+}
+
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
 #' @rdname add.hotspot-methods
@@ -262,6 +301,7 @@ setMethod(
 #'
 #' @param object object of class Simulation
 #' @param ... not implemented
+#' @return a \code{\link{Density.Summary-class}} object
 #' @rdname summary.Density-methods
 #' @importFrom stats na.omit qlnorm qnorm
 #' @importFrom methods slotNames
