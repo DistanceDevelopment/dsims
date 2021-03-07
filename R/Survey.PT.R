@@ -56,8 +56,16 @@ setMethod(
     point.transect <- object@transect
     # Find possible detection distances
     poss.distances <- calc.rad.dists(population, point.transect)
+    if(!is.null(poss.distances$distance)){
+      object@dists.in.covered <- poss.distances$distance
+    }
     # Simulate detections
     dist.data <- simulate.detections(poss.distances, object@population@detectability)
+    # Check if there are any detections
+    if(nrow(dist.data) == 0){
+      warning("No detections", immediate. = TRUE, call. = FALSE)
+      return(object)
+    }
     # Get the covariate names
     all.col.names <- names(object@population@population)
     cov.param.names <- all.col.names[!all.col.names %in% c("object", "x", "y", "Region.Label", "Sample.Label", "scale.param", "shape.param", "individual")]

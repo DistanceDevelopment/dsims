@@ -55,26 +55,36 @@ setMethod(
       ggtitle("Population")
 
     distdata <- na.omit(x@dist.data)
-    pts2 <- sp::SpatialPoints(data.frame(x = distdata$x, y = distdata$y))
-    detect.sf <- sf::st_as_sf(pts2)
-    sf::st_crs(detect.sf) <- sf::st_crs(sf.region)
+    if(nrow(distdata) > 0){
+      pts2 <- sp::SpatialPoints(data.frame(x = distdata$x, y = distdata$y))
+      detect.sf <- sf::st_as_sf(pts2)
+      sf::st_crs(detect.sf) <- sf::st_crs(sf.region)
 
-    p[[3]] <- ggplot() + theme_void() +
-      geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
-      geom_sf(data = transects, mapping = aes(), colour = "blue") +
-      geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
-      geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
-      ggtitle("Detections")
+      p[[3]] <- ggplot() + theme_void() +
+        geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
+        geom_sf(data = transects, mapping = aes(), colour = "blue") +
+        geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
+        geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
+        ggtitle("Detections")
 
-    bins <- nclass.Sturges(distdata$distance)
-    breaks <- seq(0, max(na.omit(distdata$distance)), length = bins)
-    p[[4]] <- ggplot(data=distdata, aes(x = .data$distance)) +
-      theme_classic() +
-      geom_histogram(breaks=breaks,
-                     col="black",
-                     fill="grey",
-                     alpha = .2) +
-      labs(title="Detection Distances", x="distance")
+      bins <- nclass.Sturges(distdata$distance)
+      breaks <- seq(0, max(na.omit(distdata$distance)), length = bins)
+      p[[4]] <- ggplot(data=distdata, aes(x = .data$distance)) +
+        theme_classic() +
+        geom_histogram(breaks=breaks,
+                       col="black",
+                       fill="grey",
+                       alpha = .2) +
+        labs(title="Detection Distances", x="distance")
+
+    }else{
+      warning("No detections", immediate. = TRUE, call. = FALSE)
+      p[[3]] <- ggplot() + theme_void() +
+        geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
+        geom_sf(data = transects, mapping = aes(), colour = "blue") +
+        geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
+        ggtitle("Detections")
+    }
 
     gridExtra::grid.arrange(grobs=p)
     return(invisible(p))
@@ -116,27 +126,37 @@ setMethod(
     sf::st_crs(pts.sf) <- sf::st_crs(transects)
     # Detections
     distdata <- na.omit(x@dist.data)
-    pts2 <- sp::SpatialPoints(data.frame(x = distdata$x, y = distdata$y))
-    detect.sf <- sf::st_as_sf(pts2)
-    sf::st_crs(detect.sf) <- sf::st_crs(transects)
+    if(nrow(distdata) > 0){
+      pts2 <- sp::SpatialPoints(data.frame(x = distdata$x, y = distdata$y))
+      detect.sf <- sf::st_as_sf(pts2)
+      sf::st_crs(detect.sf) <- sf::st_crs(transects)
 
-    p[[1]] <- ggplot() + theme_void() +
-      geom_sf(data = covered.areas, color = gray(.2), lwd = 0.1) +
-      geom_sf(data = transects, mapping = aes(), colour = "blue") +
-      geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
-      geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
-      ggtitle("Example survey")
+      p[[1]] <- ggplot() + theme_void() +
+        geom_sf(data = covered.areas, color = gray(.2), lwd = 0.1) +
+        geom_sf(data = transects, mapping = aes(), colour = "blue") +
+        geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
+        geom_sf(data = detect.sf, mapping = aes(), colour = "cyan", cex = 1) +
+        ggtitle("Example survey")
 
-    bins <- nclass.Sturges(distdata$distance)
-    breaks <- seq(0, max(distdata$distance), length = bins)
+      bins <- nclass.Sturges(distdata$distance)
+      breaks <- seq(0, max(distdata$distance), length = bins)
 
-    p[[2]] <- ggplot(data=distdata, aes(x = .data$distance)) +
-      theme_classic() +
-      geom_histogram(breaks=breaks,
-                     col="black",
-                     fill="grey",
-                     alpha = .2) +
-      labs(title="Detection Distances", x="distance")
+      p[[2]] <- ggplot(data=distdata, aes(x = .data$distance)) +
+        theme_classic() +
+        geom_histogram(breaks=breaks,
+                       col="black",
+                       fill="grey",
+                       alpha = .2) +
+        labs(title="Detection Distances", x="distance")
+    }else{
+      warning("No detections", immediate. = TRUE, call. = FALSE)
+      p[[1]] <- ggplot() + theme_void() +
+        geom_sf(data = covered.areas, color = gray(.2), lwd = 0.1) +
+        geom_sf(data = transects, mapping = aes(), colour = "blue") +
+        geom_sf(data = pts.sf, mapping = aes(), colour = "red", cex = 0.5) +
+        ggtitle("Example survey")
+    }
+
 
     gridExtra::grid.arrange(grobs=p)
 

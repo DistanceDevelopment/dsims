@@ -25,11 +25,11 @@ generate.pop.N <- function(population.description, region){
         #Generate some animal locations
         inside <- get.animal.locations(strata.data, temp.region, N[strat], strat, density.obj@x.space, density.obj@y.space)
         if(nrow(pop.locations) == 0){
-          pop.locations <- as.data.frame(inside@coords[1:min(N[strat],nrow(inside@coords)),])
+          pop.locations <- as.data.frame(inside@coords)[1:min(N[strat],nrow(inside@coords)),]
         }else{
           #Number of animal locations still requires
           n.more <- N[strat]-nrow(pop.locations)
-          pop.locations <- rbind(pop.locations, as.data.frame(inside@coords[1:min(n.more,nrow(inside@coords)),]))
+          pop.locations <- rbind(pop.locations, as.data.frame(inside@coords)[1:min(N[strat],nrow(inside@coords)),])
         }
         #Increment counter so we leave loop after 10 iterations even if we still don't have enough animals
         counter <- counter + 1

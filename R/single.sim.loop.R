@@ -57,13 +57,15 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     #simulate survey
     survey <- run.survey(object = survey, region = simulation@design@region)
     dist.data <- survey@dist.data
-    dists.in.covered <- survey@dists.in.covered
-    # Need to unflatten data for some checks and functions
-    data.tables <- Distance::unflatten(dist.data)
-    dht.dists <- data.tables$data
-    region.table <- data.tables$region.table
-    sample.table <- data.tables$sample.table
-    obs.table <- data.tables$obs.table
+    if(nrow(dist.data) > 0){
+      dists.in.covered <- survey@dists.in.covered
+      # Need to unflatten data for some checks and functions
+      data.tables <- Distance::unflatten(dist.data)
+      dht.dists <- data.tables$data
+      region.table <- data.tables$region.table
+      sample.table <- data.tables$sample.table
+      obs.table <- data.tables$obs.table
+    }
     # Check if we have to save the data
     if(save.data){
       save(survey, file = paste(data.path,"survey_",i,".robj", sep = ""))
