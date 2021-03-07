@@ -17,7 +17,7 @@ analyse.data(analysis, data.obj, ...)
 
 \item{data.obj}{an object of class Survey or a dataframe}
 
-\item{...}{optional arguments including the following:}
+\item{...}{optional arguments (currently not used)}
 
 \item{warnings}{a list of warnings and how many times they arose}
 

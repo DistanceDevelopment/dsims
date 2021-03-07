@@ -26,7 +26,7 @@ half-normal "hn", hazard rate "hr" or uniform "uf")}
 objects may be detected from a line (or point) transect.}
 }
 \value{
-object of class Detectability
+\code{\link{Detectability-class}} object
 }
 \description{
 The detectability of the population is described by the values in this

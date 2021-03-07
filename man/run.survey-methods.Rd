@@ -24,7 +24,10 @@ run.survey(object, ...)
 \item{region}{an object of class Region.}
 }
 \value{
-an object of class Survey
+An object which inherits from a \code{\link{Survey-class}} object.
+This will be a \code{\link{Survey.LT-class}} object in the case of a
+simulation with a line transect design and a \code{\link{Survey.PT-class}}
+if the simulation has a point transect design.
 }
 \description{
 Simulates the process by which individuals or clusters are detected. If

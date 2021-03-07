@@ -13,7 +13,7 @@ run.simulation(
 )
 }
 \arguments{
-\item{simulation}{an object of class Simulation}
+\item{simulation}{\code{\link{Simulation-class}} object}
 
 \item{run.parallel}{logical option to use multiple processors}
 
@@ -25,7 +25,8 @@ one less than the number available will be used.}
 \item{...}{will allow further options to be implemented}
 }
 \value{
-an object of class simulation which now includes the results
+the \code{\link{Simulation-class}} object which now includes
+the results
 }
 \description{
 Runs the simulation and returns the simulation object with results. If

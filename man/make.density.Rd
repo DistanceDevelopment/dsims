@@ -33,7 +33,7 @@ the density grid polygons, density values within those polygons and the
 central x and y coordinates.}
 }
 \value{
-object of class Density
+\code{\link{Density-class}} object
 }
 \description{
 Creates a density grid across the study area describing the distribution

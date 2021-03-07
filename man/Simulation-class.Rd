@@ -47,8 +47,6 @@ during runtime.}
 \section{Methods}{
 
 \describe{
- \item{\code{add.hotspot}}{\code{signature=(object = "Simulation")}: adds
- a hotspot based on a gaussian decay to the density surface.}
  \item{\code{summary}}{\code{signature=(object = "Simulation")}: produces
  a summary of the simulation and its results.}
  \item{\code{generate.population}}{\code{signature = (object =

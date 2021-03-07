@@ -11,6 +11,9 @@
 
 \item{...}{not implemented}
 }
+\value{
+a \code{\link{Density.Summary-class}} object
+}
 \description{
 Provides a summary table of the density object.
 }

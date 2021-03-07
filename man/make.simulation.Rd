@@ -28,7 +28,7 @@ created by a call to \link{make.population.description}}
 a call to \link{make.ds.analysis}}
 }
 \value{
-object of class Simulation
+\code{\link{Simulation-class}} object
 }
 \description{
 This creates a simulation with all the information necessary for dsims

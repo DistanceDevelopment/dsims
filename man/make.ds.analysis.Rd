@@ -41,7 +41,7 @@ second specifies how they should be grouped (into less strata) for the analyses}
 \item{criteria}{character model selection criteria (AIC, AICc, BIC)}
 }
 \value{
-an object of class DS.Analysis
+\code{\link{DS.Analysis-class}} object
 }
 \description{
 This method creates an Analysis objects which describes a one or more

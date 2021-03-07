@@ -26,7 +26,7 @@ required if object is of class Population.Description)}
 required if object is of class Population.Description)}
 }
 \value{
-an object of class Population
+\code{\link{Population}} object
 }
 \description{
 Uses the population description and detectability details to generate an

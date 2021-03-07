@@ -10,7 +10,7 @@ add.hotspot(object, centre, sigma, amplitude)
 \S4method{add.hotspot}{Density}(object, centre, sigma, amplitude)
 }
 \arguments{
-\item{object}{an object of class Density or Simulation}
+\item{object}{a \code{\link{Density-class}} object}
 
 \item{centre}{an x,y-coordinate giving the centre of the hotspot}
 
@@ -19,7 +19,7 @@ add.hotspot(object, centre, sigma, amplitude)
 \item{amplitude}{the height of the hotspot at its centre}
 }
 \value{
-the updated Density or Simulation object
+the updated \code{\link{Density-class}} object
 }
 \description{
 Uses a Gaussian decay around a central location to add a hotspot to the

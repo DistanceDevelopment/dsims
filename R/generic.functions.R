@@ -12,7 +12,7 @@ NULL
 #' @param object an object of class Simulation or Population.Description
 #' @param ... when this is called on an object of class Population.Description
 #' the additional arguments detectability and region.obj should also be supplied
-#' @return an object of class Population
+#' @return \code{\link{Population}} object
 #' @export
 #' @rdname generate.population-methods
 setGeneric("generate.population", function(object, ...){standardGeneric ("generate.population")})
@@ -28,36 +28,25 @@ setGeneric("generate.population", function(object, ...){standardGeneric ("genera
 #'
 #' @param object an object of class Simulation
 #' @param ... allows extra arguments
-#' @return an object of class Survey
+#' @return An object which inherits from a \code{\link{Survey-class}} object.
+#' This will be a \code{\link{Survey.LT-class}} object in the case of a
+#' simulation with a line transect design and a \code{\link{Survey.PT-class}}
+#' if the simulation has a point transect design.
 #' @export
 #' @rdname run.survey-methods
 #' @seealso \code{\link{make.simulation}}
 setGeneric(name = "run.survey", def = function(object, ...){standardGeneric ("run.survey")})
-
-#' S4 generic method to extract distance data
-#'
-#' Extracts distance data from a Survey.Results object
-#'
-#' @param object an object of class LT.Survey.Results
-#' @return a list containing a data.frame of distance data and a vector of all
-#' the possible detection distances. The latter can be used to calculate the
-#' number of animals / clusters in the covered area for truncation distances
-#' equal to or less than those used in the design.
-#' @export
-#' @rdname get.distance.data-methods
-#' @seealso \code{\link{run.survey}}
-setGeneric(name = "get.distance.data", def = function(object){standardGeneric ("get.distance.data")})
 
 #' S4 generic method to add a hotspot to the density grid
 #'
 #' Uses a Gaussian decay around a central location to add a hotspot to the
 #' density grid.
 #'
-#' @param object an object of class Density or Simulation
+#' @param object a \code{\link{Density-class}} object
 #' @param centre an x,y-coordinate giving the centre of the hotspot
 #' @param sigma a value giving the scale parameter for a gaussian decay
 #' @param amplitude the height of the hotspot at its centre
-#' @return the updated Density or Simulation object
+#' @return the updated \code{\link{Density-class}} object
 #' @export
 #' @rdname add.hotspot-methods
 #' @seealso \code{\link{make.density}}
@@ -76,7 +65,7 @@ setGeneric(name = "add.hotspot", def = function(object, centre, sigma, amplitude
 #'
 #' @param analysis an object of class DS.Analysis
 #' @param data.obj an object of class Survey or a dataframe
-#' @param ... optional arguments including the following:
+#' @param ... optional arguments (currently not used)
 #' @return a list containing an S3 ddf object and optionally an S3 dht object relating to the model with the minimum criteria.
 #' @export
 #' @rdname analyse.data-methods

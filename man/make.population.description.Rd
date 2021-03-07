@@ -26,7 +26,7 @@ strata. Total population size is 1000 by default.}
 of N otherwise it is generated from the values in the density grid.}
 }
 \value{
-object of class Population.Description
+\code{\link{Population.Description-class}}
 }
 \description{
 Creates an object which describes a population. The values in this object

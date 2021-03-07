@@ -5,13 +5,14 @@
 #' one less than the number of cores / threads on your machine. For example
 #' code see \code{\link{make.simulation}}
 #'
-#' @param simulation an object of class Simulation
+#' @param simulation \code{\link{Simulation-class}} object
 #' @param run.parallel logical option to use multiple processors
 #' @param max.cores integer maximum number of cores to use, if not specified then
 #' one less than the number available will be used.
 #' @param counter logical indicates if you would like to see the progress counter.
 #' @param ... will allow further options to be implemented
-#' @return an object of class simulation which now includes the results
+#' @return the \code{\link{Simulation-class}} object which now includes
+#' the results
 #' @export
 #' @importFrom parallel detectCores makeCluster clusterEvalQ stopCluster parLapply
 #' @importFrom rstudioapi versionInfo

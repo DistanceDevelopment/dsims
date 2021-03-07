@@ -26,7 +26,7 @@
 #' @param density.surface Object of class \code{list}; an sf grid recording
 #' the density grid polygons, density values within those polygons and the
 #' central x and y coordinates.
-#' @return object of class Density
+#' @return \code{\link{Density-class}} object
 #' @export
 #' @importFrom dssd make.region
 #' @importFrom methods new
@@ -119,7 +119,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #' strata. Total population size is 1000 by default.
 #' @param fixed.N a logical value. If TRUE the population is generated from the value(s)
 #'  of N otherwise it is generated from the values in the density grid.
-#' @return object of class Population.Description
+#' @return \code{\link{Population.Description-class}}
 #' @export
 #' @importFrom methods new
 #' @importFrom dssd make.region
@@ -272,7 +272,7 @@ make.population.description <- make.pop.description <- function(region = make.re
 #' @param cov.param Named list with one named entry per individual level covariate. Covariate parameter values should be defined on the log scale (rather than the natural scale), this is the same scale as provided in the ddf output in mrds and also in the MCDS output in Distance. Cluster sizes parameter values can be defined here. Each list entry will either be a data.frame containing 2 or 3 columns: level, param and where desired strata. If the region has multiple strata but this column is omitted then the values will be assumed to apply globally. The cluster size entry in the list must be named 'size'. Alternatively the list element may a numeric vector with either a single value to be applied globally or a value for each strata.
 #' @param truncation the maximum perpendicular (or radial) distance at which
 #'   objects may be detected from a line (or point) transect.
-#' @return object of class Detectability
+#' @return \code{\link{Detectability-class}} object
 #' @export
 #' @seealso \code{\link{make.simulation}} \code{\link{make.population.description}} \code{\link{make.density}}
 #' @importFrom methods new
@@ -352,7 +352,7 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' former gives the strata names as defined in the design (i.e. the region object) the
 #' second specifies how they should be grouped (into less strata) for the analyses
 #' @param criteria character model selection criteria (AIC, AICc, BIC)
-#' @return an object of class DS.Analysis
+#' @return \code{\link{DS.Analysis-class}} object
 #' @export
 #' @importFrom methods new
 #' @author Laura Marshall
@@ -464,7 +464,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'  \link{make.detectability}
 #' @param ds.analysis an objects of class DS.Analysis created by
 #'  a call to \link{make.ds.analysis}
-#' @return object of class Simulation
+#' @return \code{\link{Simulation-class}} object
 #' @export
 #' @importFrom methods new
 #' @importFrom dssd make.region make.design
