@@ -20,7 +20,9 @@ check.transects <- function(transects){
       }
     }
   }
-  transects@cov.area.polys <- cov.areas[-to.remove,]
-  transects@samplers <- samplers[-to.remove,]
+  if(length(to.remove) > 0){
+    transects@cov.area.polys <- cov.areas[-to.remove,]
+    transects@samplers <- samplers[-to.remove,]
+  }
   return(transects)
 }

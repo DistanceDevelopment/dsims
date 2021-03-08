@@ -23,7 +23,7 @@ Suggests:
 VignetteBuilder: knitr
 Type: Package
 Title: Distance Sampling Simulations
-Version: 0.1.0.9007
+Version: 0.1.0.9008
 Author: Laura Marshall <lhm@st-and.ac.uk>
 Maintainer: Laura Marshall <lhm@st-and.ac.uk>
 Description: Performs distance sampling simulations. 'dsims' repeatedly generates
