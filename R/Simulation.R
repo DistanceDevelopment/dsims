@@ -157,6 +157,8 @@ setMethod(
     population <- generate.population(object)
     transects <- generate.transects(object)
     if(class(transects) %in% c("Line.Transect", "Segment.Transect")){
+      # Check transects for empty geometries
+      transects <- check.transects(transects)
       survey <- new(Class = "Survey.LT",
                     population = population,
                     transect = transects,

@@ -39,6 +39,8 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     }
     #make survey object
     if(class(transects) %in% c("Line.Transect","Segment.Transect")){
+      # Check transects for empty geometries
+      transects <- check.transects(transects)
       survey <- new(Class = "Survey.LT", population = population, transect = transects, perp.truncation = simulation@detectability@truncation)
     }else if(class(transects) == "Point.Transect"){
       survey <- new(Class = "Survey.PT", population = population, transect = transects, rad.truncation = simulation@detectability@truncation)
