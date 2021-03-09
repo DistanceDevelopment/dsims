@@ -243,7 +243,7 @@ setMethod(
 setMethod(
   f = "plot",
   signature = c("Density","Region"),
-  definition = function(x, y, strata = "all", title = "", scale = 1){
+  definition = function(x, y, strata = "all", title = "", scale = 1, line.col = gray(.2)){
     suppressWarnings(invisible(gc()))
     # Extract strata names
     strata.names <- x@strata.name
@@ -287,7 +287,7 @@ setMethod(
       geom_sf(data = plot.data, mapping = aes(fill = density, colour=density)) +
       scale_fill_viridis_c() +
       scale_colour_viridis_c() +
-      geom_sf(data = sf.region, fill = NA, color = gray(.2), lwd = 0.2) +
+      geom_sf(data = sf.region, fill = NA, color = line.col, lwd = 0.2) +
       ggtitle(title)
 
     # return the plot object incase the user wants to modify

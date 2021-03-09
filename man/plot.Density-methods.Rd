@@ -7,7 +7,7 @@
 \usage{
 \S4method{plot}{Density,ANY}(x, y, strata = "all", title = "", scale = 1)
 
-\S4method{plot}{Density,Region}(x, y, strata = "all", title = "", scale = 1)
+\S4method{plot}{Density,Region}(x, y, strata = "all", title = "", scale = 1, line.col = gray(0.2))
 }
 \arguments{
 \item{x}{object of class Density}
