@@ -174,14 +174,14 @@ setMethod(
     }
     cat("\nAnalysis Summary:")
     for(i in seq(along = object@analysis.summary)){
-      if(names(object@analysis.summary)[i] == "dsmodels"){
+      if(names(object@analysis.summary)[i] == "dfmodels"){
         cat("\n   Candidate Models:", fill = TRUE)
-        for(j in seq(along = object@analysis.summary$dsmodels)){
+        for(j in seq(along = object@analysis.summary$dfmodels)){
           no.times.selected <- object@model.selection[names(object@model.selection) == as.character(j)]
           if(length(no.times.selected) == 0){
             no.times.selected <- 0
           }
-          cat("      Model ", j, ": ", "key function '", object@analysis.summary$key[j], "', formula '", as.character(object@analysis.summary$dsmodels[[j]]), "', was selected ", no.times.selected, " time(s).", sep = "", fill = TRUE)
+          cat("      Model ", j, ": ", "key function '", object@analysis.summary$key[j], "', formula '", as.character(object@analysis.summary$dfmodels[[j]]), "', was selected ", no.times.selected, " time(s).", sep = "", fill = TRUE)
         }
       }else if(names(object@analysis.summary)[i] %in% c("criteria", "variance.estimator")){
         cat("  ",names(object@analysis.summary)[i], " = ", object@analysis.summary[[i]], fill = TRUE)
