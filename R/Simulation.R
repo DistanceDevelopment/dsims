@@ -104,6 +104,11 @@ setValidity("Simulation",
               # Check number of scale parameters is equal to
 
               # Analysis checks
+              if(object@ds.analysis@er.var != "R2" && inherits(object@design, "Line.Transect.Design")){
+                if(!all(object@design@design == "systematic")){
+                  return("Variance estimators other than R2 are currently only supported for systematic parallel line designs.")
+                }
+              }
 
               return(TRUE)
             }
