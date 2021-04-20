@@ -39,12 +39,12 @@ setValidity("Density.Summary",
 #' displays the density summary table
 #'
 #' @param object object of class Density.Summary
-#' @rdname show.Density-methods
+#' @return No return value, displays the density summary
+#' @rdname show.Density.Summary-methods
 #' @export
 setMethod("show","Density.Summary",
           function(object){
             print(object@summary)
-            invisible(object)
           }
 )
 

@@ -6,6 +6,9 @@
 \usage{
 description.summary()
 }
+\value{
+no return, displays an explanation of the simulation summary
+}
 \description{
 Prints a list of the terms used in the simulation summary.
 }

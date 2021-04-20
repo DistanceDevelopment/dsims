@@ -9,6 +9,9 @@
 \arguments{
 \item{object}{object of class Density.Summary}
 }
+\value{
+No return value, displays the density summary
+}
 \description{
 displays the density summary table
 }

@@ -3,6 +3,7 @@
 #' Prints a list of the terms used in the simulation summary.
 #'
 #' @export
+#' @return no return, displays an explanation of the simulation summary
 #' @author Laura Marshall
 #'
 description.summary <- function(){

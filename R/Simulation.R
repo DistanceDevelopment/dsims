@@ -136,6 +136,7 @@ setMethod(
 #' @param object object of class Simulation
 #' @param quiet if TRUE silences some warnings
 #' @param ... not implemented
+#' @return an object of class Transect from dssd package
 #' @rdname generate.transects.Simulation-methods
 #' @importFrom stats na.omit qlnorm qnorm
 #' @importFrom methods slotNames
@@ -187,6 +188,7 @@ setMethod(
 #'
 #' @param object object of class Simulation
 #' @rdname show.Simulation-methods
+#' @return No return value, displays a summary of the simulation
 #' @export
 setMethod(
   f="show",
@@ -204,6 +206,7 @@ setMethod(
 #' @param x object of class Simulation
 #' @param ... optional parameters to pass to the generic hist function in graphics
 #' @rdname histogram.N.ests-methods
+#' @return No return value, displays a histogram of the abundance estimates
 #' @importFrom graphics hist abline
 #' @export
 histogram.N.ests <- function(x, ...){
@@ -239,6 +242,7 @@ histogram.N.ests <- function(x, ...){
 #' @rdname summary.Simulation-methods
 #' @importFrom stats na.omit qlnorm qnorm
 #' @importFrom methods slotNames slot show
+#' @return Object of class Simulation.Summary
 #' @export
 setMethod(
   f="summary",

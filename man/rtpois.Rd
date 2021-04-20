@@ -11,6 +11,10 @@ rtpois(N, mean = NA)
 
 \item{mean}{mean of the generated values}
 }
+\value{
+returns a ramdomly generated value from a zero-truncated Poisson
+distribution.
+}
 \description{
 Generates values from a zero-truncated Poisson distribution with mean
 equal to that specified. It uses a look up table to check which value of

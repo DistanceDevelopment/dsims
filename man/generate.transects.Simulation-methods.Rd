@@ -13,6 +13,9 @@
 
 \item{...}{not implemented}
 }
+\value{
+an object of class Transect from dssd package
+}
 \description{
 Generates a set of transects based on the design provided.
 }

@@ -9,6 +9,9 @@
 \arguments{
 \item{object}{object of class Simulation}
 }
+\value{
+No return value, displays a summary of the simulation
+}
 \description{
 Not currently implemented
 }

@@ -90,6 +90,7 @@ setMethod(
 #' @param x object of class Population
 #' @param y object of class Region
 #' @param ... other general plot parameters
+#' @return ggplot object
 #' @rdname plot.Population-methods
 #' @importFrom graphics points
 #' @importFrom ggplot2 ggplot geom_sf theme_set theme_bw aes
