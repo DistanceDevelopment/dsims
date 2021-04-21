@@ -46,7 +46,6 @@ Language: en-GB
 URL: https://github.com/DistanceDevelopment/dsims
 BugReports: https://github.com/DistanceDevelopment/dsims/issues
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.1.1
 Collate: 
     'AICc.R'
