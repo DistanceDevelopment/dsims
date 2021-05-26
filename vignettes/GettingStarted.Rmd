@@ -14,7 +14,7 @@ vignette: >
 
 This vignette introduces the basic procedure for setting up and running a distance sampling simulation using 'dsims' [@dsims-pkg]. The 'dsims' package uses the distance sampling survey design package 'dssd' [@dssd-pkg] to define the design and generate the surveys (sets of transects). For further details on defining designs please refer to the 'dssd' vignettes. 'dsims' was designed to be largely similar to the 'DSsim' package [@DSsim-pkg] in terms of work flow, functions and arguments. The main differences in terms of its use lie in the definition of the designs which can now be generated in R using the 'dssd' package (these packages are automatically linked) and the definition of analyses. Analyses are now defined using terminology based on the 'Distance' package [@Distance-pkg]. In addition, the underlying functionality now makes use of the 'sf' package [@sf-pkg].
 
-Distance Sampling techniques provide design based estimates of density and abundance for populations, the accuracy of these estimates relies on valid survey design. While general rules of thumb can help guide our design choices, simulations emulating a specific set of survey characteristics can often help us achieve more optimal and robust designs for individual studies. For example, simulations can help us investigate how effort allocation can affect our estimates or the effects of a more efficient design which has less uniform coverage probability. Due to the individual nature of each study, each with their specific set of characteristics, simulation can be a powerful tool in survey design.
+Distance Sampling techniques provide design based estimates of density and abundance for populations. The accuracy of these estimates relies on valid survey design. While general rules of thumb can help guide our design choices, simulations emulating a specific set of survey characteristics can often help us achieve more efficient and robust designs for individual studies. For example, simulations can help us investigate how effort allocation can affect our estimates or the effects of a more efficient design which has less uniform coverage probability. Due to the individual nature of each study, each with their specific set of characteristics, simulation can be a powerful tool in evaluating survey design.
 
 ## Setting up the Region
 
@@ -33,6 +33,8 @@ plot(region)
 
 
 ## Defining the study population
+
+To define a study population we require a number of intermediate steps. We describe these in turn belwo.
 
 ### Population Density Grid
 
