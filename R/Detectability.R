@@ -118,6 +118,7 @@ setValidity("Detectability",
 # GENERIC METHODS DEFINITIONS --------------------------------------------
 
 #' @rdname plot.Detectability-methods
+#' @return No return value, gives a warning to the user
 #' @exportMethod plot
 setMethod(
   f="plot",
@@ -140,6 +141,7 @@ setMethod(
 #' @param gap.col fill colour for the gaps
 #' @param main character plot title
 #' @param ... other general plot parameters
+#' @return No return value, plotting function
 #' @rdname plot.Detectability-methods
 #' @importFrom graphics polygon plot axTicks axis lines plot legend par
 #' @importFrom stats quantile

@@ -21,6 +21,8 @@ all strata will be plotted.}
 
 \item{scale}{used to scale the x and y values in the plot (warning may give
 unstable results when a projection is defined for the study area!)}
+
+\item{line.col}{sets the line colour for the shapefile}
 }
 \value{
 ggplot object

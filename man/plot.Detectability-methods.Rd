@@ -46,6 +46,11 @@ and km}
 
 \item{...}{other general plot parameters}
 }
+\value{
+No return value, gives a warning to the user
+
+No return value, plotting function
+}
 \description{
 Plots an S4 object of class 'Detectability'
 }

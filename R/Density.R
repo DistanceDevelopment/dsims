@@ -234,6 +234,7 @@ setMethod(
 #' @param title plot title
 #' @param scale used to scale the x and y values in the plot (warning may give
 #' unstable results when a projection is defined for the study area!)
+#' @param line.col sets the line colour for the shapefile
 #' @return ggplot object
 #' @rdname plot.Density-methods
 #' @importFrom ggplot2 ggplot geom_sf scale_fill_viridis_c ggtitle aes theme_set theme_bw scale_colour_viridis_c

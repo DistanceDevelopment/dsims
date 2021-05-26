@@ -16,6 +16,9 @@
 
 \item{...}{other general plot parameters}
 }
+\value{
+ggplot object
+}
 \description{
 Unused, will give a warning that the region must also be supplied.
 
