@@ -188,7 +188,7 @@ When setting the basic scale parameter along side covariate parameters values we
 $$\sigma_j = exp(log(\sigma_0)+\sum_{i=1}^{k}\beta_ix_{ij})$$
 where $j$ is the individual, $\sigma_0$ is the base line scale parameter (passed in as argument 'scale.param' on the natural scale), the $\beta_i$'s are the covariate parameters passed in on the log scale for each covariate $i$ and the $x_{ij}$ values are the covariate values for covariate $i$ and individual $j$.
 
-We will assume a half normal detection function with a scale parameter of 400. We will set the truncation distance to be the same as the design at 750 m. and set the covariate slope coefficient on the log scale to log(1.05) = 0.049. We can check what our detection functions will look like for the different covariate values by plotting them. To plot the example detection functions we need to provide the population description as well as detectability. 
+We will assume a half normal detection function with a scale parameter of 300. We will set the truncation distance to be the same as the design at 750 m. and set the covariate slope coefficient on the log scale to log(1.08) = 0.077. We can check what our detection functions will look like for the different covariate values by plotting them. To plot the example detection functions we need to provide the population description as well as detectability. 
 
 ```{r detect, fig.align='center', fig.cap="Figure 6: Plot of the detection function for the mean group size (solid line) and for the 2.5 and 97.5 percentile values  of group size (dashed lines) for this population. ", fig.width=6, fig.height=4}
 
