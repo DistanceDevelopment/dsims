@@ -11,6 +11,9 @@ histogram.N.ests(x, ...)
 
 \item{...}{optional parameters to pass to the generic hist function in graphics}
 }
+\value{
+No return value, displays a histogram of the abundance estimates
+}
 \description{
 Plots a histogram of the estimates abundances
 }

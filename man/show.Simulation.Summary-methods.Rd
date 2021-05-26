@@ -9,6 +9,10 @@
 \arguments{
 \item{object}{object of class Simulation.Summary}
 }
+\value{
+No return value, displays information in Simulation.Summary
+object
+}
 \description{
 Displays the simulation summary
 }

@@ -12,7 +12,7 @@ NULL
 #' @param object an object of class Simulation or Population.Description
 #' @param ... when this is called on an object of class Population.Description
 #' the additional arguments detectability and region.obj should also be supplied
-#' @return \code{\link{Population}} object
+#' @return \code{\link{Population-class}} object
 #' @export
 #' @rdname generate.population-methods
 setGeneric("generate.population", function(object, ...){standardGeneric ("generate.population")})

@@ -14,6 +14,9 @@ explanation of the summary should be displayed}
 
 \item{...}{can specify if you want the maximum number of iterations to be used where at least one model converged (use.max.reps = TRUE) or only use iterations where all models converged (use.max.reps = FALSE)}
 }
+\value{
+Object of class Simulation.Summary
+}
 \description{
 Provides a summary of the simulation results.
 }

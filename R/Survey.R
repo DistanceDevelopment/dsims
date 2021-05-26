@@ -19,6 +19,7 @@ setClass("Survey", representation(population = "Population",
 #' @param x object of class Survey
 #' @param y NULL
 #' @param ... additional plotting parameters
+#' @return Generate 4 plots showing the survey population, transects (including covered areas), detections and a histogram of the detection distances. Plots inlude the survey region. Also invisibly returns a list of ggplot objects if the user would like to customise the plots.
 #' @rdname plot-methods
 #' @export
 #' @importFrom graphics par
@@ -87,7 +88,7 @@ setMethod(
     }
 
     gridExtra::grid.arrange(grobs=p)
-    return(invisible(p))
+    invisible(p)
   }
 )
 
@@ -101,6 +102,7 @@ setMethod(
 #' @param x object of class Survey
 #' @param y object of class Region
 #' @param ... additional plotting parameters
+#' @return Generate 2 plots showing the survey population, transects (including covered areas), detections and a histogram of the detection distances. Plots do not include survey region. Also invisibly returns a list of ggplot objects if the user would like to customise the plots.
 #' @rdname plot-methods
 #' @export
 #' @importFrom graphics par
@@ -160,7 +162,7 @@ setMethod(
 
     gridExtra::grid.arrange(grobs=p)
 
-    return(invisible(p))
+    invisible(p)
   }
 )
 

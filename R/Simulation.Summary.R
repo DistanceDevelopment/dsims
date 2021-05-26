@@ -74,6 +74,8 @@ setValidity("Simulation.Summary",
 #' Displays the simulation summary
 #'
 #' @param object object of class Simulation.Summary
+#' @return No return value, displays information in Simulation.Summary
+#' object
 #' @rdname show.Simulation.Summary-methods
 #' @export
 setMethod(
@@ -223,7 +225,6 @@ setMethod(
     }else{
       cat("\n No results to display yet... simulation has not been run.")
     }
-    invisible(NULL)
   }
 )
 
