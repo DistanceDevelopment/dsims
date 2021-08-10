@@ -540,7 +540,7 @@ make.simulation <- function(reps = 10, design = make.design(), population.descri
                                    design@region,
                                    ds.analysis,
                                    population.description)
-  #create a simulation object
+  # Create a simulation object
   simulation <- new(Class = "Simulation",
                     reps = reps,
                     design = design,
@@ -548,5 +548,12 @@ make.simulation <- function(reps = 10, design = make.design(), population.descri
                     detectability = detectability,
                     ds.analysis = ds.analysis,
                     results = results)
+  # Check the simulation object
+  simulation <- check.simulation(simulation)
+  # If it has returned a character this is an error
+  if(class(simulation) == "character"){
+    stop(simulation, call. = FALSE)
+  }
+
   return(simulation)
 }

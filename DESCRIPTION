@@ -70,6 +70,7 @@ Collate:
     'calc.rad.dists.R'
     'calculate.scale.param.R'
     'check.covariates.R'
+    'check.simulation.R'
     'check.transects.R'
     'create.results.arrays.R'
     'description.summary.R'
