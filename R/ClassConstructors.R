@@ -237,8 +237,8 @@ make.population.description <- make.pop.description <- function(region = make.re
                          poisson = "lambda",
                          ztruncpois = "mean",
                          lognormal = c("meanlog", "sdlog"))
-        if(!params %in% names(covariates[[cov]][[i]])){
-          stop(paste("You have not supplied all the required parameters (", paste(params, collapse = ", "),") for the following covariate distribution: ", covariates[[cov]][[i]]$distribution, sep = ""))
+        if(!all(params %in% names(covariates[[cov]][[i]]))){
+          stop(paste("You have not supplied all the required parameters (", paste(params, collapse = ", "),") for the following covariate distribution: ", covariates[[cov]][[i]]$distribution, sep = ""), call. = FALSE)
         }
         # Separate out into old format
         pvs <- covariates[[cov]][[i]]
