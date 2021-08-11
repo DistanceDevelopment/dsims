@@ -170,7 +170,8 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
                                                 dht.results, i,
                                                 simulation@population.description@size,
                                                 dist.data,
-                                                obs.table)
+                                                obs.table,
+                                                sample.table)
       }
     }
     else{
@@ -181,7 +182,8 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
                                               i = i,
                                               clusters = clusters,
                                               data = dist.data,
-                                              obs.tab = obs.table)
+                                              obs.tab = obs.table,
+                                              sample.tab = sample.table)
     }
   }
   # If the transects were loaded store the filename in the results

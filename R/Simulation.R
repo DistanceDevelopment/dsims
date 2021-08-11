@@ -397,6 +397,7 @@ setMethod(
                                      mean.n = results$individuals$summary[,"n","mean"],
                                      mean.n.miss.dist = ifelse("n.miss.dist" %in% dimnames(results$individuals$summary)[[2]], results$individuals$summary[,"n.miss.dist","mean"], NA),
                                      no.zero.n = zero.n,
+                                     mean.k = ifelse("k" %in% dimnames(results$individuals$summary)[[2]], results$individuals$summary[,"k","mean"], NA),
                                      mean.ER = results$individuals$summary[,"ER","mean"],
                                      mean.se.ER = results$individuals$summary[,"se.ER","mean"],
                                      sd.mean.ER = results$individuals$summary[,"ER","sd"])
@@ -407,6 +408,10 @@ setMethod(
     }
     if(all(individual.summary$no.zero.n == 0)){
       eval(parse(text = paste("individual.summary <- subset(individual.summary, select = -no.zero.n)")))
+    }
+    # For backwards compatability
+    if(all(is.na(individual.summary$k))){
+      eval(parse(text = paste("individual.summary <- subset(individual.summary, select = -k)")))
     }
     individual.N <- data.frame(Truth = true.N.individuals,
                                mean.Estimate = results$individuals$N[,"Estimate","mean"],
