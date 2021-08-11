@@ -228,12 +228,20 @@ setMethod(
       index <- which(IC == min.IC)
       min.model <- models[[index]]
       min.model$ddf$model.index <- index
+      num.successful.models = length(which(!is.na(IC)))
+      # If more than one model converged then calculate the difference in selection criteria
+      # Between two best fitting models
+      if(num.successful.models > 1){
+        sorted.criteria <- sort(na.omit(IC))
+        delta.criteria <- sorted.criteria[2] - sorted.criteria[1]
+        min.model$ddf$delta.criteria <- delta.criteria
+      }
     }else{
       warnings <- message.handler(warnings, "None of the models converged for this dataset.")
       return(list(model = NULL, warnings = warnings, num.successful.models = 0))
     }
     # Return model and warnings
-    return(list(model = min.model, warnings = warnings, num.successful.models = length(which(!is.na(IC)))))
+    return(list(model = min.model, warnings = warnings, num.successful.models = num.successful.models))
   }
 )
 
