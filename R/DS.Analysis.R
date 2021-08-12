@@ -221,6 +221,11 @@ setMethod(
                         "AICc" = AICc(models[[i]]),
                         "BIC" = BIC(models[[i]]))
       }
+      if(IC[i] == -Inf){
+        IC[i] <- NA
+        warnings <- message.handler(warnings, paste("The following model had model selection criteria of -Inf: ", i, sep = ""))
+        models[[i]] <- NA
+      }
     } #Fit next model
     #Find model with the minimum information criteria
     if(length(IC) > 0){
