@@ -410,8 +410,8 @@ setMethod(
       eval(parse(text = paste("individual.summary <- subset(individual.summary, select = -no.zero.n)")))
     }
     # For backwards compatability
-    if(all(is.na(individual.summary$k))){
-      eval(parse(text = paste("individual.summary <- subset(individual.summary, select = -k)")))
+    if(all(is.na(individual.summary$mean.k))){
+      eval(parse(text = paste("individual.summary <- subset(individual.summary, select = -mean.k)")))
     }
     individual.N <- data.frame(Truth = true.N.individuals,
                                mean.Estimate = results$individuals$N[,"Estimate","mean"],
