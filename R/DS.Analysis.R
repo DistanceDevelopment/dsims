@@ -210,7 +210,7 @@ setMethod(
         models[[i]] <- NA
       }else if(any(models[[i]]$fitted < 0)){
         warnings <- message.handler(warnings, paste("Negative predictions for model ", i,", excluding these results.", sep = ""))
-        ddf.result <- NA
+        models[[i]] <- NA
       }
       if(!is.null(W)){
         warnings <- message.handler(warnings, paste(W, " (Model number: ", i, ")", sep = ""))
