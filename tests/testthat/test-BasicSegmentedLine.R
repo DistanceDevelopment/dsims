@@ -46,9 +46,9 @@ test_that("Test creation and data generation", {
   expect_true("distbegin" %in% names(test$model$ddf$data))
 
   sim.serial <- run.simulation(sim)
-  #summary(sim.serial, description.summary = FALSE)
+  sum.sim <- summary(sim.serial, description.summary = FALSE)
 
   sim.para <- run.simulation(sim, run.parallel = TRUE)
-  #summary(sim.para)
+  sum.para <- summary(sim.para, description.summary = FALSE)
 
 })
