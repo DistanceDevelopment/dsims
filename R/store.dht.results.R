@@ -4,6 +4,11 @@ store.dht.results <- function(results, dht.results, i, clusters, data, obs.tab, 
   strata.names.ND <- as.character(dht.results$individual$N$Label)
   # To calculate k for individuals
   sampler.count <- table(sample.tab$Region.Label)
+  if("Total" %in% strata.names && length(strata.names) > 1){
+    sampler.count <- c(sampler.count, sum(sampler.count))
+    last <- length(sampler.count)
+    names(sampler.count)[last] <- "Total"
+  }
   for(strat in seq(along = strata.names)){
     # Get the number of missed dists in strata
     if(strata.names[strat] == "Total"){
