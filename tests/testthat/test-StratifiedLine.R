@@ -102,7 +102,7 @@ test_that("Test stratified options and generating by density", {
   expect_equal(nrow(obs.table), nrow(new.obs))
 
   # test running the simulation
-  sim <- run.simulation(sim)
+  sim <- run.simulation(sim, counter = FALSE)
 
   sim.summary <- summary(sim, description.summary = FALSE)
 

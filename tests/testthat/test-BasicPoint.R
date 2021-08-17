@@ -61,7 +61,7 @@ test_that("Can create object or return correct error messages", {
   expect_true(class(survey@transect) == "Point.Transect")
 
   # test running the simulation
-  test <- run.simulation(sim)
+  test <- run.simulation(sim, counter = FALSE)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

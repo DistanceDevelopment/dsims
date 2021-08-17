@@ -31,10 +31,10 @@ test_that("Test creation and data generation", {
   survey <- run.survey(sim)
   expect_true(class(survey@transect) == "Line.Transect")
 
-  sim.serial <- run.simulation(sim)
+  sim.serial <- run.simulation(sim, counter = FALSE)
   #summary(sim.serial, description.summary = FALSE)
 
-  sim.para <- run.simulation(sim, run.parallel = TRUE)
+  sim.para <- run.simulation(sim, run.parallel = TRUE, counter = FALSE)
   # summary(sim.para)
 
 })
