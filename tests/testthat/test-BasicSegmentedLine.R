@@ -43,12 +43,14 @@ test_that("Test creation and data generation", {
   expect_true(all(survey@population@population$shape.param == 3))
 
   test <- analyse.data(analysis.bin, survey)
-  expect_true("distbegin" %in% names(test$model$ddf$data))
+  if(!is.null(test$model)){
+    expect_true("distbegin" %in% names(test$model$ddf$data))
+  }
 
-  sim.serial <- run.simulation(sim)
+  sim.serial <- run.simulation(sim, counter = FALSE)
   sum.sim <- summary(sim.serial, description.summary = FALSE)
 
-  sim.para <- run.simulation(sim, run.parallel = TRUE)
+  sim.para <- run.simulation(sim, run.parallel = TRUE, counter = FALSE)
   sum.para <- summary(sim.para, description.summary = FALSE)
 
 })
