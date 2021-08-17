@@ -36,9 +36,72 @@ description of the detectability of the population.}
 \item{\code{ddf.param.ests}}{Object of class \code{"array"}; stores the
 parameters associated with the detection function.}
 
-\item{\code{results}}{A \code{"list"} of \code{"arrays"}; stores
-the estimated of abundance and density as well as other measures
-of interest.}
+\item{\code{results}}{A \code{"list"} with elements 'individuals' (and
+optionally 'clusters' and 'expected.size') as well as 'Detection'.
+
+The 'individuals' and 'clusters' elements are a list of three
+3-dimensional arrays. The first is a summary array containing
+values for 'Area' (strata area), 'CoveredArea' (the area
+covered in the strata by the survey), Effort' (the line length
+or number of points surveyed), 'n' (the number of sightings),
+'n.miss.dists' (the number of missing distances - only applicable
+to mixed detector types and not yet implemented in dsims), 'k'
+(the number of transects), 'ER' (encounter rate), 'se.ER'
+(standard error of the encounter rate), 'cv.ER' (coefficient of
+variation of the encounter rate). A value is provided for each
+of these for each strata as well as the region as a whole and
+for each simulation repetition as well as storing the mean and
+standard deviation of these values across simulation repetitions.
+
+The second array 'N' is the abundance estimates table. It contains
+values for the 'Estimate' (estimated abundance based on data from
+iteration i), 'se' (standard error associated with the estimate),
+'cv' (coefficient of variation of estimate), 'lcl' (lower 95\%
+confidence interval value), 'ucl' (upper 95\% confidence interval
+value), 'df' the degrees of freedom associated with the estimate.
+A value is provided for each of these for each strata as well as
+the region as a whole and for each simulation repetition as well
+as storing the mean and standard deviation of these values across
+simulation repetitions.
+
+The third array 'D' is the density estimates table. It contains
+values for the 'Estimate' (estimated density based on data from
+iteration i), 'se' (standard error associated with the estimate),
+'cv' (coefficient of variation of estimate), 'lcl' (lower 95\%
+confidence interval value), 'ucl' (upper 95\% confidence interval
+value), 'df' the degrees of freedom associated with the estimate.
+A value is provided for each of these for each strata as well as
+the region as a whole and for each simulation repetition as well
+as storing the mean and standard deviation of these values across
+simulation repetitions.
+
+
+When animals occur in clusters the expected.size element of the
+results list contains a 3-dimensional array. It gives values
+for 'Expected.S' (expected cluster size), 'se.Expected.S'
+(the standard error of the expected cluster size),
+'cv.Expected.S' (the coefficient of variation for the expected
+cluster size). Values are given for each analysis strata as
+well as a value for the survey region as a whole and across
+each simulation repetition as well as overall means and standard
+deviations across repetitions.
+
+
+The Detection element of the results list is a 3-dimensional
+array with values for 'True.Pa' (the proportion of animals in
+the covered region which were detected), 'Pa' (the estimated
+proportion of animals detected in the covered region), 'ESW'
+(the estimated strip width), 'f(0)' (The estimated value of
+the detection function pdf at distance 0), 'SelectedModel'
+(the index of the model which had the best fit to the dataset
+for the repetition), 'DeltaCriteria' (the difference in
+information criteria between the best and second best fitting
+models where two or more models were fitted and converged),
+'SuccessfulModels' (the number of models which successfully
+converged). Currently detection functions are pooled across
+all strata so there is only one global value for each
+simulated dataset as well as a mean value and standard
+deviation where appropriate.}
 
 \item{\code{warnings}}{A \code{"list"} to store warnings and error messages encountered
 during runtime.}
