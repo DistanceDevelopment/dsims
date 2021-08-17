@@ -215,7 +215,7 @@ setMethod(
       if(!is.null(W)){
         warnings <- message.handler(warnings, paste(W, " (Model number: ", i, ")", sep = ""))
       }
-      if(class(models[[i]]) == "dsmodel"){
+      if(any(class(models[[i]]) == "dsmodel")){
         IC[i] <- switch(analysis@criteria,
                         "AIC" = AIC(models[[i]])$AIC,
                         "AICc" = AICc(models[[i]]),
@@ -232,7 +232,7 @@ setMethod(
       }
     } #Fit next model
     #Find model with the minimum information criteria
-    if(length(IC) > 0){
+    if(length(na.omit(IC)) > 0){
       min.IC <- min(IC, na.rm = TRUE)
       index <- which(IC == min.IC)
       min.model <- models[[index]]
