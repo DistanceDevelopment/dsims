@@ -4,8 +4,9 @@ accumulate.warnings <- function(warnings.list){
     warnings <- warnings.list[[1]]
     for(i in seq(along = warnings.list[-1])){
       temp <- warnings.list[[i]]$message
+      index <- warnings.list[[i]]$index
       for(j in seq(along = temp)){
-        warnings <- message.handler(warnings, temp[[j]])
+        warnings <- message.handler(warnings, temp[[j]], i = index[[j]])
       }
     }
     return(warnings)

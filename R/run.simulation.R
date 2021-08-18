@@ -48,6 +48,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
   #reset the error/warning message
   simulation@warnings$message <- list()
   simulation@warnings$counter <- list()
+  simulation@warnings$index <- list()
   #check the data.path ends in "/"
   if(length(data.path) > 0){
     temp.path <- strsplit(data.path, split = "")
