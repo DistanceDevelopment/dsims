@@ -94,7 +94,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     })
     on.exit(stopCluster(myCluster))
     if(counter){
-        results <- pbapply::pblapply(X= as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = FALSE)
+        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = FALSE)
     }else{
       results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE)
     }
