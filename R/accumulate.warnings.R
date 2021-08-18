@@ -3,10 +3,14 @@ accumulate.warnings <- function(warnings.list){
   if(length(warnings.list) > 0){
     warnings <- warnings.list[[1]]
     for(i in seq(along = warnings.list[-1])){
-      temp <- warnings.list[[i]]$message
+      message <- warnings.list[[i]]$message
       index <- warnings.list[[i]]$index
+      count <- warnings.list[[i]]$counter
       for(j in seq(along = temp)){
-        warnings <- message.handler(warnings, temp[[j]], i = index[[j]])
+        warnings <- message.handler(warnings,
+                                    message[[j]],
+                                    i = index[[j]],
+                                    count = count[[j]])
       }
     }
     return(warnings)
