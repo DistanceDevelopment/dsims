@@ -6,7 +6,7 @@ accumulate.warnings <- function(warnings.list){
       message <- warnings.list[[i]]$message
       index <- warnings.list[[i]]$index
       count <- warnings.list[[i]]$counter
-      for(j in seq(along = temp)){
+      for(j in seq(along = message)){
         warnings <- message.handler(warnings,
                                     message[[j]],
                                     i = index[[j]],
