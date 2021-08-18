@@ -1,4 +1,6 @@
 store.dht.results <- function(results, dht.results, i, clusters, data, obs.tab, sample.tab){
+  # Store all the input to this function in a file with i as an identifier
+
   # Calculate the number of observations with missing distances
   strata.names <- dimnames(results$individuals$summary)[[1]]
   strata.names.ND <- as.character(dht.results$individual$N$Label)
@@ -40,5 +42,8 @@ store.dht.results <- function(results, dht.results, i, clusters, data, obs.tab, 
       results$expected.size[strat, c("Expected.S","se.Expected.S"), i] <- as.matrix(dht.results$Expected.S[dht.results$Expected.S$Region == strata.names.ND[strat], c("Expected.S","se.Expected.S")])[1:length(strata.names.ND[strat]),]
     }
   }
+
+  # Delete the file that was created
+
   return(results)
 }
