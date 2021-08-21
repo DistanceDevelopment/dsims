@@ -9,6 +9,9 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   # Output: list of simulation results and warnings
   #
   # Display/write to file the progress of the simulation
+
+  set.seed(566)
+
   if(counter && !in.parallel){
     # Write to terminal
     message("\r", i, " out of ", simulation@reps,  " reps     \r", appendLF = FALSE)
