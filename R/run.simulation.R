@@ -131,7 +131,9 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
   if(length(simulation@warnings$message) > 0){
     message("Summary of warnings and errors:")
     for(i in seq(along = simulation@warnings$message)){
-      message(paste(simulation@warnings$message[[i]], " (occurred ", simulation@warnings$counter[[i]], " times)"))
+      rep.info <- ifelse(is.null(simulation@warnings$index), "",
+                         paste(" in repetition(s): ", paste(simulation@warnings$index[[i]], collapse = ", ")))
+      message(paste(simulation@warnings$message[[i]], " (occurred ", simulation@warnings$counter[[i]], " time(s)", rep.info, ")", sep = ""))
     }
     message("-----")
   }
