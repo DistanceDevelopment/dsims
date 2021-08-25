@@ -1,4 +1,4 @@
-message.handler <- function(warnings, message=character(0)){
+message.handler <- function(warnings, message=character(0), i, count = 1){
   # This function either stores or displays a summary of warnings
   # and errors.
   # ARGUMENTS
@@ -11,9 +11,11 @@ message.handler <- function(warnings, message=character(0)){
     if(length(index) == 0){
       no.warnings <- length(warnings$message)
       warnings$message[[no.warnings + 1]] <- message
-      warnings$counter[[no.warnings + 1]] <- 1
+      warnings$counter[[no.warnings + 1]] <- count
+      warnings$index[[no.warnings + 1]] <- i
     }else{
-      warnings$counter[[index]] <- warnings$counter[[index]] + 1
+      warnings$counter[[index]] <- warnings$counter[[index]] + count
+      warnings$index[[index]] <- c(warnings$index[[index]], i)
     }
   }
   return(warnings)
