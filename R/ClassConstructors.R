@@ -336,6 +336,26 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' models to the data generated in the simulation and select the model with
 #' the minimum criteria value.
 #'
+#' @details
+#' It is possible to group strata at the analysis stage using the group.strata
+#' argument. For example, for design purposes it may have been sensible to
+#' divide strata into substrata. This can help make more convex shapes and
+#' therefore zigzag designs more efficient or perhaps it helped to keep
+#' transects angled parallel to density gradients across the study area.
+#' Despite these (purely design relevant) substrata we may still wish to
+#' calculate estimates of density / abundance etc. for each stratum. The
+#' table below gives an example of the data.frame which can be used to do
+#' this. Imagine a study region with an onshore strata and an offshore
+#' strata. The onshore strata has been divided in two at the design stage
+#' to keep transects perpendicular to the coast. We now want to analyse
+#' this as just two strata the onshore and offshore.
+#'
+#' \tabular{ll}{ design.id         \tab analysis.id \cr
+#'               ---------         \tab ----------- \cr
+#'               onshoreN          \tab onshore     \cr
+#'               onshoreS          \tab onshore     \cr
+#'               offshore          \tab offshore    \cr}
+#'
 #' @param dfmodel list of distance sampling model formula specifying the detection function
 #'  (see \code{?Distance::ds} for further details)
 #' @param key key function to use; "hn" gives half-normal (default) and "hr" gives
@@ -350,7 +370,8 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' @param control.opts A list of control options: method - optimisation method,
 #' @param group.strata Dataframe with two columns ("design.id" and "analysis.id"). The
 #' former gives the strata names as defined in the design (i.e. the region object) the
-#' second specifies how they should be grouped (into less strata) for the analyses
+#' second specifies how they should be grouped (into less strata) for the analyses. See
+#' details for more information.
 #' @param criteria character model selection criteria (AIC, AICc, BIC)
 #' @return \code{\link{DS.Analysis-class}} object
 #' @export
