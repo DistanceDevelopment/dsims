@@ -225,6 +225,9 @@ setMethod(
       }else if(any(models[[i]]$fitted < 0)){
         warnings <- message.handler(warnings, paste("Negative predictions for model ", i,", excluding these results.", sep = ""), rep)
         models[[i]] <- NA
+      }else if(is.null(models[[i]]$dht)){
+        warnings <- message.handler(warnings, paste("NULL value for dht part of model ", i,", excluding these results.", sep = ""))
+        models[[i]] <- NA
       }
       if(!is.null(W)){
         warnings <- message.handler(warnings, paste(W, " (Model number: ", i, ")", sep = ""), rep)
