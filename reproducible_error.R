@@ -1,4 +1,4 @@
-library(dsims)
+devtools::load_all()
 
 northsea <- make.region(region.name = "minkes",
                         shape =  "shapefiles/Strataprj.shp",
@@ -37,6 +37,8 @@ sim <- make.simulation(reps =1,
                        ds.analysis = strat.specific.or.not)
 
 #Add following command to start of single.simulation.loop function: set.seed(566)
-devtools::load_all()
 
 sim <- run.simulation(sim)
+
+summary(sim)
+summary(sim, use.max.reps = TRUE)
