@@ -1,6 +1,23 @@
 dsims 0.1.0
 ----------
 
+New Features
+
+ * Delta selection criteria is now recorded as the difference in informtion criteria between the top 2 best fitting models as determined by the information criteria.]
+ * The iteration numbers generating warnings or errors are now stored and displayed so user can choose what to do with these results.
+
+Bug Fixes
+
+ * Fixed missing RMSE values
+ * Fix strata re-ordering for cluster size
+ * Models with -Inf information criteria no longer selected
+ * Models with dht = NULL are no longer selected
+ * Models which predict detection values < 1 no longer cause errors and are correctly excluded.
+ * Detectibility parameters for continuous covariates are now checked and validated.
+
+dsims 0.1.0
+----------
+
 Introducing the new Distance Sampling Simulation package!
 
 dsims is our latest simulation package which interfaces with dssd so designs can be generated within R, thus making the simulation process a lot easier! Dsims also makes use of ggplot to produce cleaner looking graphics.
