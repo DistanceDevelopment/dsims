@@ -1,4 +1,4 @@
-dsims 0.1.0
+dsims 0.2.0
 ----------
 
 New Features
@@ -14,6 +14,7 @@ Bug Fixes
  * Models with dht = NULL are no longer selected
  * Models which predict detection values < 1 no longer cause errors and are correctly excluded.
  * Detectibility parameters for continuous covariates are now checked and validated.
+ * Fix situation where all reps are to be excluded due to problematic model fitting.
 
 dsims 0.1.0
 ----------
