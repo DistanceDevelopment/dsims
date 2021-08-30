@@ -229,7 +229,7 @@ setMethod(
     }else if(run.no.results){
       cat("\n There were no successful repetitions.")
       if(!use.max.reps){
-        cat("\n\n Note: use.max.reps is false so only repetitions where all models converged have been included in the summary. This option can be changed when calling the summary function and does not involve re-running the simulation.")
+        cat("\n\n Note: use.max.reps is false so only repetitions where all models converged have been included in the summary. This option can be changed when calling the summary function and does not involve re-running the simulation. See ?`summary,Simulation-method`")
       }
     }
   }
