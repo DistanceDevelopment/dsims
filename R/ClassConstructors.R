@@ -457,7 +457,8 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' Examples below. To create more complex simulations it is advisable to define the
 #' different parts of the simulation individually before grouping them together. See
 #' the Arguments for links to the functions which make the definitions for the
-#' individual simulation components.
+#' individual simulation components. For a more in depth example please refer to the
+#' 'GettingStarted' vignette.
 #' @details The \code{make.simulation} function is now set up so that by
 #'  default (with the exception of specifying point transects rather than
 #'   line) it can run a simple simulation example. See examples.
@@ -512,8 +513,9 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'                                 criteria = "AIC")
 #'
 #' # Put all the components together in the simulation (note no. of replicates
-#' # reps = 100 is too low for reliable results increase to 999 or more!)
-#' simulation <- make.simulation(reps = 100,
+#' # reps = 1 is only for a single test run and should be 999 or more to be able
+#' # to draw inference.)
+#' simulation <- make.simulation(reps = 1,
 #'                               design = design,
 #'                               population.description = popdsc,
 #'                               detectability = detect,
@@ -523,21 +525,14 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' survey <- run.survey(simulation)
 #' plot(survey, region)
 #'
-#' \donttest{
-#' # Run the simulation - warning this will take some time to run!
+#' # Run the simulation
+#' # Warning: if you have increased the number of replications then it can take a
+#' # long time to run!
 #' simulation <- run.simulation(simulation)
 #' summary(simulation)
-#' }
 #'
-#' # Toy example for CRAN testing purposes - warning only 1 replicate
-#' # run so does not produce meaningful results!
-#' simulation <- make.simulation(reps = 1,
-#'                               design = design,
-#'                               population.description = popdsc,
-#'                               detectability = detect,
-#'                               ds.analysis = ds.analyses)
-#' simulation <- run.simulation(simulation)
-#' summary(simulation)
+#' # For a more in depth example please look at
+#' vignette("GettingStarted", 'dsims')
 #'
 make.simulation <- function(reps = 10, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis()){
 
