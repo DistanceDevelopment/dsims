@@ -410,11 +410,6 @@ make.ds.analysis <- function(dfmodel = list(~1),
                              group.strata = data.frame(),
                              criteria = "AIC"){
   # Do some pre-creation input checking / formatting
-  # if(length(cutpoints) > 0 && length(truncation) > 0){
-  #   warning("Cutpoints have been supplied so the truncation value(s) will be ignored. The largest cutpoint will be used as the right truncation value", call. = FALSE, immediate. = TRUE)
-  #   # Doing this means left trunction is not currently possible with binned data
-  #   truncation <- numeric(0)
-  # }
   if(!is.double(truncation) || length(truncation) > 1){
     stop("Truncation must be supplied as a single numeric value giving the absolute truncation distance.", call. = FALSE)
   }else if("list" %in% class(truncation)){
@@ -424,16 +419,6 @@ make.ds.analysis <- function(dfmodel = list(~1),
   }else{
     truncation <- list(truncation)
   }
-  # if("list" %in% class(truncation)){
-  #   if(!all(c("left","right") %in% names(truncation))){
-  #     stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
-  #   }
-  # }else{
-  #   if(length(truncation) > 1){
-  #     stop("Truncation must be supplied as a single number/string or a list with elements \"left\" and \"right\".", call. = FALSE)
-  #   }
-  #   truncation <- list(truncation)
-  # }
   # make sure that the first bin starts 0 or left
   if(length(cutpoints) > 0){
     if(!is.null(truncation$left)){
