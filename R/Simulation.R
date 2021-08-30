@@ -302,7 +302,8 @@ histogram.N.ests <- function(x, ...){
 #' @param object object of class Simulation
 #' @param description.summary logical indicating whether an
 #'  explanation of the summary should be displayed
-#' @param ... can specify if you want the maximum number of iterations to be used where at least one model converged (use.max.reps = TRUE) or only use iterations where all models converged (use.max.reps = FALSE)
+#' @param use.max.reps by default this is FALSE meaning that only simulation repetitions where all models converged for that data set are included. By setting this to TRUE any repetition where one or more models converged will be included in the summary results.
+#' @param ... no additional arguments currently implemented
 #' @rdname summary.Simulation-methods
 #' @importFrom stats na.omit qlnorm qnorm
 #' @importFrom methods slotNames slot show
@@ -311,20 +312,13 @@ histogram.N.ests <- function(x, ...){
 setMethod(
   f="summary",
   signature="Simulation",
-  definition=function(object, description.summary = TRUE, ...){
+  definition=function(object, description.summary = TRUE, use.max.reps = FALSE, ...){
     if(description.summary){
       description.summary()
     }
     #Get number of reps
     reps <- object@reps
-    #Check for additional arguments
-    args <- list(...)
-    if (!("use.max.reps" %in% names(args))){
-      #By default exclude all iterations where one or more models failed to converge
-      use.max.reps = FALSE
-    }else{
-      use.max.reps = args$use.max.reps
-    }
+
     #Get index of iterations to use
     model.count <- length(object@ds.analysis@dfmodel)
     #These will use max iters by default
@@ -339,6 +333,93 @@ setMethod(
                                      use.max.reps = use.max.reps)
     }
 
+    #Create design summary
+    design.type = character()
+    for(i in seq(along = object@design@design)){
+      if(class(object@design) %in% c("Line.Transect.Design", "Segment.Transect.Design")){
+        design.type[i] <- switch(object@design@design[i],
+                                 systematic = "Systematic parallel line design",
+                                 eszigzag = "Equal spaced zigzag line design",
+                                 eszigzagcom = "Equal spaced zigzag with complementary lines design",
+                                 random = "Random parallel line design",
+                                 segmentedgrid = "Segmented line transect grid design")
+      }else{
+        design.type[i] <- switch(object@design@design[i],
+                                 systematic = "Systematic point design",
+                                 random = "Random sampling point design")
+
+      }
+    }
+    slots <- slotNames(object@design)
+    design.parameters <- list()
+    design.parameters$design.type <- design.type
+    for(i in seq(along = slots)){
+      if(slots[i] %in% c("design.angle", "spacing", "edge.protocol", "nested.space",
+                         "line.length", "bounding.shape", "samplers", "effort.allocation",
+                         "truncation")){
+        if(!(length(slot(object@design, slots[i])) == 0)){
+          design.parameters[[slots[i]]] <- slot(object@design, slots[i])
+        }
+      }
+    }
+
+    #Create analysis summary
+    analysis.summary <- list(dfmodels = object@ds.analysis@dfmodel,
+                             key = object@ds.analysis@key,
+                             criteria = object@ds.analysis@criteria,
+                             variance.estimator = object@ds.analysis@er.var,
+                             truncation = object@ds.analysis@truncation)
+    if(length(object@ds.analysis@cutpoints) > 0){
+      analysis.summary$cutpoints <- object@ds.analysis@cutpoints
+    }
+    #Deal with any grouping of strata
+    analysis.strata <- object@ds.analysis@group.strata
+    if(nrow(analysis.strata) > 0){
+      analysis.summary$analysis.strata <- object@ds.analysis@group.strata
+    }
+    if(length(object@ds.analysis@adjustment) > 0){
+      analysis.summary$adjustment <- object@ds.analysis@adjustment
+    }
+    if(length(object@ds.analysis@control.opts) > 0){
+      analysis.summary$control <- object@ds.analysis@control.opts
+    }
+
+    #Create population summary
+    pop.covars <- object@population.description@covariates
+
+    #Model selection table
+    tab.model.selection <- table(results$Detection[,"SelectedModel",rep.index])
+
+    #Create detectabilty summary
+    detectability.summary <- list(key.function = object@detectability@key.function,
+                                  scale.param = object@detectability@scale.param,
+                                  shape.param = object@detectability@shape.param,
+                                  cov.param = object@detectability@cov.param,
+                                  truncation = object@detectability@truncation)
+
+    # If there were no valid reps
+    if(is.null(results)){
+      #Create simulation summary object
+      summary.x <- new(Class = "Simulation.Summary",
+                       region.name = object@design@region@region.name,
+                       strata.name = object@design@region@strata.name,
+                       total.reps = object@reps,
+                       failures = reps - length(rep.index),
+                       use.max.reps = use.max.reps,
+                       individuals = list(),
+                       clusters = list(),
+                       expected.size = data.frame(),
+                       population.covars = pop.covars,
+                       detection = data.frame(),
+                       model.selection = tab.model.selection,
+                       design.summary = design.parameters,
+                       detectability.summary = detectability.summary,
+                       analysis.summary = analysis.summary)
+
+      return(summary.x)
+
+    }
+
     #Create function to calculate RMSE
     calc.RMSE <- function(x, reps){
       true.x <- x[(reps+1)]
@@ -349,8 +430,6 @@ setMethod(
     #Calculate true values
     strata.names <- object@design@region@strata.name
     strata.order <- NULL
-    #Deal with any grouping of strata
-    analysis.strata <- object@ds.analysis@group.strata
     # Get density summary
     density.summary <- summary(object@population.description@density)@summary
     if(nrow(analysis.strata) > 0){
@@ -567,66 +646,6 @@ setMethod(
     #Find how many iterations failed
     no.fails <- reps - included.reps
     individuals <- list(summary = individual.summary, N = individual.N, D = individual.D)
-    #Model selection table
-    tab.model.selection <- table(results$Detection[,"SelectedModel",rep.index])
-    #Create detectabilty summary
-    detectability.summary <- list(key.function = object@detectability@key.function,
-                                  scale.param = object@detectability@scale.param,
-                                  shape.param = object@detectability@shape.param,
-                                  cov.param = object@detectability@cov.param,
-                                  truncation = object@detectability@truncation)
-
-    #Create design summary
-    design.type = character()
-    for(i in seq(along = object@design@design)){
-      if(class(object@design) %in% c("Line.Transect.Design", "Segment.Transect.Design")){
-        design.type[i] <- switch(object@design@design[i],
-                              systematic = "Systematic parallel line design",
-                              eszigzag = "Equal spaced zigzag line design",
-                              eszigzagcom = "Equal spaced zigzag with complementary lines design",
-                              random = "Random parallel line design",
-                              segmentedgrid = "Segmented line transect grid design")
-      }else{
-        design.type[i] <- switch(object@design@design[i],
-                              systematic = "Systematic point design",
-                              random = "Random sampling point design")
-
-      }
-    }
-    slots <- slotNames(object@design)
-    design.parameters <- list()
-    design.parameters$design.type <- design.type
-    for(i in seq(along = slots)){
-      if(slots[i] %in% c("design.angle", "spacing", "edge.protocol", "nested.space",
-                         "line.length", "bounding.shape", "samplers", "effort.allocation",
-                         "truncation")){
-        if(!(length(slot(object@design, slots[i])) == 0)){
-          design.parameters[[slots[i]]] <- slot(object@design, slots[i])
-        }
-      }
-    }
-
-    #Create analysis summary
-    analysis.summary <- list(dfmodels = object@ds.analysis@dfmodel,
-                             key = object@ds.analysis@key,
-                             criteria = object@ds.analysis@criteria,
-                             variance.estimator = object@ds.analysis@er.var,
-                             truncation = object@ds.analysis@truncation)
-    if(length(object@ds.analysis@cutpoints) > 0){
-      analysis.summary$cutpoints <- object@ds.analysis@cutpoints
-    }
-    if(nrow(analysis.strata) > 0){
-      analysis.summary$analysis.strata <- object@ds.analysis@group.strata
-    }
-    if(length(object@ds.analysis@adjustment) > 0){
-      analysis.summary$adjustment <- object@ds.analysis@adjustment
-    }
-    if(length(object@ds.analysis@control.opts) > 0){
-      analysis.summary$control <- object@ds.analysis@control.opts
-    }
-
-    #Create population summary
-    pop.covars <- object@population.description@covariates
 
     #Create simulation summary object
     summary.x <- new(Class = "Simulation.Summary",
