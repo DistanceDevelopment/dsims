@@ -13,8 +13,6 @@ add.summary.results <- function(results, model.count, use.max.reps = TRUE){
     rep.index <- 1:reps
   }
   reps <- length(rep.index)
-  #create function for calculating mean with nas
-  na.omit.mean <- function(x){return(mean(na.omit(x)))}
   #Summarise results for individuals
   if(reps > 1){
     for(strat in seq(along = strata.names)){
@@ -40,7 +38,7 @@ add.summary.results <- function(results, model.count, use.max.reps = TRUE){
         results$expected.size[strat,,"sd"] <- apply(results$expected.size[strat,,rep.index], 1, FUN = sd, na.rm = TRUE)
       }
     }
-    #if the sinulation has only been run once
+    #if the simulation has only been run once or there is only one valid rep
   }else if (reps == 1){
     for(strat in seq(along = strata.names)){
       results$individuals$summary[strat,,"mean"] <- results$individuals$summary[strat,,1]
@@ -65,6 +63,9 @@ add.summary.results <- function(results, model.count, use.max.reps = TRUE){
         results$expected.size[strat,,"sd"] <- rep(NA, length(results$expected.size[strat,,1]))
       }
     }
+  }else{
+    # There were no valid reps
+    results <- NULL
   }
   return(results)
 }

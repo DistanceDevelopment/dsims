@@ -82,8 +82,10 @@ setMethod(
   f="show",
   signature="Simulation.Summary",
   definition=function(object){
+    # Check if it has been run but all reps failed
+    run.no.results <- object@failures > 0 && object@failures == object@total.reps
     # Check if it has been run yet
-    not.run <- all(is.na(object@individuals$summary))
+    not.run <- all(is.na(object@individuals$summary)) && !run.no.results
     #Get strata names
     strata.names <- object@strata.name
     #Display summaries
@@ -192,7 +194,7 @@ setMethod(
       }
     }
     # Check to see if simulation has been run
-    if(!not.run){
+    if(!not.run && !run.no.results){
       cat("\nSummary for Individuals")
       cat("\n\nSummary Statistics\n\n")
       print(object@individuals$summary)
@@ -222,8 +224,13 @@ setMethod(
       }
       cat("\n\nDetection Function Values\n\n")
       print(round(object@detection,2))
-    }else{
+    }else if(not.run){
       cat("\n No results to display yet... simulation has not been run.")
+    }else if(run.no.results){
+      cat("\n There were no successful repetitions.")
+      if(!use.max.reps){
+        cat("\n\n Note: use.max.reps is false so only repetitions where all models converged have been included in the summary. This option can be changed when calling the summary function and does not involve re-running the simulation.")
+      }
     }
   }
 )
