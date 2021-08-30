@@ -4,7 +4,7 @@
 \alias{summary,Simulation-method}
 \title{summary}
 \usage{
-\S4method{summary}{Simulation}(object, description.summary = TRUE, ...)
+\S4method{summary}{Simulation}(object, description.summary = TRUE, use.max.reps = FALSE, ...)
 }
 \arguments{
 \item{object}{object of class Simulation}
@@ -12,7 +12,9 @@
 \item{description.summary}{logical indicating whether an
 explanation of the summary should be displayed}
 
-\item{...}{can specify if you want the maximum number of iterations to be used where at least one model converged (use.max.reps = TRUE) or only use iterations where all models converged (use.max.reps = FALSE)}
+\item{use.max.reps}{by default this is FALSE meaning that only simulation repetitions where all models converged for that data set are included. By setting this to TRUE any repetition where one or more models converged will be included in the summary results.}
+
+\item{...}{no additional arguments currently implemented}
 }
 \value{
 Object of class Simulation.Summary
