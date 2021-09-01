@@ -17,7 +17,7 @@
 \item{...}{additional plotting parameters}
 }
 \value{
-Generate 4 plots showing the survey population, transects (including covered areas), detections and a histogram of the detection distances. Plots inlude the survey region. Also invisibly returns a list of ggplot objects if the user would like to customise the plots.
+Generate 4 plots showing the survey population, transects (including covered areas), detections and a histogram of the detection distances. Plots include the survey region. Also invisibly returns a list of ggplot objects if the user would like to customise the plots.
 
 Generate 2 plots showing the survey population, transects (including covered areas), detections and a histogram of the detection distances. Plots do not include survey region. Also invisibly returns a list of ggplot objects if the user would like to customise the plots.
 }

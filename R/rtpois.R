@@ -6,7 +6,7 @@
 #'
 #' @param N number of values to randomly generate
 #' @param mean mean of the generated values
-#' @return returns a ramdomly generated value from a zero-truncated Poisson
+#' @return returns a randomly generated value from a zero-truncated Poisson
 #' distribution.
 #' @note Internal function not intended to be called by user.
 #' @author Laura Marshall

@@ -12,7 +12,7 @@ rtpois(N, mean = NA)
 \item{mean}{mean of the generated values}
 }
 \value{
-returns a ramdomly generated value from a zero-truncated Poisson
+returns a randomly generated value from a zero-truncated Poisson
 distribution.
 }
 \description{

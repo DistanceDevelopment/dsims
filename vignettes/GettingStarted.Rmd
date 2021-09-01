@@ -34,7 +34,7 @@ plot(region)
 
 ## Defining the study population
 
-To define a study population we require a number of intermediate steps. We describe these in turn belwo.
+To define a study population we require a number of intermediate steps. We describe these in turn below.
 
 ### Population Density Grid
 
@@ -300,7 +300,7 @@ Reassuringly, these results are as expected for the systematic parallel line des
 summary(sim.parallel)
 ```
 
-We can now check the results for the zigag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running 'run.coverage' but by itself this does not give much of an indication of the likely effects on the survey results. The degree to which non-uniform coverage may affect survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have run only one density scenario here, if you have non-uniform coverage probability it is advisable to test the effects under a range of plausible animal distributions.
+We can now check the results for the zigzag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running 'run.coverage' but by itself this does not give much of an indication of the likely effects on the survey results. The degree to which non-uniform coverage may affect survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have run only one density scenario here, if you have non-uniform coverage probability it is advisable to test the effects under a range of plausible animal distributions.
 
 Under this assumed distribution of animals, it looks like any effects of non-uniform coverage are going to have minimal effects on the estimates of abundance / density. For individuals the bias is around 2.5% and for clusters it is 0.65%. Similar to the parallel line design, the confidence intervals are also giving a coverage of 97%. 
 
