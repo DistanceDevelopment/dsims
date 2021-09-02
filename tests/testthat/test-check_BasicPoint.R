@@ -50,7 +50,7 @@ test_that("Can create object or return correct error messages", {
                                er.var = "P3")
 
   # Make.simulation
-  sim <- make.simulation(reps = 5,
+  sim <- make.simulation(reps = 1,
                          design = design,
                          population.description = pop.descrp,
                          detectability = detect,
