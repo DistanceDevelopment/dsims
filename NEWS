@@ -15,6 +15,7 @@ Bug Fixes
  * Models which predict detection values < 1 no longer cause errors and are correctly excluded.
  * Detectibility parameters for continuous covariates are now checked and validated.
  * Fix situation where all reps are to be excluded due to problematic model fitting.
+ * There was a bug in the underlying code on windows machines that meant that segmented lines were not being clipped properly. The dependencies of sf have not been updated and the issue fixed. Please update sf if you run into missing segment transects.
 
 dsims 0.1.0
 ----------
