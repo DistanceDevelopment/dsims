@@ -210,9 +210,9 @@ setMethod(
                                                      scale = scale[i],
                                                      cutpoints = cutpoints,
                                                      monotonicity = monotonicity[i],
-                                                     er.var = analysis@er.var,
+                                                     er_var = analysis@er.var,
                                                      method = method,
-                                                     max.adjustments = max.adjustments),
+                                                     max_adjustments = max.adjustments),
                                                   error=function(e)e),
                                          warning=function(w){W <<- w; invokeRestart("muffleWarning")}))
       #check if there was an error, warning or non-convergence
