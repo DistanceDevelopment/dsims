@@ -62,7 +62,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
   # false before running in parallel and then run in serial
   if(run.parallel){
     if(!requireNamespace('parallel', quietly = TRUE) | !requireNamespace('pbapply', quietly = TRUE)){
-      warning("Could not run in parallel, library(pbapply) or library(parallel) is not installed.", immediate. = TRUE, call. = FALSE)
+      warning("Could not run in parallel, check pbapply library is installed.", immediate. = TRUE, call. = FALSE)
       run.parallel = FALSE
     }else{
       # counts the number of cores you have
