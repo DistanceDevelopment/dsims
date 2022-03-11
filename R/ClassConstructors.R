@@ -410,6 +410,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
                              group.strata = data.frame(),
                              criteria = "AIC"){
   # Do some pre-creation input checking / formatting
+  if(length(truncation) == 0){ truncation <- 50}
   if(!is.double(truncation) || length(truncation) > 1){
     stop("Truncation must be supplied as a single numeric value giving the absolute truncation distance.", call. = FALSE)
   }else if("list" %in% class(truncation)){
