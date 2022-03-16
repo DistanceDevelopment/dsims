@@ -37,7 +37,13 @@ store.dht.results <- function(results, dht.results, i, clusters, data, obs.tab, 
       results$clusters$summary[strat,c("Area", "CoveredArea", "Effort", "n", "k", "ER", "se.ER", "cv.ER"),i] <- as.matrix(dht.results$clusters$summary[dht.results$clusters$summary$Region == strata.names[strat],c("Area", "CoveredArea", "Effort", "n", "k", "ER", "se.ER", "cv.ER")])
       results$clusters$N[strat,c("Estimate", "se", "cv", "lcl", "ucl", "df"),i] <- as.matrix(dht.results$clusters$N[dht.results$clusters$N$Label == strata.names.ND[strat],c("Estimate", "se", "cv", "lcl", "ucl", "df")])
       results$clusters$D[strat,c("Estimate", "se", "cv", "lcl", "ucl", "df"),i] <- as.matrix(dht.results$clusters$D[dht.results$clusters$D$Label == strata.names.ND[strat],c("Estimate", "se", "cv", "lcl", "ucl", "df")])
-      results$expected.size[strat, c("Expected.S","se.Expected.S"), i] <- as.matrix(dht.results$Expected.S[dht.results$Expected.S$Region == strata.names.ND[strat], c("Expected.S","se.Expected.S")])[1:length(strata.names.ND[strat]),]
+      #results$expected.size[strat, c("Expected.S","se.Expected.S"), i] <- as.matrix(dht.results$Expected.S[dht.results$Expected.S$Region == strata.names.ND[strat], c("Expected.S","se.Expected.S")])
+      # To be backwards compatible with mrds which for single strata outputs 2 rows and CRAN R-devel doesn't
+      # currently allow the rows to be subset!
+      tmp <- as.matrix(dht.results$Expected.S[dht.results$Expected.S$Region == strata.names.ND[strat], c("Expected.S","se.Expected.S")])
+      exp.S <- tmp[1,1]
+      se.exp.S <- tmp[1,2]
+      results$expected.size[strat, c("Expected.S","se.Expected.S"), i] <- c(exp.S, se.exp.S)
     }
   }
   return(results)
