@@ -84,7 +84,7 @@ test_that("Test uf detectability key function", {
                          detectability = detect,
                          ds.analysis = analysis),
                  "Plus sampling not yet implemented in dsims, edge protocol will be modified to minus sampling.")
-  expect_equal(sim@design@edge.protocol, rep("minus",3))
+  expect_equal(sim@design@edge.protocol, "minus")
   
 })
 

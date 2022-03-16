@@ -27,7 +27,7 @@ test_that("Test creation and data generation", {
                         truncation = 50)
 
   analysis.bin <- make.ds.analysis(dfmodel = ~1,
-                                   key = "hr",
+                                   key = "hn",
                                    cutpoints = seq(0, 50, length = 6),
                                    truncation = 50)
 
@@ -37,13 +37,12 @@ test_that("Test creation and data generation", {
                          detectability = detect,
                          ds.analysis = analysis.bin)
 
+  set.seed(747)
   survey <- run.survey(sim)
   expect_true(class(survey@transect) == "Segment.Transect")
   expect_true("shape.param" %in% names(survey@population@population))
   expect_true(all(survey@population@population$shape.param == 3))
 
-  set.seed(258)
-  
   test <- analyse.data(analysis.bin, survey)
   if(!is.null(test$model)){
     expect_true("distbegin" %in% names(test$model$ddf$data))
