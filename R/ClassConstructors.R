@@ -535,7 +535,11 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' # For a more in depth example please look at
 #' vignette("GettingStarted", 'dsims')
 #'
-make.simulation <- function(reps = 10, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis()){
+make.simulation <- function(reps = 10, 
+                            design = make.design(), 
+                            population.description = make.population.description(), 
+                            detectability = make.detectability(), 
+                            ds.analysis = make.ds.analysis()){
 
   # Make the results arrays and store in a list
   results <- create.results.arrays(reps,
