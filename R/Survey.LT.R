@@ -20,7 +20,7 @@ setClass(Class = "Survey.LT",
          contains = "Survey"
 )
 
-#' @importFrom methods validObject
+#' @importFrom methods validObject is
 setMethod(
   f="initialize",
   signature="Survey.LT",
@@ -31,7 +31,7 @@ setMethod(
     .Object@perpendicular.truncation <- perp.truncation
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if(class(valid) == "character"){
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object

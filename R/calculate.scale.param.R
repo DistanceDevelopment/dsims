@@ -1,3 +1,4 @@
+#' @importFrom methods is
 calculate.scale.param <- function(pop.data, detectability, region){
 # This function calculates the scale parameters including any covariate effects
 # and adds these values to the population dataframe which is then returned. Also
@@ -42,7 +43,7 @@ calculate.scale.param <- function(pop.data, detectability, region){
   # Check if the number of parameters is the
   for(cov in seq(along = detectability@cov.param)){
     current.cov <- detectability@cov.param[[cov]]
-    if(class(current.cov) != "data.frame"){
+    if(is(current.cov, "data.frame")){
       if(length(current.cov == 1)){
         # repeat it for the number of strata
         detectability@cov.param[[cov]] <- rep(current.cov, strata.no)

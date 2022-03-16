@@ -58,7 +58,7 @@ test_that("Can create object or return correct error messages", {
 
   # Create a test survey
   survey <- run.survey(sim)
-  expect_true(class(survey@transect) == "Point.Transect")
+  expect_true(inherits(survey@transect, "Point.Transect"))
 
   # test running the simulation
   set.seed(555)

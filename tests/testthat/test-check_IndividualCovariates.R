@@ -62,6 +62,6 @@ test_that("Can deal with different covariate options", {
   survey <- run.survey(sim)
 
   summary.sim <- summary(sim, description.summary = FALSE)
-  expect_true("Simulation.Summary" %in% class(summary.sim))
+  expect_true(inherits(summary.sim, "Simulation.Summary"))
 
 })

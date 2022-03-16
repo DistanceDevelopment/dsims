@@ -121,7 +121,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #'  of N otherwise it is generated from the values in the density grid.
 #' @return \code{\link{Population.Description-class}}
 #' @export
-#' @importFrom methods new
+#' @importFrom methods new is
 #' @importFrom dssd make.region
 #' @author Laura Marshall
 #' @seealso \code{\link{make.simulation}} \code{\link{make.detectability}} \code{\link{make.density}}
@@ -203,7 +203,7 @@ make.population.description <- make.pop.description <- function(region = make.re
   # Pre-processing of covariates - check new form and convert to old form
   for(cov in seq(along = covariates)){
     # For single strata cases wrap cov option in additional list
-    if("distribution" %in% names(covariates[[cov]]) || class(covariates[[cov]]) == "data.frame"){
+    if("distribution" %in% names(covariates[[cov]]) || is(covariates[[cov]], "data.frame")){
       covariates[[cov]] <- list(covariates[[cov]])
     }
   }
@@ -211,7 +211,7 @@ make.population.description <- make.pop.description <- function(region = make.re
   for(cov in seq(along = covariates)){
     strat.list <- list()
     for(i in seq(along = covariates[[cov]])){
-      if(class(covariates[[cov]][[i]]) == "data.frame"){
+      if(is(covariates[[cov]][[i]], "data.frame")){
         if(!all(c("level", "prob") %in% names(covariates[[cov]][[i]]))){
           stop("Covariate dataframes must contain the columns 'level' and 'prob'.", call. = FALSE)
         }
@@ -230,7 +230,7 @@ make.population.description <- make.pop.description <- function(region = make.re
             strat.list[[j]] <- cov.dataframe[cov.dataframe$strata == strat.names[j],c("level","prob")]
           }
         }
-      }else if(class(covariates[[cov]][[i]]) == "list"){
+      }else if(is(covariates[[cov]][[i]], "list")){
         # Find what parameters should be supplied given the distribution
         params <- switch(covariates[[cov]][[i]]$distribution,
                          normal = c("mean", "sd"),
@@ -375,7 +375,7 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' @param criteria character model selection criteria (AIC, AICc, BIC)
 #' @return \code{\link{DS.Analysis-class}} object
 #' @export
-#' @importFrom methods new
+#' @importFrom methods new is
 #' @author Laura Marshall
 #' @seealso \code{\link{ds}} \code{\link{make.simulation}}
 #' @examples
@@ -413,7 +413,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
   if(length(truncation) == 0){ truncation <- 50}
   if(!is.double(truncation) || length(truncation) > 1){
     stop("Truncation must be supplied as a single numeric value giving the absolute truncation distance.", call. = FALSE)
-  }else if("list" %in% class(truncation)){
+  }else if(is(truncation, "list")){
     if(length(truncation[[1]]) > 1 || !is.double(truncation[[1]])){
       stop("Truncation must be supplied as a single numeric value giving the absolute truncation distance.", call. = FALSE)
     }
@@ -430,7 +430,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
       stop("The first cutpoint must be 0 or the left truncation distance!")
     }
   }
-  if(!("list" %in% class(dfmodel))){
+  if(!(is(dfmodel, "list"))){
     dfmodel <- list(dfmodel)
   }
   if((length(dfmodel) > 1 && length(key) > 1) && length(dfmodel) != length(key)){
@@ -474,7 +474,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'  a call to \link{make.ds.analysis}
 #' @return \code{\link{Simulation-class}} object
 #' @export
-#' @importFrom methods new
+#' @importFrom methods new is
 #' @importFrom dssd make.region make.design
 #' @author Laura Marshall
 #' @seealso \code{\link{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link{make.design}}
@@ -557,7 +557,7 @@ make.simulation <- function(reps = 10,
   # Check the simulation object
   simulation <- check.simulation(simulation)
   # If it has returned a character this is an error
-  if(class(simulation) == "character"){
+  if(is(simulation, "character")){
     stop(simulation, call. = FALSE)
   }
 

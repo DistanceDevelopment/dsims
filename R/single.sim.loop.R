@@ -1,5 +1,5 @@
 #' @importFrom utils flush.console
-#' @importFrom methods new
+#' @importFrom methods new is
 #' @importFrom mrds dht
 #single.simulation.loop <- function(i, object){
 single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE){
@@ -38,11 +38,11 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
       }
     }
     #make survey object
-    if(class(transects) %in% c("Line.Transect","Segment.Transect")){
+    if(inherits(transects, "Line.Transect")){
       # Check transects for empty geometries
       transects <- check.transects(transects)
       survey <- new(Class = "Survey.LT", population = population, transect = transects, perp.truncation = simulation@detectability@truncation)
-    }else if(class(transects) == "Point.Transect"){
+    }else if(inherits(transects, "Point.Transect")){
       survey <- new(Class = "Survey.PT", population = population, transect = transects, rad.truncation = simulation@detectability@truncation)
     }
   }
@@ -163,7 +163,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
                              sample.table,
                              obs.table,
                              options = dht.options), silent = TRUE)
-      if(class(dht.results) == "try-error"){
+      if(is(dht.results, "try-error")){
         warning(paste("Problem", strsplit(dht.results[1], "Error")[[1]][2], " dht results not being recorded for iteration ", i, sep=""), call. = FALSE, immediate. = TRUE)
       }else{
         simulation@results <- store.dht.results(simulation@results,

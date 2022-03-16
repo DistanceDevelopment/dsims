@@ -78,6 +78,7 @@ setValidity("Simulation.Summary",
 #' object
 #' @rdname show.Simulation.Summary-methods
 #' @export
+#' @importFrom methods is
 setMethod(
   f="show",
   signature="Simulation.Summary",
@@ -116,7 +117,7 @@ setMethod(
       temp <- object@population.covars[[cov.names[i]]]
       if (length(temp) == 1) {
         cat("\n   ", cov.names[i], ":", sep = "")
-        if(class(temp[[1]]) == "data.frame"){
+        if(is(temp[[1]], "data.frame")){
           cat("\n")
           print(temp[[1]], row.names = FALSE)
         }else{
@@ -134,7 +135,7 @@ setMethod(
       } else{
         cat("\n   ", cov.names[i], ":", sep = "")
         for (j in seq(along = temp)) {
-          if(class(temp[[j]]) == "data.frame"){
+          if(is(temp[[j]], "data.frame")){
             if(j == 1){
               cat("\n")
             }
@@ -168,7 +169,7 @@ setMethod(
       for(i in seq(along = detect.cov.names)){
         cat("   ", detect.cov.names[i], " parameters: \n", sep = "")
         temp <- object@detectability.summary$cov.param[[detect.cov.names[i]]]
-        if(class(temp) == "data.frame"){
+        if(is(temp, "data.frame")){
           print(temp, row.names = FALSE)
         }else{
           names(temp) <- paste("Strata ", strata.names, sep = "")

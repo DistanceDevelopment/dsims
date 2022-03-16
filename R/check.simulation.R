@@ -1,3 +1,4 @@
+#' @importFrom methods is
 check.simulation <- function(object){
   # A function to validate the simulation object
   # This is in addition to further validation checks.
@@ -16,9 +17,9 @@ check.simulation <- function(object){
   cov.param <- detect@cov.param
   cov.names <- names(cov.param)
   for(cov in seq(along = cov.param)){
-    if(class(cov.param[[cov]]) == "data.frame"){
+    if(is(cov.param[[cov]], "data.frame")){
       # Check data.frame set up
-    }else if(class(cov.param[[cov]]) == "numeric"){
+    }else if(is(cov.param[[cov]], "numeric")){
       if(length(cov.param[[cov]]) == 1 && strata.no > 1){
         cov.param[[cov]] <- rep(cov.param[[cov]], strata.no)
         object@detectability@cov.param <- cov.param

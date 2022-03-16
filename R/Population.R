@@ -31,7 +31,7 @@ setClass("Population", representation(region.name  = "character",
                                       population   = "data.frame",
                                       detectability = "Detectability"))
 
-#' @importFrom methods validObject
+#' @importFrom methods validObject is
 setMethod(
   f="initialize",
   signature="Population",
@@ -46,7 +46,7 @@ setMethod(
     .Object@detectability <- detectability
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if(class(valid) == "character"){
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object
