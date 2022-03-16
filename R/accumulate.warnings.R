@@ -1,8 +1,8 @@
 accumulate.warnings <- function(warnings.list){
   #Formats the warnings coming back from a parallel processor run
   if(length(warnings.list) > 0){
-    warnings <- warnings.list[[1]]
-    for(i in seq(along = warnings.list[-1])){
+    warnings <- list()
+    for(i in seq(along = warnings.list)){
       message <- warnings.list[[i]]$message
       index <- warnings.list[[i]]$index
       count <- warnings.list[[i]]$counter
