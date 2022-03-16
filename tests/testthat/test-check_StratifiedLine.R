@@ -128,7 +128,7 @@ test_that("Test stratified options and generating by density", {
                          population.description = pop.descrp,
                          detectability = detect,
                          ds.analysis = analysis)
-  sim <- run.simulation(sim)
+  #sim <- run.simulation(sim)
 
 })
 
