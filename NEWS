@@ -3,12 +3,13 @@ dsims 0.2.1
 
 New Features
 
- * Requires Distance >= 1.0.5 to interface with updated function arguments
+ * Now interfaces with new syntax in Distance >= 1.0.5 (it will remain backwards compatible with older versions of Distance for this release)
 
 Bug Fixes
 
  * Plus sampling simulations now issue a warning and modify to minus sampling - these should not have run in previous versions.
- * Fixed default simulation
+ * Fixed default simulation truncation distance to 50 in the analyses (will fix dssd to be consistent with this in release 0.3.2)
+ * Fixed the recording of warning / error indexing in parallel simulations
 
 dsims 0.2.0
 ----------
