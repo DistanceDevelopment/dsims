@@ -28,7 +28,7 @@ setClass("Density", representation(region.name = "character",
                                    y.space = "numeric",
                                    units = "character"))
 
-#' @importFrom methods validObject
+#' @importFrom methods validObject is
 setMethod(
   f="initialize",
   signature="Density",
@@ -51,7 +51,7 @@ setMethod(
     .Object@units <- region@units
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if(class(valid) == "character"){
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object

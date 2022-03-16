@@ -48,7 +48,7 @@ setClass(Class = "DS.Analysis", representation(dfmodel = "list",
                                                group.strata = "data.frame",
                                                criteria = "character"))
 
-#' @importFrom methods validObject
+#' @importFrom methods validObject is
 setMethod(
   f="initialize",
   signature="DS.Analysis",
@@ -69,7 +69,7 @@ setMethod(
     .Object@criteria <- criteria
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if(class(valid) == "character"){
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object
@@ -128,9 +128,11 @@ setMethod(
     # Get distance data
     dist.data <- data.obj@dist.data
     # Check what kind of survey it is
-    transect <- switch(class(data.obj),
-                       Survey.LT = "line",
-                       Survey.PT = "point")
+    if(is(data.obj, "Survey.LT")){
+      transect <- "line"  
+    }else if(is(data.obj, "Survey.PT")){
+      transect <- "point" 
+    }
     #Call analyse.data on model and dataset
     analysis <- analyse.data(analysis, dist.data, transect = transect, warnings = warnings, i = i)
     return(analysis)
@@ -145,6 +147,7 @@ setMethod(
 #' @importFrom Distance ds
 #' @importFrom stats AIC BIC
 #' @importFrom utils packageVersion
+#' @importFrom methods is
 setMethod(
   f="analyse.data",
   signature=c("DS.Analysis", "data.frame"),
@@ -236,7 +239,7 @@ setMethod(
                               warning=function(w){W <<- w; invokeRestart("muffleWarning")}))  
       }
       #check if there was an error, warning or non-convergence
-      if(any(class(models[[i]]) == "error")){
+      if(inherits(models[[i]], "error")){
         warnings <- message.handler(warnings, paste("Error: ", models[[i]]$message, " (Model number: ", i, ")", sep = ""), rep)
         models[[i]] <- NA
       }else if(models[[i]]$ddf$ds$converge != 0){
@@ -252,7 +255,7 @@ setMethod(
       if(!is.null(W)){
         warnings <- message.handler(warnings, paste(W, " (Model number: ", i, ")", sep = ""), rep)
       }
-      if(any(class(models[[i]]) == "dsmodel")){
+      if(is(models[[i]], "dsmodel")){
         IC[i] <- switch(analysis@criteria,
                         "AIC" = AIC(models[[i]])$AIC,
                         "AICc" = AICc(models[[i]]),

@@ -10,7 +10,7 @@
 #' @export
 setClass("Density.Summary", representation(summary = "data.frame"))
 
-#' @importFrom methods validObject
+#' @importFrom methods validObject is
 setMethod(
   f="initialize",
   signature="Density.Summary",
@@ -19,7 +19,7 @@ setMethod(
     .Object@summary <- summary
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if(class(valid) == "character"){
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object

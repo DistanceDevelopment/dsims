@@ -1,4 +1,5 @@
 #' @importFrom stats rnorm rlnorm
+#' @importFrom methods is
 add.covariate.values <- function(pop.data, covariates){
   # Find number of strata
   strata.ids <- unique(pop.data$Region.Label)
@@ -14,10 +15,10 @@ add.covariate.values <- function(pop.data, covariates){
       # Get the covariate info
       current.cov <- covariates[[covar]][[strat]]
       n.vals <- nrow(list.data[[strat]])
-      if(class(current.cov) == "data.frame"){
+      if(is(current.cov, "data.frame")){
         cov.values <- sample(current.cov$level, n.vals, replace = TRUE, prob = current.cov$prob)
         list.data[[strata.ids[strat]]][[cov.names[covar]]] <- cov.values
-      }else if(class(current.cov) == "list"){
+      }else if(is(current.cov, "list")){
         distribution <- current.cov[[1]]
         params <- current.cov[[2]]
         cov.values <- switch(distribution,

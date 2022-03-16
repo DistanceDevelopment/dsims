@@ -2,6 +2,7 @@
 #' @importFrom sp Polygon Polygons SpatialPolygons
 #' @importFrom sf as_Spatial
 #' @importFrom rgeos gIntersects
+#' @importFrom methods is
 calc.perp.dists <- function(population, transects, plot = FALSE){
   # Calculates the possible detection distances to the transects
   # Arguments:
@@ -25,12 +26,12 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
     #Extract just the dataframe
     sub.pop <- sub.pop@data
     #Find start and end point [note may be a multilinestring]
-    if("LINESTRING" %in% class(samp)){
+    if(is(samp, "LINESTRING")){
       start.X <- samp[1]
       start.Y <- samp[3]
       end.X <- samp[2]
       end.Y <- samp[4]
-    }else if("MULTILINESTRING" %in% class(samp)){
+    }else if(is(samp, "MULTILINESTRING")){
       index.final <- length(samp)
       start.X <- samp[[1]][1,1]
       start.Y <- samp[[1]][1,2]

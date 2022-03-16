@@ -40,7 +40,7 @@ setClass("Population.Description", representation(N            = "numeric",
                                                   covariates   = "list",
                                                   size         = "logical",
                                                   gen.by.N     = "logical"))
-#' @importFrom methods validObject
+#' @importFrom methods validObject is
 #' @importFrom dssd make.region
 setMethod(
   f="initialize",
@@ -80,7 +80,7 @@ setMethod(
     .Object@gen.by.N     <- gen.by.N
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if(class(valid) == "character"){
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object
@@ -122,16 +122,16 @@ setMethod("get.N","Population.Description",
 #' @param region the region object for the population (optional - only
 #'   required if object is of class Population.Description)
 #' @export
-#' @importFrom methods new
+#' @importFrom methods new is
 setMethod(
   f="generate.population",
   signature="Population.Description",
   definition=function(object, detectability = NULL, region = NULL){
     #If the user has not passed in the region object
-    if(class(region) != "Region"){
+    if(!is(region, "Region")){
       stop("region must be of class 'Region'")
     }
-    if(class(detectability) != "Detectability"){
+    if(!is(detectability, "Detectability")){
       stop("detectability must be of class 'Detectability'")
     }
     #If the population has fixed N

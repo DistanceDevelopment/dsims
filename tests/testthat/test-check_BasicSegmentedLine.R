@@ -39,7 +39,7 @@ test_that("Test creation and data generation", {
 
   set.seed(747)
   survey <- run.survey(sim)
-  expect_true(class(survey@transect) == "Segment.Transect")
+  expect_true(inherits(survey@transect, "Segment.Transect"))
   expect_true("shape.param" %in% names(survey@population@population))
   expect_true(all(survey@population@population$shape.param == 3))
 

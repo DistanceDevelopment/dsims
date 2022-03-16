@@ -27,7 +27,7 @@ setClass("Detectability", representation(key.function    = "character",
                                          shape.param     = "numeric",
                                          cov.param       = "list",
                                          truncation      = "numeric"))
-#' @importFrom methods validObject
+#' @importFrom methods validObject is
 setMethod(
   f="initialize",
   signature="Detectability",
@@ -36,7 +36,7 @@ setMethod(
     # - this needs to be done here as cannot alter object inside validation method
     cov.names <- names(cov.param)
     for(cov in seq(along = cov.param)){
-      if(class(cov.param[[cov]]) == "data.frame"){
+      if(is(cov.param[[cov]], "data.frame")){
         if(!all(names(cov.param[[cov]]) %in% c("strata", "level", "param"))){
           index <- which(!(names(cov.param[[cov]]) %in% c("strata", "level", "param")))
           warning(paste("The dataframe for covariate '", cov.names[cov], "' has unrecognised columns: ", names(cov.param[[cov]])[index],". These will be ignored.", sep = ""), call. = FALSE, immediate. = TRUE)
@@ -58,7 +58,7 @@ setMethod(
     .Object@truncation   <- truncation
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if(class(valid) == "character"){
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object
@@ -66,6 +66,7 @@ setMethod(
   }
 )
 
+#' @importFrom methods is
 setValidity("Detectability",
             function(object){
               if(length(object@key.function) > 1){
@@ -104,7 +105,7 @@ setValidity("Detectability",
               for(cov in seq(along = object@cov.param)){
                 if(length(object@cov.param[[cov]]) == 0){
                   return(paste("List element ", cov.names[cov], " of the cov.param list does not contain any values.", sep = ""))
-                }else if(class(object@cov.param[[cov]]) == "data.frame"){
+                }else if(is(object@cov.param[[cov]], "data.frame")){
                   if(!all(c("level", "param") %in% names(object@cov.param[[cov]]))){
                     index <- which(!(c("level", "param") %in% names(object@cov.param[[cov]])))
                     return(paste("The dataframe for covariate '", cov.names[cov], "' has missing columns: ", c("level", "param")[index], sep = ""))
@@ -145,6 +146,7 @@ setMethod(
 #' @rdname plot.Detectability-methods
 #' @importFrom graphics polygon plot axTicks axis lines plot legend par
 #' @importFrom stats quantile
+#' @importFrom methods is
 #' @exportMethod plot
 setMethod(
   f="plot",
@@ -185,10 +187,10 @@ setMethod(
       for(cov in seq(along = object@cov.param)){
         cov.params <- object@cov.param[[cov]]
         cov.dist <- pop.desc@covariates[[cov.names[cov]]]
-        if(class(object@cov.param[[cov]]) == "data.frame"){
+        if(is(object@cov.param[[cov]], "data.frame")){
           param.type = "categorical"
           no.cov.strata <- ifelse(is.null(cov.params$strata), 1, length(unique(cov.params$strata)))
-        }else if(class(cov.dist[[1]]) == "data.frame"){
+        }else if(is(cov.dist[[1]], "data.frame")){
           param.type = "discrete"
           no.cov.strata <- length(cov.params)
         }else{

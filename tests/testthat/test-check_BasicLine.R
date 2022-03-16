@@ -29,7 +29,7 @@ test_that("Test creation and data generation", {
                          ds.analysis = analysis)
 
   survey <- run.survey(sim)
-  expect_true(class(survey@transect) == "Line.Transect")
+  expect_true(inherits(survey@transect, "Line.Transect"))
 
   sim.serial <- run.simulation(sim, counter = FALSE)
   sim.sum <- summary(sim.serial, description.summary = FALSE)

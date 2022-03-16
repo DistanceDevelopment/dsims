@@ -124,7 +124,7 @@ setClass("Simulation", representation(reps = "numeric",
                                       results = "list",
                                       warnings = "list"))
 
-#' @importFrom methods validObject
+#' @importFrom methods validObject is
 #' @importFrom dssd make.design
 setMethod(
   f="initialize",
@@ -140,7 +140,7 @@ setMethod(
     .Object@warnings        <- list()
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if(class(valid) == "character"){
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object
@@ -226,14 +226,14 @@ setMethod(
     # Create the population and transects for the survey
     population <- generate.population(object)
     transects <- generate.transects(object)
-    if(class(transects) %in% c("Line.Transect", "Segment.Transect")){
+    if(inherits(transects, "Line.Transect")){
       # Check transects for empty geometries
       transects <- check.transects(transects)
       survey <- new(Class = "Survey.LT",
                     population = population,
                     transect = transects,
                     perp.truncation = object@design@truncation)
-    }else if(class(transects) == "Point.Transect"){
+    }else if(inherits(transects, "Point.Transect")){
       survey <- new(Class = "Survey.PT",
                     population = population,
                     transect = transects,
@@ -306,7 +306,7 @@ histogram.N.ests <- function(x, ...){
 #' @param ... no additional arguments currently implemented
 #' @rdname summary.Simulation-methods
 #' @importFrom stats na.omit qlnorm qnorm
-#' @importFrom methods slotNames slot show
+#' @importFrom methods slotNames slot show is
 #' @return Object of class Simulation.Summary
 #' @export
 setMethod(
@@ -336,7 +336,7 @@ setMethod(
     #Create design summary
     design.type = character()
     for(i in seq(along = object@design@design)){
-      if(class(object@design) %in% c("Line.Transect.Design", "Segment.Transect.Design")){
+      if(inherits(object@design, "Line.Transect.Design") || inherits(object@design, "Segment.Transect.Design")){
         design.type[i] <- switch(object@design@design[i],
                                  systematic = "Systematic parallel line design",
                                  eszigzag = "Equal spaced zigzag line design",
@@ -487,7 +487,7 @@ setMethod(
       true.expected.s <- numeric()
       size.list <- object@population.description@covariates[["size"]]
       for(i in seq(along = size.list)){
-        if(class(size.list[[i]]) == "data.frame"){
+        if(is(size.list[[i]], "data.frame")){
           true.expected.s[i] <- sum(size.list[[i]]$level*size.list[[i]]$prob)
         }else{
           size.dist <- size.list[[i]]

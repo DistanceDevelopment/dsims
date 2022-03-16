@@ -1,3 +1,4 @@
+#' @importFrom methods is
 check.covariates <- function(covariate.list, no.strata){
   # check that each element has a name
   list.names <- names(covariate.list)
@@ -20,7 +21,7 @@ check.covariates <- function(covariate.list, no.strata){
     # For each strata
     for(strat in 1:no.strata){
       next.element <- covariate.list[[cov]][[strat]]
-      if(class(next.element) == "data.frame"){
+      if(is(next.element, "data.frame")){
         # check it has 2 columns
         if(ncol(next.element) != 2){
           stop(paste("The data.frame for covariate ", list.names[cov]," and strata ", strat," should have 2 columns: level and prob.", sep = ""), call. = FALSE)
@@ -34,7 +35,7 @@ check.covariates <- function(covariate.list, no.strata){
         if(sum(next.element$prob) != 1){
           stop(paste("The probabilities for covariate ", list.names[cov]," and strata ", strat," do not sum to 1.", sep = ""), call. = FALSE) 
         }
-      }else if(class(next.element) == "list"){
+      }else if(is(next.element, "list")){
         # Check distributions
         distribution <- next.element[[1]]
         # Check that the second element is a list with the correct parameters
