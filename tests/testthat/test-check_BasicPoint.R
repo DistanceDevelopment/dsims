@@ -61,8 +61,8 @@ test_that("Can create object or return correct error messages", {
   expect_true(inherits(survey@transect, "Point.Transect"))
 
   # test running the simulation
-  set.seed(555)
-  test <- run.simulation(sim, counter = FALSE)
+  #set.seed(555)
+  #test <- run.simulation(sim, counter = FALSE)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
