@@ -32,7 +32,7 @@ check.simulation <- function(object){
   design <- object@design
   if(any(design@edge.protocol == "plus")){
     warning("Plus sampling not yet implemented in dsims, edge protocol will be modified to minus sampling.", call. = FALSE, immediate. = TRUE)
-    design@edge.protocol <- ifelse("plus", "minus", esign@edge.protocol)
+    design@edge.protocol <- ifelse(design@edge.protocol == "plus", "minus", design@edge.protocol)
   }
   object@design <- design
   
