@@ -1,3 +1,15 @@
+dsims 0.2.1
+----------
+
+New Features
+
+ * Requires Distance >= 1.0.5 to interface with updated function arguments
+
+Bug Fixes
+
+ * Plus sampling simulations now issue a warning and modify to minus sampling - these should not have run in previous versions.
+ * Fixed default simulation
+
 dsims 0.2.0
 ----------
 
