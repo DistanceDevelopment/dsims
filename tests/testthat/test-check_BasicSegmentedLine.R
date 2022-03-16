@@ -51,7 +51,7 @@ test_that("Test creation and data generation", {
   sim.serial <- run.simulation(sim, counter = FALSE)
   sum.sim <- summary(sim.serial, description.summary = FALSE)
 
-  sim.para <- run.simulation(sim, run.parallel = TRUE, max.cores = 2, counter = FALSE)
-  sum.para <- summary(sim.para, description.summary = FALSE)
+  #sim.para <- run.simulation(sim, run.parallel = TRUE, max.cores = 2, counter = FALSE)
+  #sum.para <- summary(sim.para, description.summary = FALSE)
 
 })
