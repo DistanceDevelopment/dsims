@@ -5,6 +5,7 @@ context("Stratified line transect example")
 
 test_that("Test stratified options and generating by density", {
 
+  set.seed(222)
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Set up region
   s1p1 = matrix(c(0,0,0,1.75,2,1.75,2,0,0,0),ncol=2, byrow=TRUE)
@@ -110,6 +111,24 @@ test_that("Test stratified options and generating by density", {
   expect_equal(sum(D.summary$ave.N[2:3])/sum(D.summary$area[2:3]),sim.summary@individuals$D$Truth[2])
   expect_equal(sum(D.summary$ave.N[2:3]),sim.summary@individuals$N$Truth[2])
   expect_equal(sum(D.summary$ave.N[1:3])/sum(D.summary$area[1:3]),sim.summary@individuals$D$Truth[3])
+  
+  # Check stratified with clusters
+  covariate.list <- list()
+  covariate.list$size <- list(distribution = "poisson", lambda = 25)
+  pop.descrp <- make.population.description(region = region,
+                                            density = density,
+                                            covariates = covariate.list,
+                                            N = c(200,200,200))
+  analysis <- make.ds.analysis(dfmodel = ~1,
+                               key = "hn",
+                               truncation = 0.1)
+  
+  sim <- make.simulation(reps = 1,
+                         design = design,
+                         population.description = pop.descrp,
+                         detectability = detect,
+                         ds.analysis = analysis)
+  sim <- run.simulation(sim)
 
 })
 
