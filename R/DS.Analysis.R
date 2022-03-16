@@ -199,22 +199,41 @@ setMethod(
       # Set W to null
       W <- NULL
       # Try to fit model
-      models[[i]] <- suppressMessages(
-        withCallingHandlers(tryCatch(Distance::ds(data = dist.data,
-                                                     truncation = truncation,
-                                                     transect = transect,
-                                                     formula = analysis@dfmodel[[i]],
-                                                     key = analysis@key[i],
-                                                     adjustment = adjustment[i],
-                                                     order = order[i],
-                                                     scale = scale[i],
-                                                     cutpoints = cutpoints,
-                                                     monotonicity = monotonicity[i],
-                                                     er_var = analysis@er.var,
-                                                     method = method,
-                                                     max_adjustments = max.adjustments),
-                                                  error=function(e)e),
-                                         warning=function(w){W <<- w; invokeRestart("muffleWarning")}))
+      if(packageVersion("Distance") >= '1.0.5'){
+        models[[i]] <- suppressMessages(
+          withCallingHandlers(tryCatch(Distance::ds(data = dist.data,
+                                                    truncation = truncation,
+                                                    transect = transect,
+                                                    formula = analysis@dfmodel[[i]],
+                                                    key = analysis@key[i],
+                                                    adjustment = adjustment[i],
+                                                    order = order[i],
+                                                    scale = scale[i],
+                                                    cutpoints = cutpoints,
+                                                    monotonicity = monotonicity[i],
+                                                    er_var = analysis@er.var,
+                                                    method = method,
+                                                    max_adjustments = max.adjustments),
+                                       error=function(e)e),
+                              warning=function(w){W <<- w; invokeRestart("muffleWarning")}))  
+      }else{
+        models[[i]] <- suppressMessages(
+          withCallingHandlers(tryCatch(Distance::ds(data = dist.data,
+                                                    truncation = truncation,
+                                                    transect = transect,
+                                                    formula = analysis@dfmodel[[i]],
+                                                    key = analysis@key[i],
+                                                    adjustment = adjustment[i],
+                                                    order = order[i],
+                                                    scale = scale[i],
+                                                    cutpoints = cutpoints,
+                                                    monotonicity = monotonicity[i],
+                                                    er.var = analysis@er.var,
+                                                    method = method,
+                                                    max.adjustments = max.adjustments),
+                                       error=function(e)e),
+                              warning=function(w){W <<- w; invokeRestart("muffleWarning")}))  
+      }
       #check if there was an error, warning or non-convergence
       if(any(class(models[[i]]) == "error")){
         warnings <- message.handler(warnings, paste("Error: ", models[[i]]$message, " (Model number: ", i, ")", sep = ""), rep)
