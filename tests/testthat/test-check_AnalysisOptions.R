@@ -62,6 +62,23 @@ test_that("Can create objects or return correct error / warning messages", {
   # Test optim method
 
   # Test different er.var estimator
+  analyses <- make.ds.analysis(dfmodel = list(~1),
+                               key = c("hn"),
+                               er.var = "R2",
+                               truncation = 50)
+  fit.R2 <- analyse.data(analyses, survey@dist.data)
+  analyses <- make.ds.analysis(dfmodel = list(~1),
+                               key = c("hn"),
+                               er.var = "S2",
+                               truncation = 50)
+  fit.S2 <- analyse.data(analyses, survey@dist.data)
+  
+  expect_true(fit.R2$model$dht$individuals$N$se > fit.S2$model$dht$individuals$N$se)
+  
+  # Test default truncation distance (should be 50)
+  
+  analyses <- make.ds.analysis()
+  expect_equal(analyses@truncation, list(50))
 
 
 })
