@@ -10,10 +10,7 @@ check.simulation <- function(object){
   strata.names <- object@design@region@strata.name
   strata.no <- length(strata.names)
 
-
-
   # DETECTABILITY CHECKS
-
   # Check that the number of covariate values matches the number of strata
   detect <- object@detectability
   cov.param <- detect@cov.param
@@ -31,7 +28,13 @@ check.simulation <- function(object){
     }
   }
 
-
-
+  # DESIGN CHECKS
+  design <- object@design
+  if(any(design@edge.protocol == "plus")){
+    warning("Plus sampling not yet implemented in dsims, edge protocol will be modified to minus sampling.", call. = FALSE, immediate. = TRUE)
+    design@edge.protocol <- ifelse("plus", "minus", esign@edge.protocol)
+  }
+  object@design <- design
+  
   return(object)
 }
