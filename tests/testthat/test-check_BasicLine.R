@@ -70,6 +70,21 @@ test_that("Test uf detectability key function", {
 
   survey <- run.survey(sim)
   expect_equal(length(survey@dists.in.covered), nrow(survey@dist.data))
-
+  
+  
+  # Check plus sampling turn to minus with a warning
+  design <- make.design(region = region,
+                        transect.type = "line",
+                        samplers = 20,
+                        truncation = 30,
+                        edge.protocol = "plus")
+  expect_warning(sim <- make.simulation(reps = 5,
+                         design = design,
+                         population.description = pop.desc,
+                         detectability = detect,
+                         ds.analysis = analysis),
+                 "Plus sampling not yet implemented in dsims, edge protocol will be modified to minus sampling.")
+  expect_equal(sim@design@edge.protocol, rep("minus",3))
+  
 })
 

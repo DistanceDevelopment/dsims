@@ -42,6 +42,8 @@ test_that("Test creation and data generation", {
   expect_true("shape.param" %in% names(survey@population@population))
   expect_true(all(survey@population@population$shape.param == 3))
 
+  set.seed(258)
+  
   test <- analyse.data(analysis.bin, survey)
   if(!is.null(test$model)){
     expect_true("distbegin" %in% names(test$model$ddf$data))
