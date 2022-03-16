@@ -144,6 +144,7 @@ setMethod(
 #' @export
 #' @importFrom Distance ds
 #' @importFrom stats AIC BIC
+#' @importFrom utils packageVersion
 setMethod(
   f="analyse.data",
   signature=c("DS.Analysis", "data.frame"),
