@@ -166,24 +166,29 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
       if(is(dht.results, "try-error")){
         warning(paste("Problem", strsplit(dht.results[1], "Error")[[1]][2], " dht results not being recorded for iteration ", i, sep=""), call. = FALSE, immediate. = TRUE)
       }else{
-        simulation@results <- store.dht.results(simulation@results,
+        tmp.results <- try(store.dht.results(simulation@results,
                                                 dht.results, i,
                                                 simulation@population.description@size,
                                                 dist.data,
                                                 obs.table,
-                                                sample.table)
+                                                sample.table), silent = TRUE)
       }
     }
     else{
       # Just store existing ds dht results
       clusters <- "size" %in% names(dist.data)
-      simulation@results <- store.dht.results(results = simulation@results,
+      tmp.results <- try(store.dht.results(results = simulation@results,
                                               dht.results = model.results$dht,
                                               i = i,
                                               clusters = clusters,
                                               data = dist.data,
                                               obs.tab = obs.table,
-                                              sample.tab = sample.table)
+                                              sample.tab = sample.table), silent = TRUE)
+    }
+    if(is(tmp.results, "try-error")){
+      warnings <- message.handler(warnings, paste("Error in storing dht results, iteration skipped.", sep = ""), i)
+    }else{
+      simulation@results <- tmp.results
     }
   }
   # If the transects were loaded store the filename in the results

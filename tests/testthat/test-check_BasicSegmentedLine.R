@@ -37,7 +37,7 @@ test_that("Test creation and data generation", {
                          detectability = detect,
                          ds.analysis = analysis.bin)
 
-  set.seed(747)
+  set.seed(748)
   survey <- run.survey(sim)
   expect_true(inherits(survey@transect, "Segment.Transect"))
   expect_true("shape.param" %in% names(survey@population@population))
