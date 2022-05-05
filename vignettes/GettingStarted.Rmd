@@ -313,9 +313,10 @@ summary(sim.zigzag)
 Histograms of the estimates of abundance from each of the simulation replicates can also be viewed to check for the possible effects of extreme values or skewed distributions. 
 
 ```{r hist.results, fig.align='center', fig.cap="Figure 9: Left - histogram of estimates of abundance of clusters for systematic parallel design. Right - histogram of estimates of abundance of clusters for zigzag design.", fig.width=6, fig.height=4}
-par(mfrow = c(1,2))
+oldparams <- par(mfrow = c(1,2))
 histogram.N.ests(sim.parallel)
 histogram.N.ests(sim.zigzag)
+par(oldparams)
 ```
 
 We can see in Figure 9 that there were a couple of high estimates generated >500 for both the parallel line and zigzag designs. These probably represent data sets that were difficult to fit a model too (perhaps a chance spiked data set). Most of the estimates are centered around truth but these occasional high estimates may have increased the mean value slightly and could be associated with the small amount of positive bias.
