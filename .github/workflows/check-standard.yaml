@@ -21,7 +21,6 @@ jobs:
         config:
           - {os: windows-latest, r: '4.2',   xref: true}
           - {os: macOS-latest,   r: '4.2',   xref: true}
-          - {os: macOS-latest,   r: 'devel', xref: true}
           - {os: ubuntu-18.04,   r: 'devel', xref: true}
           - {os: ubuntu-18.04,   r: '4.2',   xref: true, rspm: "https://packagemanager.rstudio.com/cran/__linux__/bionic/latest"}
           
