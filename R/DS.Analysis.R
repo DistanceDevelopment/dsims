@@ -186,7 +186,7 @@ setMethod(
     }else{
       method <- "nlminb"
     }
-    if(length(analysis@truncation[[1]] == 1)){
+    if(length(analysis@truncation[[1]]) == 1){
       truncation <- analysis@truncation[[1]]
     }else{
       truncation <- analysis@truncation
