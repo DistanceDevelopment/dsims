@@ -165,7 +165,7 @@ setMethod(
       adjustment <- NULL
       order <- NULL
       scale <- NULL
-      max.adjustments <- 0
+      max.adjustments <- rep(0, length(analysis@key))
     }else{
       adjustment <- analysis@adjustment$adjustment
       order <- analysis@adjustment$order
@@ -202,6 +202,15 @@ setMethod(
     for(i in seq(along = analysis@dfmodel)){
       # Set W to null
       W <- NULL
+      # Get adjustment term (if none needs to be NULL)
+      adj <- ord <- sca <- NULL
+      max.adj <- 0
+      if(adjustment[i] != "none"){
+        adj <- adjustment[i]
+        ord <- order[[i]]
+        sca <- scale[i]
+        max.adj <- max.adjustments[i]
+      }
       # Try to fit model
       if(packageVersion("Distance") >= '1.0.5'){
         models[[i]] <- suppressMessages(
@@ -210,14 +219,14 @@ setMethod(
                                                     transect = transect,
                                                     formula = analysis@dfmodel[[i]],
                                                     key = analysis@key[i],
-                                                    adjustment = adjustment[i],
-                                                    order = order[i],
-                                                    scale = scale[i],
+                                                    adjustment = adj,
+                                                    order = ord,
+                                                    scale = sca,
                                                     cutpoints = cutpoints,
                                                     monotonicity = monotonicity[i],
                                                     er_var = analysis@er.var,
                                                     method = method,
-                                                    max_adjustments = max.adjustments),
+                                                    max_adjustments = max.adj),
                                        error=function(e)e),
                               warning=function(w){W <<- w; invokeRestart("muffleWarning")}))  
       }else{
@@ -227,14 +236,14 @@ setMethod(
                                                     transect = transect,
                                                     formula = analysis@dfmodel[[i]],
                                                     key = analysis@key[i],
-                                                    adjustment = adjustment[i],
-                                                    order = order[i],
-                                                    scale = scale[i],
+                                                    adjustment = adj,
+                                                    order = ord,
+                                                    scale = sca,
                                                     cutpoints = cutpoints,
                                                     monotonicity = monotonicity[i],
                                                     er.var = analysis@er.var,
                                                     method = method,
-                                                    max.adjustments = max.adjustments),
+                                                    max.adjustments = max.adj),
                                        error=function(e)e),
                               warning=function(w){W <<- w; invokeRestart("muffleWarning")}))  
       }

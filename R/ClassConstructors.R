@@ -360,6 +360,15 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #'  (see \code{?Distance::ds} for further details)
 #' @param key key function to use; "hn" gives half-normal (default) and "hr" gives
 #' hazard-rate.
+#' @param adjustment A list with elements: adjustment, order, scale and mac.adjustment. 
+#' 'adjustment' should be a vector the same length as key specifying the type of adjustment
+#' term to be added ("cos" gives cosine, "herm" gives Hermite polynomial and "poly" gives
+#' simple polynomial). 'order' is a list of numeric vectors the same length as key specifying
+#' the order of adjustment terms to fit. 'scale' is a character vector the same length as
+#' key and specifies the scale by which the distances in the adjustment terms are divided 
+#' (either "width" or "scale"). 'max.adjustments' is a numeric vector the same length as key
+#' specifying the maximum number of adjustments to use. (see \code{?Distance::ds} for further 
+#' details)
 #' @param truncation absolute truncation distance in simulation units matching the
 #' region units.
 #' @param cutpoints supply a vector of cutpoints if you wish the simulation to perform
@@ -403,6 +412,7 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #'
 make.ds.analysis <- function(dfmodel = list(~1),
                              key = "hn",
+                             adjustment = list(),
                              truncation = numeric(0),
                              cutpoints = numeric(0),
                              er.var = "R2",
@@ -446,7 +456,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
     key <- rep(key, length(dfmodel))
   }
   # Create class instance
-  ds.analysis <- new(Class = "DS.Analysis", dfmodel = dfmodel, key = key, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria)
+  ds.analysis <- new(Class = "DS.Analysis", dfmodel = dfmodel, key = key, adjustment = adjustment, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria)
   return(ds.analysis)
 }
 
