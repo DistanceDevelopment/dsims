@@ -205,11 +205,13 @@ setMethod(
       # Get adjustment term (if none needs to be NULL)
       adj <- ord <- sca <- NULL
       max.adj <- 0
-      if(adjustment[i] != "none"){
-        adj <- adjustment[i]
-        ord <- order[[i]]
-        sca <- scale[i]
-        max.adj <- max.adjustments[i]
+      if(!is.null(adjustment)){
+        if(adjustment[i] != "none"){
+          adj <- adjustment[i]
+          ord <- order[[i]]
+          sca <- scale[i]
+          max.adj <- max.adjustments[i]
+        }  
       }
       # Try to fit model
       if(packageVersion("Distance") >= '1.0.5'){
