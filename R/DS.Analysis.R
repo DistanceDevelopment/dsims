@@ -289,6 +289,25 @@ setMethod(
     if(length(na.omit(IC)) > 0){
       min.IC <- min(IC, na.rm = TRUE)
       index <- which(IC == min.IC)
+      # Check that the index is only of length 1
+      if(length(index) > 1){
+        # Check how many parameters were estimated and choose the model with the least
+        no.params <- numeric()
+        for(j in seq(along = index)){
+          no.params[j] <- length(models[[index[j]]]$ddf$par)
+        }
+        # Find model with minimum number of params (which has joint lowest AIC)
+        param.index <- which(no.params == min(no.params))
+        # If the number of parameters are the same just take the 1st model index and store warning
+        if(length(param.index) > 1){
+          warnings <- message.handler(warnings, paste("Two or more models had the same information criterion value and the same number of parameters, taking the first model of: models ", paste(index[param.index], collapse = ", "), sep = ""), rep)
+          param.index <- param.index[1]
+        }else{
+          warnings <- message.handler(warnings, paste("Two or more models had the same information criterion value, using the model with the least number of parameters: models ", paste(index, collapse = ", "), sep = ""), rep)
+        }
+        index <- index[param.index]
+      }
+      # Obtain the best fitting model
       min.model <- models[[index]]
       min.model$ddf$model.index <- index
       num.successful.models = length(which(!is.na(IC)))
