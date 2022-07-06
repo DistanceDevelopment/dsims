@@ -83,8 +83,22 @@ setValidity("DS.Analysis",
               if(!(object@criteria %in% c("AIC", "BIC", "AICc"))){
                 return("This selection criteria is not currently supported, please select from 'AIC', 'BIC' or 'AICc'.")
               }
+              # Check key functions
               if(!all(object@key %in% c("hr", "hn"))){
                 return("All key function values should be either 'hn' or 'hr'.")
+              }
+              # Check no models are repeated
+              if(length(object@adjustment) == 0){
+                for(i in seq(along = object@key)){
+                  # Find all entries with the same key
+                  index <- which(object@key == object@key[i])
+                  # Remove the index of the entry we are considering
+                  index <- index[index != i]
+                  # Check to see if any of the dfmodel formulas are the same for these models
+                  if(object@dfmodel[i] %in% object@dfmodel[index]){
+                    return("All models must be unique, there appears to be the same combination of key function and dfmodel entered more than once.")
+                  }
+                }
               }
               # Check truncation
               if(any(unlist(lapply(object@truncation,is.character))) &&
