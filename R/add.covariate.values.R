@@ -24,7 +24,7 @@ add.covariate.values <- function(pop.data, covariates){
         cov.values <- switch(distribution,
                              normal = rnorm(n.vals, mean = params$mean, sd = params$sd),
                              poisson = rpois(n.vals, lambda = params$lambda),
-                             ztruncpois = rtpois(n.vals, mean = params$mean),
+                             ztruncpois = rztpois(n.vals, mean = params$mean),
                              lognormal = rlnorm(n.vals, meanlog = params$meanlog, sdlog = params$sdlog))
         list.data[[strata.ids[strat]]][[cov.names[covar]]] <- cov.values
       }

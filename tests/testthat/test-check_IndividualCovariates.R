@@ -28,6 +28,26 @@ test_that("Can deal with different covariate options", {
                                                          covariates = covariate.list,
                                                          N = c(250,500)),
                "You have not supplied all the required parameters \\(mean, sd\\) for the following covariate distribution: normal")
+  
+  # Check that means <= 1 are not permitted
+  covs <- list()
+  covs$size <- list(list(distribution = "ztruncpois", mean = 2),
+                    list(distribution = "ztruncpois", mean = 1))
+  expect_error(make.population.description(region = region,
+                                         density = density,
+                                         covariates = covs,
+                                         fixed.N = FALSE),
+               "The mean parameter for covariate size and strata 2 must be greater than 1.")
+  
+  covs <- list()
+  covs$size <- list(list(distribution = "ztruncpois", mean = 0.5),
+                    list(distribution = "ztruncpois", mean = 2))
+  expect_error(make.population.description(region = region,
+                                           density = density,
+                                           covariates = covs,
+                                           fixed.N = FALSE),
+               "The mean parameter for covariate size and strata 1 must be greater than 1.")
+  
 
   covariate.list <- list()
   covariate.list$height <- list(distribution = "normal", mean = 1.7, sd = 0.25)
