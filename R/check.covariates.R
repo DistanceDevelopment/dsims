@@ -57,6 +57,10 @@ check.covariates <- function(covariate.list, no.strata){
           if(length(param.names) != 1 | !all(param.names %in% c("mean"))){
             stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean.", sep = ""), call. = FALSE)  
           }
+          # Check that the mean is > 1
+          if(params$mean <= 1){
+            stop(paste("The mean parameter for covariate ", list.names[cov]," and strata ", strat," must be greater than 1.", sep = ""), call. = FALSE)  
+          }
         }else{
           stop(paste("The distribution for covariate ", list.names[cov]," and strata ", strat," is not implemented at present. Please select from: normal, lognormal, poisson and ztruncpois.", sep = ""), call. = FALSE)
         }

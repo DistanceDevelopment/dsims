@@ -269,7 +269,7 @@ setMethod(
               dist <- cov.strat.dist[[1]]
               int <- c(0.025, 0.5, 0.975)
               if(dist == "ztruncpois"){
-                temp <- rtpois(999, mean = dist.param$mean)
+                temp <- rztpois(999, mean = dist.param$mean)
                 quantiles <- quantile(temp, int)
               }else{
                 quantiles <- switch(dist,
