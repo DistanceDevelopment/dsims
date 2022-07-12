@@ -65,7 +65,7 @@ add.summary.results <- function(results, model.count, use.max.reps = TRUE){
     }
   }else{
     # There were no valid reps
-    results <- NULL
+    return(results)
   }
   return(results)
 }
