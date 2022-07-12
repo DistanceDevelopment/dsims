@@ -4,13 +4,26 @@
 #' running in parallel and max.cores is not specified it will default to using
 #' one less than the number of cores / threads on your machine. For example
 #' code see \code{\link{make.simulation}}
+#' 
+#' The minimum.n argument allows the user to reduce or increase the number 
+#' of required detections for a detection function to be fitted and the
+#' estimates of abundance and density obtained. This is implemented to make 
+#' the simulation mode stable. We usually advise 60-80 detections when fitting
+#' a detection function but by default we allow detetection functions to be 
+#' fitted with as few as 20 detections. Please note that if a number of 
+#' iterations are excluded based on this criteria then this will likely 
+#' introduce bias into the estimates. Reducing the minimum.n value should
+#' correct this bias but may lead to unstable model fitting within the
+#' simulation.
+#' 
 #'
 #' @param simulation \code{\link{Simulation-class}} object
 #' @param run.parallel logical option to use multiple processors
 #' @param max.cores integer maximum number of cores to use, if not specified then
 #' one less than the number available will be used.
 #' @param counter logical indicates if you would like to see the progress counter.
-#' @param ... will allow further options to be implemented
+#' @param ... minimum.n - specifying the minimum number of detections which are 
+#' required before a detection function is fitted (defaults to 20), see details.
 #' @return the \code{\link{Simulation-class}} object which now includes
 #' the results
 #' @export
@@ -26,6 +39,11 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
   transect.path <- character(0)
   if("transect.path" %in% names(args)){
     transect.path <- args$transect.path
+  }
+  if("minimum.n" %in% names(args)){
+    minimum.n <- args$minimum.n
+  }else{
+    minimum.n <- 20
   }
   #Check if it is a single transect set or a folder
   if(length(transect.path) > 0){
@@ -94,9 +112,9 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     })
     on.exit(stopCluster(myCluster))
     if(counter){
-        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, cl = myCluster, counter = FALSE)
+        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, single.transect = FALSE, transect.path = character(0), save.transects = FALSE, minimum.n = minimum.n, cl = myCluster, counter = FALSE)
     }else{
-      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE)
+      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE, minimum.n = minimum.n)
     }
     #Extract results and warnings
     sim.results <- sim.warnings <- list()
@@ -120,7 +138,8 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
                                  counter = counter,
                                  single.transect = FALSE,
                                  transect.path = character(0),
-                                 save.transects = FALSE)
+                                 save.transects = FALSE,
+                                 minimum.n = minimum.n)
       simulation@results <- results$results
       simulation@warnings <- results$warnings
     }

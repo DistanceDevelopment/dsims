@@ -2,7 +2,7 @@
 #' @importFrom methods new is
 #' @importFrom mrds dht
 #single.simulation.loop <- function(i, object){
-single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE){
+single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE, minimum.n = 20){
   # Input: i - integer representing the loop number
   #        simulation - an simulation of class Simulation
   #
@@ -106,13 +106,13 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     n.in.covered <- length(dists.in.covered)
   }
   #analyse survey if there are data to analyse
-  if(nrow(dist.data[!is.na(dist.data$distance),]) >= 20){
+  if(nrow(dist.data[!is.na(dist.data$distance),]) >= minimum.n){
     model.results <- analyse.data(simulation@ds.analysis, data.obj = survey, simulation@warnings, i = i)
     warnings <- model.results$warnings
     num.successful.models <- model.results$num.successful.models
     model.results <- model.results$model
   }else{
-    warning("There are too few data points (<20) to be analysed, skipping this iteration.", call. = FALSE, immediate. = TRUE)
+    warning(paste("There fewer than ", minimum.n, " detections, skipping this iteration. This may introduce bias! See details on minimum.n argument to run.simulation function.", sep = ""), call. = FALSE, immediate. = TRUE)
     model.results <- NULL
     warnings <- simulation@warnings
   }
