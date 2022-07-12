@@ -1,11 +1,17 @@
 dsims 1.0.0
 -------------------
 
+New Features
+
+ * New routine which will generate covariate values from a zero-truncated Poisson distribution for non integer values.
+ * Option to specify the minimum number of detections required for a model to be fitted. If too many iterations are excluded due to too few detections then bias will likely be introduced. 
+ 
 Bug Fixes
 
  * Fixed simulations where cluster size was included - there was a formatting change in mrds output tables.
  * Added a check for repeat model definitions.
  * Add code to deal with equal model criteria values.
+ * Fixed bug when no simulation repetitions had been successful
 
 dsims 0.2.2 / 0.2.3
 -------------------
