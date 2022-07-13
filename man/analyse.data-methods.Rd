@@ -8,9 +8,9 @@
 \usage{
 analyse.data(analysis, data.obj, ...)
 
-\S4method{analyse.data}{DS.Analysis,Survey}(analysis, data.obj, warnings = list(), ...)
+\S4method{analyse.data}{DS.Analysis,Survey}(analysis, data.obj, warnings = NULL, ...)
 
-\S4method{analyse.data}{DS.Analysis,data.frame}(analysis, data.obj, warnings = list(), transect = "line", ...)
+\S4method{analyse.data}{DS.Analysis,data.frame}(analysis, data.obj, warnings = NULL, transect = "line", ...)
 }
 \arguments{
 \item{analysis}{an object of class DS.Analysis}
@@ -26,6 +26,10 @@ transect used in survey}
 }
 \value{
 a list containing an S3 ddf object and optionally an S3 dht object relating to the model with the minimum criteria.
+
+either returns a list of the best model, warnings and the number of successfully
+fitted models (if warnings is supplied as a list) otherwise displays warnings as it goes
+and returns the best fitting ds model.
 }
 \description{
 This method carries out an analysis of distance sampling data. This method

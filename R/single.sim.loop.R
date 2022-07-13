@@ -2,7 +2,7 @@
 #' @importFrom methods new is
 #' @importFrom mrds dht
 #single.simulation.loop <- function(i, object){
-single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE, minimum.n = 20){
+single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE){
   # Input: i - integer representing the loop number
   #        simulation - an simulation of class Simulation
   #
@@ -106,15 +106,14 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     n.in.covered <- length(dists.in.covered)
   }
   #analyse survey if there are data to analyse
-  if(nrow(dist.data[!is.na(dist.data$distance),]) >= minimum.n){
+  if(nrow(dist.data[!is.na(dist.data$distance),]) > 0){
     model.results <- analyse.data(simulation@ds.analysis, data.obj = survey, simulation@warnings, i = i)
     warnings <- model.results$warnings
     num.successful.models <- model.results$num.successful.models
     model.results <- model.results$model
   }else{
-    warning(paste("There fewer than ", minimum.n, " detections, skipping this iteration. This may introduce bias! See details on minimum.n argument to run.simulation function.", sep = ""), call. = FALSE, immediate. = TRUE)
+    warnings <- message.handler(simulation@warnings, paste("There were no detections, iteration skipped.", sep = ""), i)
     model.results <- NULL
-    warnings <- simulation@warnings
   }
   #Check at least one model worked
   if(!is.null(model.results)){
