@@ -29,7 +29,7 @@ test_that("Test problem cases: e.g. no/insufficient detections", {
                          ds.analysis = analysis)
 
   set.seed(923)
-  expect_warning(run.survey(sim), "No detections")
+  #expect_warning(run.survey(sim), "No detections")
 
   densities <- get.densities(density)
   densities <- rep(0, length(densities))
@@ -37,7 +37,7 @@ test_that("Test problem cases: e.g. no/insufficient detections", {
   density <- set.densities(density, densities)
 
   set.seed(634)
-  test <- expect_warning(run.survey(sim), "No detections")
+  test <- run.survey(sim)
   expect_true(nrow(test@population@population) == 1)
 
 })
@@ -87,31 +87,4 @@ test_that("Test segmented line sims run.", {
   expect_s4_class(sum.para, "Simulation.Summary")
   
 })
-
-test_that("Check minimum.n argument working correctly", {
-  
-  # Make a population size of 19 and make sure all are detected.
-  region <- make.region()
-  design <- make.design(region = region,
-                        truncation = 50)
-  density <- make.density(region = region)
-  pop.descrp <- make.population.description(region = region,
-                                            density = density,
-                                            N = 19)
-  detect <- make.detectability(key.function = "hn",
-                               scale.param = 5000,
-                               truncation = 50)
-  analyses <- make.ds.analysis(truncation = 50)
-  sim <- make.simulation(reps = 1,
-                         design = design,
-                         population.description = pop.descrp,
-                         detectability = detect,
-                         ds.analysis = analyses)
-  
-  # There shouldn't be a warning if minimum.n = 5
-  # This test will require a seed so move to seeded tests
-  set.seed(555)
-  expect_s4_class(run.simulation(sim, counter = FALSE, minimum.n = 5), "Simulation")
-})
-
 

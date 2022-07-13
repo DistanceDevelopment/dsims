@@ -25,27 +25,27 @@ test_that("Can create objects or return correct error / warning messages", {
                                             density = density,
                                             covariates = covariate.list,
                                             N = 250)
-  cov.params <- list(size = log(1.05),
+  cov.params <- list(size = log(1.1),
                      sex = data.frame(level = c("male", "female"),
-                                      param = c(log(1), log(1.5))))
+                                      param = c(log(1), log(1.75))))
 
   detect <- make.detectability(key.function = "hn",
                                scale.param = 5,
-                               truncation = 50,
+                               truncation = 75,
                                cov.param = cov.params)
 
   design <- make.design(region = region,
                         transect.type = "line",
                         design = "systematic",
                         samplers = 20,
-                        truncation = 50)
+                        truncation = 75)
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Test anaysis options
 
   analyses <- make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
                                key = c("hn","hn","hn"),
-                               truncation = 50)
+                               truncation = 75)
 
   sim <- make.simulation(reps = 10,
                          design = design,
@@ -54,9 +54,23 @@ test_that("Can create objects or return correct error / warning messages", {
                          ds.analysis = analyses)
 
   survey <- run.survey(sim)
+  
+  pop <- survey@population
+  pop.data <- pop@population
+  
+  # Check the scale parameter is calculated correctly
+  indiv.size <- pop.data[1,"size"]
+  indiv.sex <- ifelse(pop.data[1,"sex"] == "male", 0, 1)
+  
+  scale.param <- pop@detectability@scale.param
+  size.param <- pop@detectability@cov.param$size
+  sex.param <- pop@detectability@cov.param$sex[2,2]
+  
+  expect_equal(pop.data[1,"scale.param"],
+               exp(log(scale.param)+indiv.size*size.param+indiv.sex*sex.param))
 
   # Basic multi-model selection test
-  sel.model <- analyse.data(analyses, survey@dist.data)
+  sel.model <- analyse.data(analyses, survey@dist.data, warnings = list())
   expect_equal(length(sel.model$model$ddf$fitted), nrow(survey@dist.data[!is.na(survey@dist.data$object),]))
 
   # Test optim method
@@ -65,15 +79,15 @@ test_that("Can create objects or return correct error / warning messages", {
   analyses <- make.ds.analysis(dfmodel = list(~1),
                                key = c("hn"),
                                er.var = "R2",
-                               truncation = 50)
+                               truncation = 75)
   fit.R2 <- analyse.data(analyses, survey@dist.data)
   analyses <- make.ds.analysis(dfmodel = list(~1),
                                key = c("hn"),
                                er.var = "S2",
-                               truncation = 50)
+                               truncation = 75)
   fit.S2 <- analyse.data(analyses, survey@dist.data)
   
-  expect_true(fit.R2$model$dht$individuals$N$se > fit.S2$model$dht$individuals$N$se)
+  expect_true(fit.R2$dht$individuals$N$se > fit.S2$dht$individuals$N$se)
   
   # Test default truncation distance (should be 50)
   
@@ -82,32 +96,3 @@ test_that("Can create objects or return correct error / warning messages", {
 
 
 })
-
-test_that("Check minimum.n argument working correctly", {
-  
-  # Make a population size of 19 and make sure all are detected.
-  region <- make.region()
-  design <- make.design(region = region,
-                        truncation = 50)
-  density <- make.density(region = region)
-  pop.descrp <- make.population.description(region = region,
-                                            density = density,
-                                            N = 19)
-  detect <- make.detectability(key.function = "hn",
-                               scale.param = 5000,
-                               truncation = 50)
-  analyses <- make.ds.analysis(truncation = 50)
-  sim <- make.simulation(reps = 1,
-                         design = design,
-                         population.description = pop.descrp,
-                         detectability = detect,
-                         ds.analysis = analyses)
-  
-  expect_warning(sim <- run.simulation(sim, counter = FALSE),
-                 "There fewer than 20 detections, skipping this iteration. This may introduce bias! See details on minimum.n argument to run.simulation function.")
-  
-  # There shouldn't be a warning if minimum.n = 5
-  # This test will require a seed so move to seeded tests
-  
-})
-

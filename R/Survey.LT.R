@@ -65,7 +65,6 @@ setMethod(
     dist.data <- simulate.detections(poss.distances, object@population@detectability)
     # Check if there are any detections
     if(nrow(dist.data) == 0){
-      warning("No detections", immediate. = TRUE, call. = FALSE)
       return(object)
     }
     # Get the covariate names

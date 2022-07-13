@@ -53,7 +53,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     if(check.path[index] == "shp"){
       message(paste("run.simulation has detected that you wish to use a single set of transects for the simulation. Using shapefile: ", transect.path, sep = ""))
     }else{
-      message(paste("run.simulation has detected that you wish to use pre-existing shapefile. These will be loaded from the following directory: ", transect.path, sep = ""))
+      message(paste("run.simulation has detected that you wish to use pre-existing shapefiles. These will be loaded from the following directory: ", transect.path, sep = ""))
     }
   }else{
     single.transect = FALSE
@@ -112,9 +112,9 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     })
     on.exit(stopCluster(myCluster))
     if(counter){
-        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, single.transect = FALSE, transect.path = character(0), save.transects = FALSE, minimum.n = minimum.n, cl = myCluster, counter = FALSE)
+        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, single.transect = FALSE, transect.path = character(0), save.transects = FALSE, cl = myCluster, counter = FALSE)
     }else{
-      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE, minimum.n = minimum.n)
+      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE)
     }
     #Extract results and warnings
     sim.results <- sim.warnings <- list()
@@ -138,8 +138,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
                                  counter = counter,
                                  single.transect = FALSE,
                                  transect.path = character(0),
-                                 save.transects = FALSE,
-                                 minimum.n = minimum.n)
+                                 save.transects = FALSE)
       simulation@results <- results$results
       simulation@warnings <- results$warnings
     }

@@ -79,7 +79,6 @@ setMethod(
         labs(title="Detection Distances", x="distance")
 
     }else{
-      warning("No detections", immediate. = TRUE, call. = FALSE)
       p[[3]] <- ggplot() + theme_void() +
         geom_sf(data = sf.region, color = gray(.2), lwd = 0.1) +
         geom_sf(data = transects, mapping = aes(), colour = "blue") +
@@ -151,7 +150,6 @@ setMethod(
                        alpha = .2) +
         labs(title="Detection Distances", x="distance")
     }else{
-      warning("No detections", immediate. = TRUE, call. = FALSE)
       p[[1]] <- ggplot() + theme_void() +
         geom_sf(data = covered.areas, color = gray(.2), lwd = 0.1) +
         geom_sf(data = transects, mapping = aes(), colour = "blue") +
