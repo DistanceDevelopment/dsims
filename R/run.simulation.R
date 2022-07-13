@@ -22,8 +22,9 @@
 #' @param max.cores integer maximum number of cores to use, if not specified then
 #' one less than the number available will be used.
 #' @param counter logical indicates if you would like to see the progress counter.
-#' @param ... minimum.n - specifying the minimum number of detections which are 
-#' required before a detection function is fitted (defaults to 20), see details.
+#' @param transect.path character gives the pathway to a folder of shapefiles or
+#' the path to a single shapefile (.shp file) which give the transects which should 
+#' be used for the simulations. 
 #' @return the \code{\link{Simulation-class}} object which now includes
 #' the results
 #' @export
@@ -31,20 +32,9 @@
 #' @importFrom rstudioapi versionInfo
 #' @rdname run.simulation-methods
 #' @seealso \code{\link{make.simulation}}
-run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, counter = TRUE, ...){
+run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, counter = TRUE, transect.path = character(0)){
   save.data <- load.data <- FALSE
   data.path <- character()
-  #Process ... arguments
-  args <- list(...)
-  transect.path <- character(0)
-  if("transect.path" %in% names(args)){
-    transect.path <- args$transect.path
-  }
-  if("minimum.n" %in% names(args)){
-    minimum.n <- args$minimum.n
-  }else{
-    minimum.n <- 20
-  }
   #Check if it is a single transect set or a folder
   if(length(transect.path) > 0){
     stop("Uploading transects from file is not yet implemented.", call. = FALSE)

@@ -131,14 +131,7 @@ setValidity("DS.Analysis",
 setMethod(
   f="analyse.data",
   signature=c("DS.Analysis", "Survey"),
-  definition=function(analysis, data.obj, warnings = list(), ...){
-    # Pass in simulation repetition number for warnings
-    args <- list(...)
-    if("i" %in% names(args)){
-      i <- args$i
-    }else{
-      i <- numeric(0)
-    }
+  definition=function(analysis, data.obj, warnings = NULL, ...){
     # Get distance data
     dist.data <- data.obj@dist.data
     # Check what kind of survey it is
@@ -148,7 +141,7 @@ setMethod(
       transect <- "point" 
     }
     #Call analyse.data on model and dataset
-    analysis <- analyse.data(analysis, dist.data, transect = transect, warnings = warnings, i = i)
+    analysis <- analyse.data(analysis, dist.data, transect = transect, warnings = warnings, ...)
     return(analysis)
   }
 )

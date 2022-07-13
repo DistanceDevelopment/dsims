@@ -9,7 +9,7 @@ run.simulation(
   run.parallel = FALSE,
   max.cores = NA,
   counter = TRUE,
-  ...
+  transect.path = character(0)
 )
 }
 \arguments{
@@ -22,8 +22,9 @@ one less than the number available will be used.}
 
 \item{counter}{logical indicates if you would like to see the progress counter.}
 
-\item{...}{minimum.n - specifying the minimum number of detections which are 
-required before a detection function is fitted (defaults to 20), see details.}
+\item{transect.path}{character gives the pathway to a folder of shapefiles or
+the path to a single shapefile (.shp file) which give the transects which should 
+be used for the simulations.}
 }
 \value{
 the \code{\link{Simulation-class}} object which now includes
