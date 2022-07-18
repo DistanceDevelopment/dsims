@@ -24,7 +24,9 @@ one less than the number available will be used.}
 
 \item{transect.path}{character gives the pathway to a folder of shapefiles or
 the path to a single shapefile (.shp file) which give the transects which should 
-be used for the simulations.}
+be used for the simulations. If a folder of transects a new shapefile will be 
+used for each repetition. If a path specifying a single shapefile then the same
+transects will be used for each repetition.}
 }
 \value{
 the \code{\link{Simulation-class}} object which now includes

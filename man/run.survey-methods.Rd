@@ -10,7 +10,7 @@
 \usage{
 run.survey(object, ...)
 
-\S4method{run.survey}{Simulation}(object)
+\S4method{run.survey}{Simulation}(object, filename = character(0))
 
 \S4method{run.survey}{Survey.LT}(object, region = NULL)
 
@@ -20,6 +20,9 @@ run.survey(object, ...)
 \item{object}{an object of class Simulation}
 
 \item{...}{allows extra arguments}
+
+\item{filename}{optional argument specifying a path to a shapefile if 
+the transects are to be loaded from file.}
 
 \item{region}{an object of class Region.}
 }
