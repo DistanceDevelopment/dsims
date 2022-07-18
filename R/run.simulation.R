@@ -24,7 +24,9 @@
 #' @param counter logical indicates if you would like to see the progress counter.
 #' @param transect.path character gives the pathway to a folder of shapefiles or
 #' the path to a single shapefile (.shp file) which give the transects which should 
-#' be used for the simulations. 
+#' be used for the simulations. If a folder of transects a new shapefile will be 
+#' used for each repetition. If a path specifying a single shapefile then the same
+#' transects will be used for each repetition. 
 #' @return the \code{\link{Simulation-class}} object which now includes
 #' the results
 #' @export
@@ -35,18 +37,29 @@
 run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, counter = TRUE, transect.path = character(0)){
   save.data <- load.data <- FALSE
   data.path <- character()
-  #Check if it is a single transect set or a folder
+  # Check if the transect path ends in / if so remove - hard to do the same for windows!
   if(length(transect.path) > 0){
-    stop("Uploading transects from file is not yet implemented.", call. = FALSE)
+    if(substr(transect.path, nchar(transect.path), nchar(transect.path)) == "/"){
+      transect.path <- substr(transect.path, 0, nchar(transect.path)-1)
+    }
+  }
+  # Check if it is a single transect set or a folder
+  if(length(transect.path) > 0){
+    # Check if a folder or file have been specified
     check.path <- unlist(strsplit(transect.path, split = "[.]"))
     index <- length(check.path)
     if(check.path[index] == "shp"){
-      message(paste("run.simulation has detected that you wish to use a single set of transects for the simulation. Using shapefile: ", transect.path, sep = ""))
+      # Set transect path to repeat the same value for each rep (for running in parallel)
+      transect.path <- rep(transect.path, simulation@reps)
     }else{
-      message(paste("run.simulation has detected that you wish to use pre-existing shapefiles. These will be loaded from the following directory: ", transect.path, sep = ""))
+      # Make up the vector of shapefile paths
+      transect.path <- file.path(transect.path, list.files(path = transect.path, pattern = "shp"))
+      if(length(transect.path) < simulation@reps){
+        warning(paste("Insufficient transect shapefiles supplied (", length(transect.path)," supplied, ", simulation@reps, " required). Simulation will use some sets of transects more than once, this may influence the results.", sep = ""), immediate. = TRUE, call. = FALSE)
+        mult.factor <- ceiling(simulation@reps/length(transect.path))
+        transect.path <- rep(transect.path, mult.factor)[1:simulation@reps]
+      }
     }
-  }else{
-    single.transect = FALSE
   }
   #Reset results arrays
   simulation@results <- create.results.arrays(simulation@reps,
@@ -102,9 +115,9 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     })
     on.exit(stopCluster(myCluster))
     if(counter){
-        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, single.transect = FALSE, transect.path = character(0), save.transects = FALSE, cl = myCluster, counter = FALSE)
+        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, transect.path = transect.path, save.transects = FALSE, cl = myCluster, counter = FALSE)
     }else{
-      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE)
+      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE, transect.path = transect.path, save.transects = FALSE)
     }
     #Extract results and warnings
     sim.results <- sim.warnings <- list()
@@ -126,8 +139,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
                                  load.data = load.data,
                                  data.path = data.path,
                                  counter = counter,
-                                 single.transect = FALSE,
-                                 transect.path = character(0),
+                                 transect.path = transect.path,
                                  save.transects = FALSE)
       simulation@results <- results$results
       simulation@warnings <- results$warnings

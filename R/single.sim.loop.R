@@ -2,12 +2,23 @@
 #' @importFrom methods new is
 #' @importFrom mrds dht
 #single.simulation.loop <- function(i, object){
-single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, single.transect = FALSE, transect.path = character(0), save.transects = FALSE){
+single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, transect.path = character(0), save.transects = FALSE, debug = FALSE){
   # Input: i - integer representing the loop number
   #        simulation - an simulation of class Simulation
+  #        save.data - logical whether to save the data
+  #        load.data - logical whether to load the data
+  #        data.path - where to load/save the data
+  #        counter - whether to display a progress counter
+  #        in.parallel - whether it is being run in parallel
+  #        transect.path - vector of shapefile paths for each iteration or 
+  #           locations to save them to (latter not yet implemented)
+  #        save.transects - logical whether to save the transects 
+  #        debug - gets the function to return more objects for
+  #           debugging or testing
   #
   # Output: list of simulation results and warnings
   #
+  warnings <- simulation@warnings
   # Display/write to file the progress of the simulation
   if(counter && !in.parallel){
     # Write to terminal
@@ -20,16 +31,32 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     #generate transects
     load.transects <- FALSE
     if(length(transect.path) > 0 && !save.transects){
+      # Pick the correct filename for the rep
+      filename <- transect.path[i] 
       # Set flag to true
       load.transects <- TRUE
-      stop("Loading transects from shapefile is not yet implemented.")
-      if(single.transect){
-        # read in from transect.path
-        transect.filename <- transect.path
+      if(inherits(simulation@design, "Segment.Transect.Design")){
+        transects <- read.seg.transects(filename = filename, 
+                                        design = simulation@design, 
+                                        warnings = simulation@warnings, 
+                                        rep = i)
+      }else if(inherits(simulation@design, "Line.Transect.Design")){
+        transects <- read.line.transects(filename = filename, 
+                                         design = simulation@design, 
+                                         warnings = simulation@warnings, 
+                                         rep = i)
       }else{
-        # Get all shapefile filenames and find the correct file for iteration i
-        # transect.filename <- get.filename.i(transect.path, i)
+        transects <- read.point.transects(filename = filename, 
+                                          design = simulation@design, 
+                                          warnings = simulation@warnings, 
+                                          rep = i)
       }
+      warnings <- transects$warnings
+      transects <- transects$transects
+      if(is.null(transects)){
+        return(list(results = simulation@results, warnings = warnings))
+      }
+      simulation@results$filename[i] <- filename
     }else{
       transects <- generate.transects(simulation)
       if(save.transects){
@@ -51,10 +78,10 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     #load data
     load(paste(data.path,"survey_",i,".robj", sep = ""))
     if(inherits(survey, "Survey")){
-
+      
       dists.in.covered <- survey@dists.in.covered
     }
-
+    
   }else{
     #simulate survey
     survey <- run.survey(object = survey, region = simulation@design@region)
@@ -112,7 +139,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
     num.successful.models <- model.results$num.successful.models
     model.results <- model.results$model
   }else{
-    warnings <- message.handler(simulation@warnings, paste("There were no detections, iteration skipped.", sep = ""), i)
+    warnings <- message.handler(warnings, paste("There were no detections, iteration skipped.", sep = ""), i)
     model.results <- NULL
   }
   #Check at least one model worked
@@ -137,21 +164,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
       region.table <- new.tables$region.table
       recompute.dht <- TRUE
     }
-
-    #Check if there are missing distances - NA's may be because there are transects with no observations in flat file format! This is for two type detectors and not yet implemented in design engine.
-    # miss.dists <- any(is.na(dist.data$distance))
-    # if(miss.dists){
-    #   # Add the missing distance observations in to ddf object
-    #   missing.dists <- ddf.data@ddf.dat[is.na(ddf.data@ddf.dat$distance),]
-    #   # NA's break dht
-    #   missing.dists$distance <- rep(-1, nrow(missing.dists))
-    #   if(is.null(missing.dists$detected)){
-    #     missing.dists$detected <- rep(1, nrow(missing.dists))
-    #   }
-    #   model.results <- add.miss.dists(missing.dists, model.results)
-    #   recompute.dht <- TRUE
-    # }
-
+    
     #Compute density / abundance estimates
     if(recompute.dht){
       # set dht options
@@ -166,23 +179,23 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
         warning(paste("Problem", strsplit(dht.results[1], "Error")[[1]][2], " dht results not being recorded for iteration ", i, sep=""), call. = FALSE, immediate. = TRUE)
       }else{
         tmp.results <- try(store.dht.results(simulation@results,
-                                                dht.results, i,
-                                                simulation@population.description@size,
-                                                dist.data,
-                                                obs.table,
-                                                sample.table), silent = TRUE)
+                                             dht.results, i,
+                                             simulation@population.description@size,
+                                             dist.data,
+                                             obs.table,
+                                             sample.table), silent = TRUE)
       }
     }
     else{
       # Just store existing ds dht results
       clusters <- "size" %in% names(dist.data)
       tmp.results <- try(store.dht.results(results = simulation@results,
-                                              dht.results = model.results$dht,
-                                              i = i,
-                                              clusters = clusters,
-                                              data = dist.data,
-                                              obs.tab = obs.table,
-                                              sample.tab = sample.table), silent = TRUE)
+                                           dht.results = model.results$dht,
+                                           i = i,
+                                           clusters = clusters,
+                                           data = dist.data,
+                                           obs.tab = obs.table,
+                                           sample.tab = sample.table), silent = TRUE)
     }
     if(is(tmp.results, "try-error")){
       warnings <- message.handler(warnings, paste("Error in storing dht results, iteration skipped.", sep = ""), i)
@@ -190,9 +203,10 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
       simulation@results <- tmp.results
     }
   }
-  # If the transects were loaded store the filename in the results
-  if(load.transects){
-    simulation@results$filename <- transect.filename
+  if(debug){
+    return(list(results = simulation@results, 
+                survey = survey,
+                warnings = warnings))
   }
   return(list(results = simulation@results, warnings = warnings))
 }

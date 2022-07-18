@@ -217,15 +217,36 @@ setMethod(
 )
 
 #' @rdname run.survey-methods
+#' @param filename optional argument specifying a path to a shapefile if 
+#' the transects are to be loaded from file.
 #' @export
 #' @importFrom methods new
 setMethod(
   f="run.survey",
   signature="Simulation",
-  definition=function(object){
+  definition=function(object, filename = character(0)){
     # Create the population and transects for the survey
     population <- generate.population(object)
-    transects <- generate.transects(object)
+    if(length(filename) > 0){
+      if(inherits(object@design, "Segment.Transect.Design")){
+        transects <- read.seg.transects(filename = filename, 
+                                        design = object@design)
+      }else if(inherits(object@design, "Line.Transect.Design")){
+        transects <- read.line.transects(filename = filename, 
+                                         design = object@design)
+      }else{
+        transects <- read.point.transects(filename = filename, 
+                                          design = object@design)
+      } 
+      warnings <- transects$warnings
+      transects <- transects$transects
+      if(is.null(transects)){
+        warning(warnings$message[[1]], immediate. = TRUE, call. = FALSE)
+        return(NULL)
+      }
+    }else{
+      transects <- generate.transects(object)  
+    }
     if(inherits(transects, "Line.Transect")){
       # Check transects for empty geometries
       transects <- check.transects(transects)
