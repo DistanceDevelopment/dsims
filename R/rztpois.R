@@ -10,9 +10,7 @@
 #' distribution.
 #' @note Internal function not intended to be called by user.
 #' @author Len Thomas
-#' @importFrom stats runif
-#' @importFrom stats dpois
-#' @importFrom stats qpois
+#' @importFrom stats runif dpois qpois optimize
 #'
 rztpois <- function(n, mean = NA){
   
