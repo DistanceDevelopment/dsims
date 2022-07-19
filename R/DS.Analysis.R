@@ -267,33 +267,33 @@ setMethod(
       }
       #check if there was an error, warning or non-convergence
       if(inherits(models[[i]], "error")){
-        models[[i]] <- NA
         if(is(warnings, "list")){
           warnings <- message.handler(warnings, paste("Error: ", models[[i]]$message, " (Model number: ", i, ")", sep = ""), rep)
         }else{
           warning(paste("Error: ", models[[i]]$message, " (Model number: ", i, ")", sep = ""), immediate. = TRUE, call. = FALSE)
         }
-      }else if(models[[i]]$ddf$ds$converge != 0){
         models[[i]] <- NA
+      }else if(models[[i]]$ddf$ds$converge != 0){
         if(is(warnings, "list")){
           warnings <- message.handler(warnings, paste("The following model failed to converge: ", i, sep = ""), rep)
         }else{
           warning(paste("The following model failed to converge: ", i, sep = ""), immediate. = TRUE, call. = FALSE)
         }
+        models[[i]] <- NA
       }else if(any(models[[i]]$fitted < 0)){
         if(is(warnings, "list")){
           warnings <- message.handler(warnings, paste("Negative predictions for model ", i,", excluding these results.", sep = ""), rep)
-          models[[i]] <- NA
         }else{
           warning(paste("Negative predictions for model ", i,", excluding these results.", sep = ""), immediate. = TRUE, call. = FALSE)
         }
+        models[[i]] <- NA
       }else if(is.null(models[[i]]$dht)){
         if(is(warnings, "list")){
           warnings <- message.handler(warnings, paste("NULL value for dht part of model ", i,", excluding these results.", sep = ""), rep)
-          models[[i]] <- NA
         }else{
           warning(paste("NULL value for dht part of model ", i,", excluding these results.", sep = ""), immediate. = TRUE, call. = FALSE)
         }
+        models[[i]] <- NA
       }
       if(!is.null(W)){
         if(is(warnings, "list")){
