@@ -9,7 +9,7 @@ accumulate.warnings <- function(warnings.list){
       for(j in seq(along = message)){
         warnings <- message.handler(warnings,
                                     message[[j]],
-                                    i = i,
+                                    i = index[[j]],
                                     count = count[[j]])
       }
     }
