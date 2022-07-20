@@ -28,6 +28,16 @@ read.line.transects <- function(filename, design, warnings = list(), rep = NA){
   
   all.transects <- sf::read_sf(filename)
   
+  # Get geometry
+  sf.column <- attr(transects, "sf_column")
+  sf.geom <- transects[[sf.column]]
+  
+  # Check that it is of type point
+  if(!is(sf.geom, "sfc_MULTILINESTRING") && !is(sf.geom, "sfc_LINESTRING")){
+    warnings <- message.handler(warnings, paste("The following file cannot be used, shapefile not of type line / multi-line: ", filename, sep = ""), rep)
+    return(list(transects = NULL, warnings = warnings))
+  }
+  
   # Process the shape and create a Point.Transect object
   transects <- process.line.transects(transects = all.transects, 
                                       design = design, 
@@ -39,16 +49,6 @@ read.line.transects <- function(filename, design, warnings = list(), rep = NA){
 
 process.line.transects <- function(transects, design, warnings = list(), rep = NA){
   # Split into sub function for testing purposes
-  
-  # Get geometry
-  sf.column <- attr(transects, "sf_column")
-  sf.geom <- transects[[sf.column]]
-  
-  # Check that it is of type point
-  if(!is(sf.geom, "sfc_MULTILINESTRING") && !is(sf.geom, "sfc_LINESTRING")){
-    warnings <- message.handler(warnings, paste("The following file cannot be used, shapefile not of type line / multi-line: ", filename, sep = ""), rep)
-    return(list(transects = NULL, warnings = warnings))
-  }
   
   # Process the shapefile in case it came from Distance for Windows
   transects <- process.dist.shapes(transects, design@region)
