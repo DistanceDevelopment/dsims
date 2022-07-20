@@ -15,7 +15,7 @@ message.handler <- function(warnings, message=character(0), i, count = 1){
       warnings$index[[no.warnings + 1]] <- i
     }else{
       warnings$counter[[index]] <- warnings$counter[[index]] + count
-      warnings$index[[index]] <- c(warnings$index[[index]], i)
+      warnings$index[[index]] <- sort(c(warnings$index[[index]], i))
     }
   }
   return(warnings)
