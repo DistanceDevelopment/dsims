@@ -4,10 +4,15 @@
 \alias{histogram.N.ests}
 \title{histogram.N.ests}
 \usage{
-histogram.N.ests(x, ...)
+histogram.N.ests(x, use.max.reps = FALSE, N.ests = "individuals", ...)
 }
 \arguments{
 \item{x}{object of class Simulation}
+
+\item{use.max.reps}{by default this is FALSE meaning that only simulation repetitions where all models converged for that data set are included. By setting this to TRUE any repetition where one or more models converged will be included in the summary results.}
+
+\item{N.ests}{character indicating whether to plot estimates of abundance of 'individuals', 
+'clusters' or 'both'. By default this is individuals.}
 
 \item{...}{optional parameters to pass to the generic hist function in graphics}
 }

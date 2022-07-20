@@ -6,6 +6,7 @@ New Features
  * Reading transects from file - this functionality is primarily envisionged for use from within Distance for Windows
  * New routine which will generate covariate values from a zero-truncated Poisson distribution for non integer values.
  * There is now no lower limit on the number of detections in simulations as this was introducing bias. There is now a warning system in place. Very low numbers of detections may cause issues fitting. There must be more detections than there are parameters in the model for the model to have a chance of fitting successfully. Note that distance sampling good practice recommends  minimum of 60-80 detections for estimating the detection function for line transects and more for points.
+ * Improved histogram.N.ests function will now plot either a histogram of estimates of individuals or clusters. It also provides the use.max.reps argument so that the plot can be consistent with the option selected for the simulation summary.
  
 Bug Fixes
 
