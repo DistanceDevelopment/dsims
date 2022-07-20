@@ -31,3 +31,28 @@ test_that("AICc calculations", {
   expect_lt(AIC(model)$AIC, aicc)
 
 })
+
+test_that("Accumulate warnings", {
+  
+  w1 <- list(message = list("Warning too few detections"),
+             index = list(c(1,4)),
+             counter = list(2))
+  w2 <- list(message = list("Warning too few detections",
+                            "Warning number 2"),
+             index = list(c(3,10,15),
+                          c(6)),
+             counter = list(3, 1))
+  w3 <- list(message = list("Warning too many detections",
+                            "Warning number 2"),
+             index = list(c(3,10,15),
+                          c(10,12)),
+             counter = list(3, 2))
+  warnings.list <- list(w1, w2, w3)
+  
+  warnings <- dsims:::accumulate.warnings(warnings.list)
+  
+  expect_equal(warnings$message[[3]], "Warning too many detections")
+  expect_equal(warnings$counter[[3]], 3)
+  expect_equal(warnings$index[[1]], c(1,3,4,10,15))
+})
+})
