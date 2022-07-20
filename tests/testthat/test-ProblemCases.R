@@ -88,3 +88,14 @@ test_that("Test segmented line sims run.", {
   
 })
 
+test_that("AICc simulation", {
+  
+  analyses <- make.ds.analysis(key = c("hn", "hr"),
+                               criteria = "AICc")
+  sim <- make.simulation(reps = 1, 
+                         ds.analysis = analyses)
+  
+  sim <- run.simulation(sim)
+ 
+  expect_s4_class(sim, "Simulation")
+})
