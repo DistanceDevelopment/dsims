@@ -14,6 +14,7 @@ Bug Fixes
  * Add code to deal with equal model criteria values.
  * Fixed bug when no simulation repetitions had been successful
  * AICc method fixed
+ * Warning indexes from parallel runs are now fixed
 
 dsims 0.2.2 / 0.2.3
 -------------------
