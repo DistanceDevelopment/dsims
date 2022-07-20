@@ -27,9 +27,21 @@ read.seg.transects <- function(filename, design, warnings = list(), rep = NA){
   # - cyclictrackline
   
   all.transects <- sf::read_sf(filename)
+  
+  # Process the shape and create a Point.Transect object
+  transects <- process.seg.transects(transects = all.transects, 
+                                     design = design, 
+                                     warnings = warnings, 
+                                     rep = rep)
+  return(transects)
+}
+
+process.seg.transects <- function(transects, design, warnings = list(), rep = NA){
+  # Split into sub function for testing purposes
+  
   # Get geometry
-  sf.column <- attr(all.transects, "sf_column")
-  sf.geom <- all.transects[[sf.column]]
+  sf.column <- attr(transects, "sf_column")
+  sf.geom <- transects[[sf.column]]
   
   # Check that it is of type point
   if(!is(sf.geom, "sfc_MULTILINESTRING") && !is(sf.geom, "sfc_LINESTRING")){
@@ -38,10 +50,10 @@ read.seg.transects <- function(filename, design, warnings = list(), rep = NA){
   }
   
   # Process the shapefile in case it came from Distance for Windows
-  all.transects <- process.dist.shapes(all.transects, design@region)
+  transects <- process.dist.shapes(transects, design@region)
   
   # Find covered areas
-  cov.areas <- get.covered.area.lines(all.transects, 
+  cov.areas <- get.covered.area.lines(transects, 
                                       design@truncation, 
                                       design@region)
   
@@ -54,7 +66,7 @@ read.seg.transects <- function(filename, design, warnings = list(), rep = NA){
   #Make a survey object
   transect <- new(Class="Segment.Transect", 
                   design = design@design, 
-                  lines = all.transects,
+                  lines = transects,
                   samp.count = sampler.count, 
                   line.length = line.length,
                   seg.length = design@seg.length,

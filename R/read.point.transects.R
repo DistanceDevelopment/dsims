@@ -1,35 +1,36 @@
 read.point.transects <- function(filename, design, warnings = list(), rep = NA){
-  # Read in shapefile
-  # Identify type of shapefile (point/linestring/multilinestring)
-  # Check shapefile type matches with specified design
+  # Function to read in shapefile and create a Point.Transect object
   
-  # Information extracted from design (general to all)
+  # Information extracted from design 
   # - design
   # - strata.area   
   # - effort.allocation 
   # - spacing       
   # - design.angle 
   # - edge.protocol 
-  # Information extracted from design (segment)
-  # - seg.length
-  # - seg.threshold
   
-  # Information obtained from shapefile (general to all)
+  # Information obtained from shapefile 
   # - samplers 
   # - cov.area      
   # - cov.area.polys 
   # - samp.count
-  # Information obtained from shapefile (line / segment )
-  # - line.length
-  
-  # Information that cannot be obtained
-  # - trackline
-  # - cyclictrackline
   
   all.transects <- sf::read_sf(filename)
-  # Get geometry
-  sf.column <- attr(all.transects, "sf_column")
-  sf.geom <- all.transects[[sf.column]]
+  
+  # Process the shape and create a Point.Transect object
+  transects <- process.point.transects(transects = all.transects, 
+                                       design = design, 
+                                       warnings = warnings, 
+                                       rep = rep)
+  return(transects)
+}
+
+process.point.transects <- function(transects, design, warnings = list(), rep = NA){
+  # Split into sub function for testing purposes
+  
+  # Get geometry 
+  sf.column <- attr(transects, "sf_column")
+  sf.geom <- transects[[sf.column]]
   
   # Check that it is of type point
   if(!is(sf.geom, "sfc_POINT")){
@@ -38,10 +39,10 @@ read.point.transects <- function(filename, design, warnings = list(), rep = NA){
   }
   
   # Process the shapefile in case it came from Distance for Windows
-  all.transects <- process.dist.shapes(all.transects, design@region)
+  transects <- process.dist.shapes(transects, design@region)
   
   # Find covered areas
-  cov.areas <- get.covered.area.points(all.transects, 
+  cov.areas <- get.covered.area.points(transects, 
                                        design@truncation, 
                                        design@region)
   
@@ -52,17 +53,17 @@ read.point.transects <- function(filename, design, warnings = list(), rep = NA){
   
   #Make a survey object
   transect <- new(Class="Point.Transect", 
-                design = design@design, 
-                points = all.transects,
-                samp.count = sampler.count, 
-                effort.allocation = design@effort.allocation, 
-                spacing = design@spacing, 
-                design.angle = design@design.angle, 
-                edge.protocol = design@edge.protocol, 
-                cov.area = areas, 
-                cov.area.polys = cov.area.polys , 
-                strata.area = design@region@area,
-                strata.names = design@region@strata.name) 
+                  design = design@design, 
+                  points = transects,
+                  samp.count = sampler.count, 
+                  effort.allocation = design@effort.allocation, 
+                  spacing = design@spacing, 
+                  design.angle = design@design.angle, 
+                  edge.protocol = design@edge.protocol, 
+                  cov.area = areas, 
+                  cov.area.polys = cov.area.polys , 
+                  strata.area = design@region@area,
+                  strata.names = design@region@strata.name) 
   
   return(list(transects = transect, warnings = warnings))
 }
