@@ -11,10 +11,10 @@
 #' one less than the number available will be used.
 #' @param counter logical indicates if you would like to see the progress counter.
 #' @param transect.path character gives the pathway to a folder of shapefiles or
-#' the path to a single shapefile (.shp file) which give the transects which should 
-#' be used for the simulations. If a folder of transects a new shapefile will be 
+#' the path to a single shapefile (.shp file) which give the transects which should
+#' be used for the simulations. If a folder of transects a new shapefile will be
 #' used for each repetition. If a path specifying a single shapefile then the same
-#' transects will be used for each repetition. 
+#' transects will be used for each repetition.
 #' @return the \code{\link{Simulation-class}} object which now includes
 #' the results
 #' @export
@@ -31,6 +31,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
       transect.path <- substr(transect.path, 0, nchar(transect.path)-1)
     }
   }
+  transect.path.master <- transect.path
   # Check if it is a single transect set or a folder
   if(length(transect.path) > 0){
     # Check if a folder or file have been specified
@@ -42,6 +43,9 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     }else{
       # Make up the vector of shapefile paths
       transect.path <- file.path(transect.path, list.files(path = transect.path, pattern = "shp"))
+      if(length(transect.path) == 0){
+        stop(paste("No shapefiles found at ", transect.path.master,", cannot run simulation.", sep = ""), call. = FALSE)
+      }
       if(length(transect.path) < simulation@reps){
         warning(paste("Insufficient transect shapefiles supplied (", length(transect.path)," supplied, ", simulation@reps, " required). Simulation will use some sets of transects more than once, this may influence the results.", sep = ""), immediate. = TRUE, call. = FALSE)
         mult.factor <- ceiling(simulation@reps/length(transect.path))
