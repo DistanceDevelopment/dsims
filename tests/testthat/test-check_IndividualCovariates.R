@@ -166,3 +166,66 @@ test_that("Can run simulation with cluster size", {
   
 })
 
+test_that("Size biased testing", {
+  
+  region <- make.region()
+  
+  density <- make.density(region = region, x.space = 20, constant = 10)
+  
+  design <- make.design()
+  
+  covariate.list <- list()
+  covariate.list$size <- data.frame(level = c(5, 25),
+                                    prob = c(0.5, 0.5))
+  pop.descrp <- make.population.description(region = region,
+                                            density = density,
+                                            covariates = covariate.list,
+                                            N = c(2500))
+  cov.param <- list()
+  cov.param$size <- c(log(1.075))
+  detect <- make.detectability(key.function = "hn",
+                               scale.param = 5,
+                               cov.param = cov.param,
+                               truncation = 50)
+  
+  analyses <- make.ds.analysis()
+  
+  sim <- make.simulation(reps = 1,
+                         design = design,
+                         population.description = pop.descrp,
+                         detectability = detect,
+                         ds.analysis = analyses)
+  
+  survey <- run.survey(sim)
+  
+  pop <- survey@population
+  
+  # Check that the scale parameters are different for the two sets
+  # of cluster sizes
+  index <- which(pop@population$size == 5)
+  expect_equal(pop@population$scale.param[index], 
+               rep(exp(log(5)+5*log(1.075)), length(index)))
+  index <- which(pop@population$size == 25)
+  expect_equal(pop@population$scale.param[index], 
+               rep(exp(log(5)+25*log(1.075)), length(index)))
+               
+  dist.data <- survey@dist.data
+  percent.detected <- round(table(dist.data$size)/table(pop@population$size)*100,2)
+  
+  # Check that the percent of the clusters of 5 detected is less than the 25's
+  expect_lt(percent.detected[1], percent.detected[2])
+  expect_gt(mean(dist.data$size), mean(c(5,25)))
+  
+  # analyses <- make.ds.analysis(dfmodel = list(~size),
+  #                              truncation = 30)
+  # sim <- make.simulation(reps = 50,
+  #                        design = design,
+  #                        population.description = pop.descrp,
+  #                        detectability = detect,
+  #                        ds.analysis = analyses)
+  # 
+  # sim<- run.simulation(sim)
+  # summary(sim)
+  
+})
+
