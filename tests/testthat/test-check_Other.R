@@ -22,7 +22,7 @@ test_that("AICc calculations", {
   
   model <- Distance::ds(dist.data)
   
-  aicc <- dsims:::AICc(model)
+  aicc <- AICc(model)
   n = 60
   K = 1
   AIC.small.samp.adj <- (2*K*(K+1))/(n-K-1)
@@ -55,4 +55,38 @@ test_that("Accumulate warnings", {
   expect_equal(warnings$counter[[3]], 3)
   expect_equal(warnings$index[[1]], c(1,3,4,10,15))
 })
-})
+
+# Had to comment these out as S4 plotting methods cannot be found in this environment.
+# test_that("Survey plotting options", {
+#   
+#   sim <- make.simulation()
+#   
+#   survey <- run.survey(sim)
+#   
+#   # Two plots should be produced by default
+#   test <- plot(survey)
+#   expect_equal(length(test), 2)
+#   
+#   expect_error(plot(survey, type = "population"),
+#                "Plotting argument type not recognised. Please use 'survey', 'distances' or 'all' when Region not supplied.")
+#   
+#   test <- plot(survey, type = "survey")
+#   expect_s3_class(test, "ggplot")
+#   test <- plot(survey, type = "distances")
+#   expect_s3_class(test, "ggplot")
+#   
+#   # Four plots should be produced by default
+#   region <- sim@design@region
+#   test <- plot(survey, region)
+#   expect_equal(length(test), 4)
+#   
+#   test <- plot(survey, region, type = "transects")
+#   expect_s3_class(test, "ggplot")
+#   test <- plot(survey, region, type = "population")
+#   expect_s3_class(test, "ggplot")
+#   test <- plot(survey, region, type = "survey")
+#   expect_s3_class(test, "ggplot")
+#   test <- plot(survey, region, type = "distances")
+#   expect_s3_class(test, "ggplot")
+#   
+# })

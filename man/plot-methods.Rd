@@ -5,14 +5,22 @@
 \alias{plot,Survey,ANY-method}
 \title{plot}
 \usage{
-\S4method{plot}{Survey,Region}(x, y, ...)
+\S4method{plot}{Survey,Region}(x, y, type = "all", ...)
 
-\S4method{plot}{Survey,ANY}(x, y = NULL, ...)
+\S4method{plot}{Survey,ANY}(x, y = NULL, type = "all", ...)
 }
 \arguments{
 \item{x}{object of class Survey}
 
-\item{y}{object of class Region}
+\item{y}{object of class Region or NULL}
+
+\item{type}{character specifies which plots you would like, defaults to "all".
+Other options include "transects", "population", "survey" and "distances". These
+will plot only the transects, only the population locations, both the transects
+and population with detections indicated or a histogram of the detection distances,
+respectively. Note that the final plots is only available if there were
+one or more detections. Only "survey" and "distances" available if the y
+Region argument is not supplied.}
 
 \item{...}{additional plotting parameters}
 }
