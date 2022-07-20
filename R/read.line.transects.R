@@ -27,9 +27,22 @@ read.line.transects <- function(filename, design, warnings = list(), rep = NA){
   # - cyclictrackline
   
   all.transects <- sf::read_sf(filename)
+  
+  # Process the shape and create a Point.Transect object
+  transects <- process.line.transects(transects = all.transects, 
+                                      design = design, 
+                                      warnings = warnings, 
+                                      rep = rep)
+  return(transects)
+  
+}
+
+process.line.transects <- function(transects, design, warnings = list(), rep = NA){
+  # Split into sub function for testing purposes
+  
   # Get geometry
-  sf.column <- attr(all.transects, "sf_column")
-  sf.geom <- all.transects[[sf.column]]
+  sf.column <- attr(transects, "sf_column")
+  sf.geom <- transects[[sf.column]]
   
   # Check that it is of type point
   if(!is(sf.geom, "sfc_MULTILINESTRING") && !is(sf.geom, "sfc_LINESTRING")){
@@ -38,12 +51,12 @@ read.line.transects <- function(filename, design, warnings = list(), rep = NA){
   }
   
   # Process the shapefile in case it came from Distance for Windows
-  all.transects <- process.dist.shapes(all.transects, design@region)
+  transects <- process.dist.shapes(transects, design@region)
   
   # Find covered areas
-  cov.areas <- get.covered.area.lines(all.transects, 
-                                       design@truncation, 
-                                       design@region)
+  cov.areas <- get.covered.area.lines(transects, 
+                                      design@truncation, 
+                                      design@region)
   
   # Extract information
   sampler.count <- cov.areas$sampler.count
@@ -53,21 +66,21 @@ read.line.transects <- function(filename, design, warnings = list(), rep = NA){
   
   #Make a survey object
   transect <- new(Class="Line.Transect", 
-                design = design@design, 
-                lines = all.transects,
-                samp.count = sampler.count, 
-                line.length = line.length,
-                seg.length = numeric(0),
-                effort.allocation = design@effort.allocation, 
-                spacing = design@spacing, 
-                design.angle = design@design.angle, 
-                edge.protocol = design@edge.protocol, 
-                cov.area = areas, 
-                cov.area.polys = cov.area.polys , 
-                strata.area = design@region@area,
-                strata.names = design@region@strata.name,
-                trackline = numeric(0),
-                cyclictrackline = numeric(0)) 
+                  design = design@design, 
+                  lines = transects,
+                  samp.count = sampler.count, 
+                  line.length = line.length,
+                  seg.length = numeric(0),
+                  effort.allocation = design@effort.allocation, 
+                  spacing = design@spacing, 
+                  design.angle = design@design.angle, 
+                  edge.protocol = design@edge.protocol, 
+                  cov.area = areas, 
+                  cov.area.polys = cov.area.polys , 
+                  strata.area = design@region@area,
+                  strata.names = design@region@strata.name,
+                  trackline = numeric(0),
+                  cyclictrackline = numeric(0)) 
   
   return(list(transects = transect, warnings = warnings))
 }
