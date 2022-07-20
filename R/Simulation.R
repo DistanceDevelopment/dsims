@@ -289,31 +289,68 @@ setMethod(
 #' Plots a histogram of the estimates abundances
 #'
 #' @param x object of class Simulation
+#' @param use.max.reps by default this is FALSE meaning that only simulation repetitions where all models converged for that data set are included. By setting this to TRUE any repetition where one or more models converged will be included in the summary results.
+#' @param N.ests character indicating whether to plot estimates of abundance of 'individuals', 
+#' 'clusters' or 'both'. By default this is individuals. 
 #' @param ... optional parameters to pass to the generic hist function in graphics
 #' @rdname histogram.N.ests-methods
 #' @return No return value, displays a histogram of the abundance estimates
 #' @importFrom graphics hist abline
 #' @export
-histogram.N.ests <- function(x, ...){
-  reps <- x@reps
-  sum.sim <- summary(x, description.summary = FALSE)
-  if(sum.sim@failures == reps){
-    warning("None of the simulation repetitions were successful, cannot plot histogram of estimates.", immediate. = TRUE, call. = TRUE)
-  }else{
-    index <- dim(x@results$individuals$N)[1]
-    true.N <- sum(x@population.description@N)
-    if(!is.null(x@results$clusters)){
-      ests <- x@results$clusters$N[index, "Estimate", 1:reps]
-      hist(ests, main = "Histogram of Estimates", xlab = "Estimated Abundance of Clusters", ...)
-    }else{
-      ests <- x@results$individuals$N[index, "Estimate", 1:reps]
-      hist(ests, main = "Histogram of Estimates", xlab = "Estimated Abundance of Individuals", ...)
+histogram.N.ests <- function(x, use.max.reps = FALSE, N.ests = "individuals", ...){
+  # Input check
+  if(!N.ests %in% c("both","individuals", "clusters")){
+    stop("Unrecognised argument for N.ests, please specify one of 'individuals', 'clusters' or 'both'", call. = FALSE)
+  }
+  # Check if there are clusters
+  clusters <- ifelse(is.null(x@results$clusters), FALSE, TRUE)
+  if(!clusters && N.ests %in% c("both","clusters")){
+    warning("Cannot provide histogram of estimates of abundance of clusters as simulation does not include cluster size.", immediate. = TRUE, call. = FALSE)
+    N.ests <- "individuals"
+  }
+  # Find the number of rows
+  total.row <- dim(x@results$individuals$N)[1]
+  # UExtract the estimates
+  if(use.max.reps){
+    rep.index <- which(x@results$Detection[1,"SuccessfulModels",1:x@reps] > 0)
+    N.ind.ests <- x@results$individuals$N[total.row, "Estimate", rep.index]
+    if(clusters){
+      N.cls.ests <- x@results$clusters$N[total.row, "Estimate", rep.index]
     }
-    abline(v = true.N, col = 2, lwd = 3, lty = 2)
+  }else{
+    model.count <- length(x@ds.analysis@dfmodel)
+    rep.index <- which(x@results$Detection[1,"SuccessfulModels",1:x@reps] == model.count)
+    N.ind.ests <- x@results$individuals$N[total.row, "Estimate", rep.index]
+    if(clusters){
+      N.cls.ests <- x@results$clusters$N[total.row, "Estimate", rep.index]
+    }
+  }
+  if(length(rep.index) == 0){
+    stop("None of the simulation repetitions were successful, cannot plot histogram of estimates.", call. = TRUE)
+  }
+  if(clusters){
+    true.N.cls <- sum(x@population.description@N)
+    sim.summary <- summary(x, use.max.reps = use.max.reps, description.summary = FALSE)
+    true.N.ind <- sim.summary@individuals$N$Truth[total.row]
+  }else{
+    true.N.ind <- sum(x@population.description@N)
+  }
+  if(N.ests == "individuals"){
+    hist(N.ind.ests, main = "Histogram of Estimates", xlab = "Estimated Abundance of Individuals", ...)
+    abline(v = true.N.ind, col = 2, lwd = 3, lty = 2)
+  }else if(N.ests == "clusters"){
+    hist(N.cls.ests, main = "Histogram of Estimates", xlab = "Estimated Abundance of Clusters", ...)
+    abline(v = true.N.cls, col = 2, lwd = 3, lty = 2)
+  }else{
+    oldparams <- par(mfrow = c(1,2))
+    on.exit(par(oldparams))
+    hist(N.ind.ests, main = "Histogram of Estimates", xlab = "Estimated Abundance of Individuals", ...)
+    abline(v = true.N.ind, col = 2, lwd = 3, lty = 2)
+    hist(N.cls.ests, main = "Histogram of Estimates", xlab = "Estimated Abundance of Clusters", ...)
+    abline(v = true.N.cls, col = 2, lwd = 3, lty = 2)
   }
   invisible(x)
 }
-
 
 
 #' summary
