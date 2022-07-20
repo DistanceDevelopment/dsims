@@ -4,18 +4,6 @@
 #' running in parallel and max.cores is not specified it will default to using
 #' one less than the number of cores / threads on your machine. For example
 #' code see \code{\link{make.simulation}}
-#' 
-#' The minimum.n argument allows the user to reduce or increase the number 
-#' of required detections for a detection function to be fitted and the
-#' estimates of abundance and density obtained. This is implemented to make 
-#' the simulation mode stable. We usually advise 60-80 detections when fitting
-#' a detection function but by default we allow detetection functions to be 
-#' fitted with as few as 20 detections. Please note that if a number of 
-#' iterations are excluded based on this criteria then this will likely 
-#' introduce bias into the estimates. Reducing the minimum.n value should
-#' correct this bias but may lead to unstable model fitting within the
-#' simulation.
-#' 
 #'
 #' @param simulation \code{\link{Simulation-class}} object
 #' @param run.parallel logical option to use multiple processors
