@@ -23,8 +23,8 @@ one less than the number available will be used.}
 \item{counter}{logical indicates if you would like to see the progress counter.}
 
 \item{transect.path}{character gives the pathway to a folder of shapefiles or
-the path to a single shapefile (.shp file) which give the transects which should 
-be used for the simulations. If a folder of transects a new shapefile will be 
+the path to a single shapefile (.shp file) which give the transects which should
+be used for the simulations. If a folder of transects a new shapefile will be
 used for each repetition. If a path specifying a single shapefile then the same
 transects will be used for each repetition.}
 }
@@ -37,18 +37,6 @@ Runs the simulation and returns the simulation object with results. If
 running in parallel and max.cores is not specified it will default to using
 one less than the number of cores / threads on your machine. For example
 code see \code{\link{make.simulation}}
-}
-\details{
-The minimum.n argument allows the user to reduce or increase the number 
-of required detections for a detection function to be fitted and the
-estimates of abundance and density obtained. This is implemented to make 
-the simulation mode stable. We usually advise 60-80 detections when fitting
-a detection function but by default we allow detetection functions to be 
-fitted with as few as 20 detections. Please note that if a number of 
-iterations are excluded based on this criteria then this will likely 
-introduce bias into the estimates. Reducing the minimum.n value should
-correct this bias but may lead to unstable model fitting within the
-simulation.
 }
 \seealso{
 \code{\link{make.simulation}}
