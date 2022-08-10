@@ -4,10 +4,13 @@ dsims 1.0.0
 New Features
 
  * Reading transects from file - this functionality is primarily envisionged for use from within Distance for Windows
+
+Enhancements 
+
  * New routine which will generate covariate values from a zero-truncated Poisson distribution for non integer values.
  * There is now no lower limit on the number of detections in simulations as this was introducing bias. There is now a warning system in place. Very low numbers of detections may cause issues fitting. There must be more detections than there are parameters in the model for the model to have a chance of fitting successfully. Note that distance sampling good practice recommends  minimum of 60-80 detections for estimating the detection function for line transects and more for points.
  * Improved histogram.N.ests function will now plot either a histogram of estimates of individuals or clusters. It also provides the use.max.reps argument so that the plot can be consistent with the option selected for the simulation summary.
- 
+
 Bug Fixes
 
  * Fixed simulations where cluster size was included - there was a formatting change in mrds output tables.
@@ -20,7 +23,9 @@ Bug Fixes
 dsims 0.2.2 / 0.2.3
 -------------------
 
-Minor modifications to stay CRAN compliant.
+Bug Fixes
+
+ * Minor modifications to stay CRAN compliant.
 
 dsims 0.2.1
 ----------
@@ -57,36 +62,18 @@ Bug Fixes
 dsims 0.1.0
 ----------
 
-Introducing the new Distance Sampling Simulation package!
+Enhancements
 
-dsims is our latest simulation package which interfaces with dssd so designs can be generated within R, thus making the simulation process a lot easier! Dsims also makes use of ggplot to produce cleaner looking graphics.
-
-Region and Design
-
- * dsims can make use of the region creation and all the designs currently in dssd.
-
-Density
-
- * dsims can generate density objects from constant values for each strata, from fitted mgcv gam objects with x and y as explantory covariates and from formulas of x and y.
- * Density grids are stored as sf polygons with their associated x, y central coordinates and density value
-
-Population Description
-
- * Populations can either be created with fixed population sizes or based on the densities in the density grid.
- * Both discrete and continuous individual level covariates can be included in the population
-
-Detectablity
-
- * The detectability of the population can be described by either half normal, hazard rate or uniform detection shapes. Parameters can vary by stratum
- * Covariate parameters can be included to modify the scale parameter for each individual based on their covariate values.
-
- Analyses
-
- * A number of detection function analyses can be incorporated in a simulation and the model with the lowest criterion (AIC / AICc / BIC) will be selected.
- * Defining analyses is based on the arguments which are passed to our Distance R library.
-
- Simulations
-
- * Simulations can be run in serial or parallel and their progress is output.
- * The function run.survey can be used to create a single instance of a survey and check the simulation setup.
+ * Introducing the new Distance Sampling Simulation package. dsims is our latest simulation package which interfaces with dssd so designs can be generated within R, thus making the simulation process a lot easier. Dsims also makes use of ggplot to produce cleaner looking graphics.
+ * Region and Design: dsims can make use of the region creation and all the designs currently in dssd.
+ * Density: dsims can generate density objects from constant values for each strata, from fitted mgcv gam objects with x and y as explantory covariates and from formulas of x and y.
+ * Density: Density grids are stored as sf polygons with their associated x, y central coordinates and density value
+ * Population Description: Populations can either be created with fixed population sizes or based on the densities in the density grid.
+ * Population Description: Both discrete and continuous individual level covariates can be included in the population
+ * Detectablity: The detectability of the population can be described by either half normal, hazard rate or uniform detection shapes. Parameters can vary by stratum
+ * Detectablity: Covariate parameters can be included to modify the scale parameter for each individual based on their covariate values.
+ * Analyses:A number of detection function analyses can be incorporated in a simulation and the model with the lowest criterion (AIC / AICc / BIC) will be selected.
+ * Analyses:Defining analyses is based on the arguments which are passed to our Distance R library.
+ * Simulations: Simulations can be run in serial or parallel and their progress is output.
+ * Simulations: The function run.survey can be used to create a single instance of a survey and check the simulation setup.
 
