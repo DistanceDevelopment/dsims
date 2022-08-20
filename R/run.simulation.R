@@ -15,6 +15,9 @@
 #' be used for the simulations. If a folder of transects a new shapefile will be
 #' used for each repetition. If a path specifying a single shapefile then the same
 #' transects will be used for each repetition.
+#' @param 'progress.file' character path with filename to output progress to file 
+#' for Distance for Windows progress counter. Not to be used when running directly 
+#' in R.
 #' @return the \code{\link{Simulation-class}} object which now includes
 #' the results
 #' @export
@@ -22,7 +25,7 @@
 #' @importFrom rstudioapi versionInfo
 #' @rdname run.simulation-methods
 #' @seealso \code{\link{make.simulation}}
-run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, counter = TRUE, transect.path = character(0)){
+run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, counter = TRUE, transect.path = character(0), progress.file = character(0)){
   save.data <- load.data <- FALSE
   data.path <- character()
   # Check if the transect path ends in / if so remove - hard to do the same for windows!
@@ -107,9 +110,9 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     })
     on.exit(stopCluster(myCluster))
     if(counter){
-        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, transect.path = transect.path, save.transects = FALSE, cl = myCluster, counter = FALSE)
+        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, transect.path = transect.path, save.transects = FALSE, progress.file = progress.file, cl = myCluster, counter = FALSE)
     }else{
-      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE, transect.path = transect.path, save.transects = FALSE)
+      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE, transect.path = transect.path, save.transects = FALSE, progress.file = progress.file)
     }
     #Extract results and warnings
     sim.results <- sim.warnings <- list()
@@ -132,7 +135,8 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
                                  data.path = data.path,
                                  counter = counter,
                                  transect.path = transect.path,
-                                 save.transects = FALSE)
+                                 save.transects = FALSE, 
+                                 progress.file = progress.file)
       simulation@results <- results$results
       simulation@warnings <- results$warnings
     }
