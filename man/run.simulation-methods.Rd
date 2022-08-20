@@ -9,7 +9,8 @@ run.simulation(
   run.parallel = FALSE,
   max.cores = NA,
   counter = TRUE,
-  transect.path = character(0)
+  transect.path = character(0),
+  progress.file = character(0)
 )
 }
 \arguments{
@@ -23,10 +24,14 @@ one less than the number available will be used.}
 \item{counter}{logical indicates if you would like to see the progress counter.}
 
 \item{transect.path}{character gives the pathway to a folder of shapefiles or
-the path to a single shapefile (.shp file) which give the transects which should 
-be used for the simulations. If a folder of transects a new shapefile will be 
+the path to a single shapefile (.shp file) which give the transects which should
+be used for the simulations. If a folder of transects a new shapefile will be
 used for each repetition. If a path specifying a single shapefile then the same
 transects will be used for each repetition.}
+
+\item{'progress.file'}{character path with filename to output progress to file 
+for Distance for Windows progress counter. Not to be used when running directly 
+in R.}
 }
 \value{
 the \code{\link{Simulation-class}} object which now includes
