@@ -326,7 +326,8 @@ histogram.N.ests <- function(x, use.max.reps = FALSE, N.ests = "individuals", ..
     }
   }
   if(length(rep.index) == 0){
-    stop("None of the simulation repetitions were successful, cannot plot histogram of estimates.", call. = TRUE)
+    warning("None of the simulation repetitions were successful, cannot plot histogram of estimates.", call. = TRUE, immediate. = TRUE)
+    return(NULL)
   }
   if(clusters){
     true.N.cls <- sum(x@population.description@N)
