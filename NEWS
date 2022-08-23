@@ -1,11 +1,18 @@
+dsims 1.0.1
+-------------------
+
+New Features
+
+ * Can write the simulation progress to file - this allows the simulation progress to be displayed when simulations are being run from Distance for Windows using dsims.
+
 dsims 1.0.0
 -------------------
 
 New Features
 
- * Reading transects from file - this functionality is primarily envisionged for use from within Distance for Windows
+ * Reading transects from file - this functionality is primarily envisionged for use from within Distance for Windows.
 
-Enhancements 
+Enhancements
 
  * New routine which will generate covariate values from a zero-truncated Poisson distribution for non integer values.
  * There is now no lower limit on the number of detections in simulations as this was introducing bias. There is now a warning system in place. Very low numbers of detections may cause issues fitting. There must be more detections than there are parameters in the model for the model to have a chance of fitting successfully. Note that distance sampling good practice recommends  minimum of 60-80 detections for estimating the detection function for line transects and more for points.
