@@ -323,6 +323,6 @@ We can see in Figure 9 that there were a couple of high estimates generated >500
 
 ## Simulation Conclusions
 
-Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain some precision. Ir should be noted that the cost in accuracy will vary depending on the distribution of animals in the survey region. 
+Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain some precision. It should be noted that the cost in accuracy will vary depending on the distribution of animals in the survey region. 
 
 ## Bibliography
