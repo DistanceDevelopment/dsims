@@ -90,6 +90,7 @@ Collate:
     'read.seg.transects.R'
     'run.simulation.R'
     'rztpois.R'
+    'save.sim.results.R'
     'simulate.detections.R'
     'single.sim.loop.R'
     'store.ddf.results.R'
