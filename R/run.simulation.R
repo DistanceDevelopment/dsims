@@ -15,8 +15,8 @@
 #' be used for the simulations. If a folder of transects a new shapefile will be
 #' used for each repetition. If a path specifying a single shapefile then the same
 #' transects will be used for each repetition.
-#' @param 'progress.file' character path with filename to output progress to file 
-#' for Distance for Windows progress counter. Not to be used when running directly 
+#' @param progress.file character path with filename to output progress to file
+#' for Distance for Windows progress counter. Not to be used when running directly
 #' in R.
 #' @return the \code{\link{Simulation-class}} object which now includes
 #' the results
@@ -135,7 +135,7 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
                                  data.path = data.path,
                                  counter = counter,
                                  transect.path = transect.path,
-                                 save.transects = FALSE, 
+                                 save.transects = FALSE,
                                  progress.file = progress.file)
       simulation@results <- results$results
       simulation@warnings <- results$warnings

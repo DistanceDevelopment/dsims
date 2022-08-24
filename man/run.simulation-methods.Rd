@@ -29,8 +29,8 @@ be used for the simulations. If a folder of transects a new shapefile will be
 used for each repetition. If a path specifying a single shapefile then the same
 transects will be used for each repetition.}
 
-\item{'progress.file'}{character path with filename to output progress to file 
-for Distance for Windows progress counter. Not to be used when running directly 
+\item{progress.file}{character path with filename to output progress to file
+for Distance for Windows progress counter. Not to be used when running directly
 in R.}
 }
 \value{
