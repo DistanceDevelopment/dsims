@@ -3,7 +3,13 @@ dsims 1.0.1
 
 New Features
 
+ * Added save.sim.results function so that simulation results can be written to .txt files. This is mainly useful for Distance for Windows users as R users would probably prefer to just save the whole simulation object to file. 
  * Can write the simulation progress to file - this allows the simulation progress to be displayed when simulations are being run from Distance for Windows using dsims.
+ * Add segmented trackline design as an option in simulation summary (currently these design can only be generated inside Distance for Windows for use in simulations).
+ 
+Bug Fixes
+
+ * Partial fix to the bug relating to grouping strata at the analysis stage. Strata grouping should now work when detections are of individuals. Still needs to be fixed for when clusters are present. 
 
 dsims 1.0.0
 -------------------
