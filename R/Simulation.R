@@ -217,7 +217,7 @@ setMethod(
 )
 
 #' @rdname run.survey-methods
-#' @param filename optional argument specifying a path to a shapefile if 
+#' @param filename optional argument specifying a path to a shapefile if
 #' the transects are to be loaded from file.
 #' @export
 #' @importFrom methods new
@@ -229,15 +229,15 @@ setMethod(
     population <- generate.population(object)
     if(length(filename) > 0){
       if(inherits(object@design, "Segment.Transect.Design")){
-        transects <- read.seg.transects(filename = filename, 
+        transects <- read.seg.transects(filename = filename,
                                         design = object@design)
       }else if(inherits(object@design, "Line.Transect.Design")){
-        transects <- read.line.transects(filename = filename, 
+        transects <- read.line.transects(filename = filename,
                                          design = object@design)
       }else{
-        transects <- read.point.transects(filename = filename, 
+        transects <- read.point.transects(filename = filename,
                                           design = object@design)
-      } 
+      }
       warnings <- transects$warnings
       transects <- transects$transects
       if(is.null(transects)){
@@ -245,7 +245,7 @@ setMethod(
         return(NULL)
       }
     }else{
-      transects <- generate.transects(object)  
+      transects <- generate.transects(object)
     }
     if(inherits(transects, "Line.Transect")){
       # Check transects for empty geometries
@@ -290,8 +290,8 @@ setMethod(
 #'
 #' @param x object of class Simulation
 #' @param use.max.reps by default this is FALSE meaning that only simulation repetitions where all models converged for that data set are included. By setting this to TRUE any repetition where one or more models converged will be included in the summary results.
-#' @param N.ests character indicating whether to plot estimates of abundance of 'individuals', 
-#' 'clusters' or 'both'. By default this is individuals. 
+#' @param N.ests character indicating whether to plot estimates of abundance of 'individuals',
+#' 'clusters' or 'both'. By default this is individuals.
 #' @param ... optional parameters to pass to the generic hist function in graphics
 #' @rdname histogram.N.ests-methods
 #' @return No return value, displays a histogram of the abundance estimates
@@ -505,15 +505,17 @@ setMethod(
         areas[strat] <- sum(object@design@region@area[index])
         # Get abundance for strata
         if(object@population.description@gen.by.N){
-          N[strat] <- object@population.description@N[index]
+          N[strat] <- sum(object@population.description@N[index])
         }else{
           index2 <- which(density.summary$strata %in% sub.strata)
           N[strat] <- sum(density.summary$ave.N[index2])
         }
       }
       #Add on totals
-      areas <- c(areas, sum(areas))
-      N <- c(N, sum(N))
+      if(length(strata.names) > 1){
+        areas <- c(areas, sum(areas))
+        N <- c(N, sum(N))
+      }
       #Otherwise process areas and Population size as normal
     }else{
       #Re ordering in the same way as the results tables (think dht arranges them)
@@ -560,7 +562,27 @@ setMethod(
         }
       }
       # Re-order to match
-      true.expected.s <- true.expected.s[strata.order]
+      new.true.exp.s <- numeric(0)
+      if(nrow(analysis.strata) > 0){
+        for(strat in seq(along = strata.names)){
+          #Get sub strata names
+          sub.strata <- analysis.strata$design.id[which(analysis.strata$analysis.id == strata.names[strat])]
+          #Find their index
+          index <- which(sub.strata.names %in% sub.strata)
+          # Get abundance for strata
+          if(object@population.description@gen.by.N){
+            N.sub <- object@population.description@N[index]
+          }else{
+            index2 <- which(density.summary$strata %in% sub.strata)
+            N.sub <- density.summary$ave.N[index2]
+          }
+          N.sub <- N.sub/(sum(N.sub))
+          new.true.exp.s[strat] <- sum(true.expected.s[index]*N.sub)
+        }
+        true.expected.s <- new.true.exp.s
+      }else{
+        true.expected.s <- true.expected.s[strata.order]
+      }
       # Add average
       if(length(size.list) > 1){
         true.expected.s <- c(true.expected.s, sum(true.N.clusters[1:length(true.expected.s)]*true.expected.s)/sum(true.N.clusters[1:length(true.expected.s)]))
@@ -583,7 +605,7 @@ setMethod(
         zero.n[i, strat] <- ifelse(results$individuals$summary[strat, "n", i] == 0, TRUE, FALSE)
       }
     }
-    #Calculates the percentage of times the true value is whithin the confidence intervals
+    #Calculates the percentage of times the true value is within the confidence intervals
     percent.capture <- (apply(capture, 2, sum, na.rm = TRUE)/nrow(na.omit(capture)))*100
     percent.capture.D <- (apply(capture.D, 2, sum, na.rm = TRUE)/nrow(na.omit(capture)))*100
     zero.n <- apply(zero.n, 2, sum, na.rm = TRUE)

@@ -10,8 +10,13 @@ create.results.arrays <- function(reps, region, ds.analysis, population.descript
   }
   if(length(region@strata.name) > 1){
     if(!is.null(new.strata.names)){
-      strata.name <- c(sort(new.strata.names), "Total")
-      no.strata <- length(strata.name)
+      if(length(new.strata.names) > 1){
+        strata.name <- c(sort(new.strata.names), "Total")
+        no.strata <- length(strata.name)
+      }else{
+        strata.name <- new.strata.names
+        no.strata <- 1
+      }
     }else{
       strata.name <- c(sort(region@strata.name), "Total")
     }
