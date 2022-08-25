@@ -21,7 +21,7 @@ run.survey(object, ...)
 
 \item{...}{allows extra arguments}
 
-\item{filename}{optional argument specifying a path to a shapefile if 
+\item{filename}{optional argument specifying a path to a shapefile if
 the transects are to be loaded from file.}
 
 \item{region}{an object of class Region.}
