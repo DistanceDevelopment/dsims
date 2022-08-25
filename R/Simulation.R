@@ -401,7 +401,8 @@ setMethod(
                                  eszigzag = "Equal spaced zigzag line design",
                                  eszigzagcom = "Equal spaced zigzag with complementary lines design",
                                  random = "Random parallel line design",
-                                 segmentedgrid = "Segmented line transect grid design")
+                                 segmentedgrid = "Segmented line transect grid design",
+                                 segmentedtrack = "Segmented line transect trackline design")
       }else{
         design.type[i] <- switch(object@design@design[i],
                                  systematic = "Systematic point design",
