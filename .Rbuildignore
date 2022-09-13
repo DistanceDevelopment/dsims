@@ -5,3 +5,4 @@ cran-comments.md
 ^Meta$
 ^CRAN-RELEASE$
 ^\.github$
+^CRAN-SUBMISSION$
