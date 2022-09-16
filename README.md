@@ -23,4 +23,4 @@ The easiest way to get `dsims` is to install it from CRAN within R-studio or the
 then install `dsims` from github:
 
       library(devtools)
-      install_github("DistanceDevelopment/dsims")
+      install_github("DistanceDevelopment/dsims", build_vignettes = TRUE)
