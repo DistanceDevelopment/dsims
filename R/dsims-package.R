@@ -22,7 +22,7 @@
 #'
 #' Further information on distance sampling methods and example code is available at \url{http://distancesampling.org/R/}.
 #'
-#' Also see our website for vignettes / example code at \url{http://examples.distancesampling.org }.
+#' Also see our website for vignettes / example code at \url{http://examples.distancesampling.org}.
 #'
 #' For help with distance sampling and this package, there is a Google Group \url{https://groups.google.com/forum/#!forum/distance-sampling}.
 #'
