@@ -112,7 +112,6 @@ test_that("Grouping strata", {
   region <- make.region(region.name = "study.area", 
                         strata.name = strata.names, 
                         shape = mp1)
-  plot(region)
   
   density <- make.density(region,
                           x.space = 0.5,
