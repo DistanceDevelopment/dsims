@@ -495,7 +495,9 @@ setMethod(
     if(nrow(analysis.strata) > 0){
       #get strata names
       sub.strata.names <- strata.names
-      strata.names <- unique(analysis.strata$analysis.id)
+      tmp.names <- dimnames(object@results$individuals$summary)[[1]]
+      # Remove Total if it exists
+      strata.names <- tmp.names[tmp.names %in% analysis.strata$analysis.id]
       #sum areas of sub strata
       areas <- N <- rep(NA, length(strata.names))
       for(strat in seq(along = strata.names)){
@@ -581,12 +583,16 @@ setMethod(
           new.true.exp.s[strat] <- sum(true.expected.s[index]*N.sub)
         }
         true.expected.s <- new.true.exp.s
+        # Add average (if more than one strata)
+        if(length(size.list) > 1 && length(strata.names) > 1){
+          true.expected.s <- c(true.expected.s, sum(true.N.clusters[1:length(true.expected.s)]*true.expected.s)/sum(true.N.clusters[1:length(true.expected.s)]))
+        }
       }else{
         true.expected.s <- true.expected.s[strata.order]
-      }
-      # Add average
-      if(length(size.list) > 1){
-        true.expected.s <- c(true.expected.s, sum(true.N.clusters[1:length(true.expected.s)]*true.expected.s)/sum(true.N.clusters[1:length(true.expected.s)]))
+        # Add average
+        if(length(size.list) > 1){
+          true.expected.s <- c(true.expected.s, sum(true.N.clusters[1:length(true.expected.s)]*true.expected.s)/sum(true.N.clusters[1:length(true.expected.s)]))
+        }
       }
       #calculate expected number of individuals
       true.N.individuals <- true.N.clusters*true.expected.s
