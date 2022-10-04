@@ -196,10 +196,12 @@ setMethod(
     }
     # Check to see if simulation has been run
     if(!not.run && !run.no.results){
-      cat("\nSummary for Individuals")
-      cat("\n\nSummary Statistics\n\n")
-      print(object@individuals$summary)
-      cat("\n     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+      cat("\nSummary for Individuals\n")
+      if(length(object@clusters) == 0){
+        cat("\nSummary Statistics\n\n")
+        print(object@individuals$summary)
+        cat("\n     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+      }
       cat("\nEstimates of Abundance (N)\n\n")
       print(round(object@individuals$N,2))
       cat("\n     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
