@@ -65,7 +65,7 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
   #Main function begins
   samplers <- transects@samplers
   covered.areas <- transects@cov.area.polys
-  pop <- population@population
+  pop <- na.omit(population@population)
   # make individuals points
   sp.pop <- sp::SpatialPointsDataFrame(sp::SpatialPoints(pop[,c("x","y")]), pop)
   #get all possible detection distances
