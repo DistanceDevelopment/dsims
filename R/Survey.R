@@ -193,7 +193,7 @@ setMethod(
         geom_histogram(breaks=breaks,
                        col="black",
                        fill="grey",
-                       alpha = .2) +
+                       alpha = 1) +
         labs(title="Detection Distances", x="distance")
       if(type == "distances"){
         return(p[[2]])
