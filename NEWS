@@ -1,3 +1,14 @@
+dsims 1.0.2
+-------------------
+ 
+Bug Fixes
+
+ * Fixed transparency issue with detection distance histograms when saving to wmf (generated a warning in Distance for Windows)
+ * Only print summary table for individuals if animals occur as individuals (and not as clusters)
+ * Updated references to examples
+ * Fixed grouped strata bugs
+
+
 dsims 1.0.1
 -------------------
 
