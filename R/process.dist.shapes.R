@@ -15,6 +15,11 @@ process.dist.shapes <- function(shape, region) {
   if (length(region@strata.name) == 1 &&
       !("Stratum" %in% names(shape))) {
     shape <- cbind(strata = rep(region@strata.name, nrow(shape)), shape)
+  # Deal with the case that there are strata from Distance
+  # but it is being run as though there aren't
+  } else if(length(region@strata.name) == 1 &&
+            ("Stratum" %in% names(shape))){
+    shape <- cbind(strata = rep(region@strata.name, nrow(shape)), shape)
   } else if ("Stratum" %in% names(shape)) {
     index <- which(names(shape) == "Stratum")
     names(shape)[index] <- "strata"

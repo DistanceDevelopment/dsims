@@ -12,7 +12,7 @@ test_that("Can process point transect shapes", {
   pt2 = st_point(c(2,2))
   (sfc = st_sfc(pt1, pt2))
   points = st_sf(data.frame(transect=1:2, geom=sfc))
-  plot(points)
+  #plot(points)
   
   outer = matrix(c(0,0,
                    2,0,
@@ -55,7 +55,7 @@ test_that("Can process line transect shapes", {
   ls2 = st_linestring(pts)
   (sfc = st_sfc(ls1, ls2))
   lines = st_sf(data.frame(transect=1:2, geom=sfc))
-  plot(lines)
+  #plot(lines)
   
   outer = matrix(c(0,0,
                    2,0,
