@@ -7,6 +7,7 @@ Bug Fixes
  * Only print summary table for individuals if animals occur as individuals (and not as clusters)
  * Updated references to examples
  * Fixed grouped strata bugs
+ * Can now read transect shapefiles in from file and will convert all to one strata if global region used. This allows regional simulations from stratified designs in distance for windows.
 
 
 dsims 1.0.1
