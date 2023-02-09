@@ -2,7 +2,6 @@
 Distance Sampling Simulations
 =============================
 
-[![R-CMD-check](https://github.com/DistanceDevelopment/dsims/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/DistanceDevelopment/dsims/actions/workflows/check-standard.yaml)
 [![CRAN (RStudio Mirror) Downloads](http://cranlogs.r-pkg.org/badges/dsims)](https://www.r-pkg.org/pkg/dsims)
 [![CRAN Version](http://www.r-pkg.org/badges/version/dsims)](https://www.r-pkg.org/pkg/dsims)
 [![Codecov test coverage](https://app.codecov.io/gh/DistanceDevelopment/dsims/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DistanceDevelopment/dsims?branch=master)
