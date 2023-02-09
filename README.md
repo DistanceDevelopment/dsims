@@ -7,7 +7,7 @@ Distance Sampling Simulations
 [![CRAN Version](http://www.r-pkg.org/badges/version/dsims)](https://www.r-pkg.org/pkg/dsims)
 [![Codecov test coverage](https://app.codecov.io/gh/DistanceDevelopment/dsims/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DistanceDevelopment/dsims?branch=master)
 
-`dssd` is a package for designing distance sampling surveys. It provides a number of designs including systematic point transect, parallel line transect, zigzag line transect and segment line transect designs.
+`dsims` is a package for simulating distance sampling surveys to allow users to optimise survey design for studies with particular properties.
 
 # Using `dsims`
 
