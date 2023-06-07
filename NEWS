@@ -1,3 +1,10 @@
+dsims 1.0.3
+-------------------
+ 
+Bug Fixes
+
+ * Simulations were crashing if there were zero detections - now fixed and warnings displayed instead.
+
 dsims 1.0.2
 -------------------
  
