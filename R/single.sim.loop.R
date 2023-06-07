@@ -112,6 +112,8 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
       region.table <- data.tables$region.table
       sample.table <- data.tables$sample.table
       obs.table <- data.tables$obs.table
+    }else{
+      dists.in.covered <- numeric(0)
     }
     # Check if we have to save the data
     if(save.data){
