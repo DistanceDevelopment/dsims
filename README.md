@@ -18,7 +18,7 @@ There is currently one vignette within the dsims package to help you get started
 We typically aim to keep `dsims` on CRAN, so it can be readily installed from within R-Studio or the R interface.  However, at present there is an issue with our package `dssd` on which `dsims` relies (see [issue in dssd](https://github.com/DistanceDevelopment/dssd/issues/94) ) that prevents this.  Therefore to obtain `dsims` at present, please use the following code.  
 
       # First, ensure you have a copy of the devtools package
-      if (system.file(package = "devtools") == "") install.packages("devtools")
+      if (!nzchar(system.file(package = "devtools"))) install.packages("devtools")
       # then ensure you have a copy of the dssd package:
       devtools::install_github("DistanceDevelopment/dssd", build_vignettes = TRUE)
       # finally install dsims from github:
