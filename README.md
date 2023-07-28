@@ -20,7 +20,7 @@ We typically aim to keep `dsims` on CRAN, so it can be readily installed from wi
       # First, ensure you have a copy of the devtools package
       if (!nzchar(system.file(package = "devtools"))) install.packages("devtools")
       # then ensure you have a copy of the dssd package:
-      devtools::install_github("DistanceDevelopment/dssd", build_vignettes = TRUE)
+      if (!nzchar(system.file(package = "dssd"))) devtools::install_github("DistanceDevelopment/dssd", build_vignettes = TRUE)
       # finally install dsims from github:
       devtools::install_github("DistanceDevelopment/dsims", build_vignettes = TRUE)
 
