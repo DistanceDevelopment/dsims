@@ -1,4 +1,4 @@
-# dssd
+# dsims
 Distance Sampling Simulations
 =============================
 
