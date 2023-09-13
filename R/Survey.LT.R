@@ -88,10 +88,17 @@ run.survey.body <- function(object, region){
                                Area = region@area)
     sample.table <- dplyr::left_join(sample.table, region.table, by = "Region.Label")
   }
-  dist.data <- dplyr::full_join(dist.data, sample.table, by = c("Sample.Label", "Region.Label"))
-  # If there are any mismatches between region label and sampler label then Area values will be NA - for now remove these. Detections not permitted across stratum boundaries.
-  to.remove <- which(is.na(dist.data$Area))
-  dist.data <- dist.data[-to.remove,]
+  # Rename Region.Label to obs.Region.Label
+  index <- which(names(dist.data) == "Region.Label")
+  names(dist.data)[index] <- "obs.Region.Label"
+  # Only join by sampler ID
+  dist.data <- dplyr::full_join(dist.data, sample.table, by = c("Sample.Label"))
+  # Check if any Region.Lables and obs.Region.Label don't match (detections across stratum boundaries)
+  index <- which(dist.data$obs.Region.Label != dist.data$Region.Label)
+  if(length(index) > 0){
+    # Remove any detections across stratum boundaries
+    dist.data <- dist.data[-index,]
+  }
   # Order by transect id
   index <- order(dist.data$Sample.Label)
   dist.data <- dist.data[index,]
