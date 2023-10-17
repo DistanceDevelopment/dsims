@@ -7,6 +7,7 @@ Imports:
     sf,
     sp,
     ggplot2,
+    purrr,
     mgcv,
     rgeos,
     methods,
@@ -48,7 +49,7 @@ Language: en-GB
 URL: https://github.com/DistanceDevelopment/dsims
 BugReports: https://github.com/DistanceDevelopment/dsims/issues
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Collate: 
     'AICc.R'
     'generic.functions.R'

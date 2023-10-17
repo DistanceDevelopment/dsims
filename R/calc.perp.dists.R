@@ -1,8 +1,7 @@
 #' @importFrom graphics points
-#' @importFrom sp Polygon Polygons SpatialPolygons
-#' @importFrom sf as_Spatial
-#' @importFrom rgeos gIntersects
+#' @importFrom sf st_intersection
 #' @importFrom methods is
+#' @importFrom purrr reduce
 calc.perp.dists <- function(population, transects, plot = FALSE){
   # Calculates the possible detection distances to the transects
   # Arguments:
@@ -70,18 +69,18 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
   sf.pop <- st_as_sf(pop, coords = c("x", "y")) 
   #get all possible detection distances
   all.poss.detects <- lapply(1:nrow(samplers),
-                             FUN = subset.buff.func3,
+                             FUN = subset.buff.func,
                              sf.pop = sf.pop,
                              samplers = samplers,
                              cov.areas = covered.areas)
   
   #Build up into a single data.frame
   new.dataframe <- 
-    all.poss.detects %>% reduce(rbind)
+    all.poss.detects %>% purrr::reduce(rbind)
   index <- order(new.dataframe$individual)
   ordered.data <- new.dataframe[index,]
   # remove duplicate / redundant cols
-  index <- which(names(tmp4) %in% c("transect", "strata"))
-  ordered.data <- ordered.data[,-index]
+  #index <- which(names(tmp4) %in% c("transect", "strata"))
+  #ordered.data <- ordered.data[,-index]
   return(ordered.data)
 }
