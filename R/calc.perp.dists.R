@@ -1,5 +1,5 @@
 #' @importFrom graphics points
-#' @importFrom sf st_intersection
+#' @importFrom sf st_intersection st_drop_geometry
 #' @importFrom methods is
 #' @importFrom purrr reduce
 calc.perp.dists <- function(population, transects, plot = FALSE){
@@ -75,12 +75,16 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
                              cov.areas = covered.areas)
   
   #Build up into a single data.frame
-  new.dataframe <- 
-    all.poss.detects %>% purrr::reduce(rbind)
-  index <- order(new.dataframe$individual)
-  ordered.data <- new.dataframe[index,]
+  new.dataframe <- reduce(all.poss.detects, rbind)
+  if(!is.null(new.dataframe)){
+    # Order the data by individual
+    index <- order(new.dataframe$individual)
+    new.dataframe <- new.dataframe[index,]
+  }else{
+    new.dataframe <- data.frame()
+  }
   # remove duplicate / redundant cols
   #index <- which(names(tmp4) %in% c("transect", "strata"))
   #ordered.data <- ordered.data[,-index]
-  return(ordered.data)
+  return(new.dataframe)
 }
