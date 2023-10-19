@@ -5,11 +5,9 @@ Imports:
     mrds,
     Distance,
     sf,
-    sp,
     ggplot2,
     purrr,
     mgcv,
-    rgeos,
     methods,
     rstudioapi,
     gridExtra,
@@ -24,7 +22,7 @@ Suggests:
 VignetteBuilder: knitr
 Type: Package
 Title: Distance Sampling Simulations
-Version: 1.0.2.9001
+Version: 1.0.2.9002
 Authors@R: c(
   person("Laura", "Marshall", email = "lhm@st-and.ac.uk", role = c("aut", "cre")),
   person("Thomas", "Len", email = "len.thomas@st-andrews.ac.uk", role = "ctb"))
