@@ -49,17 +49,18 @@ setValidity("Survey.LT",
 #' @rdname run.survey-methods
 #' @param region an object of class Region.
 #' @export
+#' @importFrom dplyr left_join
 setMethod(
   f="run.survey",
   signature="Survey.LT",
   definition=function(object, region = NULL){
     # To allow debugging via breakpoints
-    object <- run.survey.body(object, region)
+    object <- run.survey.body.LT(object, region)
     return(object)
   }
 )
 
-run.survey.body <- function(object, region){
+run.survey.body.LT <- function(object, region){
   population <- object@population
   line.transect <- object@transect
   # Find possible detection distances
@@ -93,7 +94,7 @@ run.survey.body <- function(object, region){
   names(dist.data)[index] <- "obs.Region.Label"
   # Only join by sampler ID
   dist.data <- dplyr::full_join(dist.data, sample.table, by = c("Sample.Label"))
-  # Check if any Region.Lables and obs.Region.Label don't match (detections across stratum boundaries)
+  # Check if any Region.Labels and obs.Region.Label don't match (detections across stratum boundaries)
   index <- which(dist.data$obs.Region.Label != dist.data$Region.Label)
   if(length(index) > 0){
     # Remove any detections across stratum boundaries
