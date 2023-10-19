@@ -30,6 +30,11 @@ generate.pop.N <- function(population.description, region){
                                        density.obj@x.space, 
                                        density.obj@y.space)
         inside <- as.data.frame(sf::st_coordinates(inside))
+        # if no animals were in the region skip this loop
+        if(nrow(inside) == 0){
+          counter <- counter + 1
+          next
+        }
         names(inside) <- c("x","y")
         if(nrow(pop.locations) == 0){
           pop.locations <- inside[1:min(N[strat],nrow(inside)),]
