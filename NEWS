@@ -4,6 +4,7 @@ dsims 1.0.3
 Bug Fixes
 
  * Simulations were crashing if there were zero detections - now fixed and warnings displayed instead.
+ * Remove dependence on sp and rgeos
 
 dsims 1.0.2
 -------------------
