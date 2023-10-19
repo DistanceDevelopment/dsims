@@ -1,5 +1,5 @@
 #' @importFrom graphics points
-#' @importFrom sf st_intersection st_drop_geometry
+#' @importFrom sf st_intersection st_drop_geometry st_crs
 #' @importFrom purrr reduce
 calc.rad.dists <- function(population, transects, plot = FALSE){
   # Calculates the possible detection distances to the transects
@@ -46,6 +46,7 @@ calc.rad.dists <- function(population, transects, plot = FALSE){
   covered.areas <- transects@cov.area.polys
   pop <- population@population
   sf.pop <- st_as_sf(pop, coords = c("x", "y")) 
+  sf::st_crs(sf.pop) <- sf::st_crs(covered.areas)
   #get all possible detection distances
   all.poss.detects <- lapply(1:nrow(samplers),
                              FUN = subset.calc.dist,
