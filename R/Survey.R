@@ -59,9 +59,9 @@ setMethod(
       return(p[[1]])
     }
 
+    # Turn population into sf object
     pop.df <- x@population@population
-    pts <- sp::SpatialPoints(data.frame(x = pop.df$x, y = pop.df$y))
-    pts.sf <- sf::st_as_sf(pts)
+    pts.sf <- sf::st_as_sf(pop.df, coords = c("x", "y"))
     sf::st_crs(pts.sf) <- sf::st_crs(sf.region)
 
     p[[2]] <- ggplot() + theme_void() +
@@ -75,8 +75,7 @@ setMethod(
 
     distdata <- na.omit(x@dist.data)
     if(nrow(distdata) > 0){
-      pts2 <- sp::SpatialPoints(data.frame(x = distdata$x, y = distdata$y))
-      detect.sf <- sf::st_as_sf(pts2)
+      detect.sf <- sf::st_as_sf(distdata, coords = c("x", "y"))
       sf::st_crs(detect.sf) <- sf::st_crs(sf.region)
 
       p[[3]] <- ggplot() + theme_void() +
@@ -164,15 +163,14 @@ setMethod(
     transects <- x@transect@samplers
     covered.areas <- x@transect@cov.area.polys
     # Population
+    # Turn population into sf object
     pop.df <- x@population@population
-    pts <- sp::SpatialPoints(data.frame(x = pop.df$x, y = pop.df$y))
-    pts.sf <- sf::st_as_sf(pts)
+    pts.sf <- sf::st_as_sf(pop.df, coords = c("x", "y"))
     sf::st_crs(pts.sf) <- sf::st_crs(transects)
     # Detections
     distdata <- na.omit(x@dist.data)
     if(nrow(distdata) > 0){
-      pts2 <- sp::SpatialPoints(data.frame(x = distdata$x, y = distdata$y))
-      detect.sf <- sf::st_as_sf(pts2)
+      detect.sf <- sf::st_as_sf(distdata, coords = c("x", "y"))
       sf::st_crs(detect.sf) <- sf::st_crs(transects)
 
       p[[1]] <- ggplot() + theme_void() +

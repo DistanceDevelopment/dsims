@@ -104,8 +104,7 @@ setMethod(
     sf.region <- y@region
     # Turn population into sf object
     pop.df <- x@population
-    pts <- sp::SpatialPoints(data.frame(x = pop.df$x, y = pop.df$y))
-    pts.sf <- sf::st_as_sf(pts)
+    pts.sf <- sf::st_as_sf(pop.df, coords = c("x", "y"))
     sf::st_crs(pts.sf) <- sf::st_crs(sf.region)
 
     ggplot.obj <- ggplot() + theme_bw() +
