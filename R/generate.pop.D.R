@@ -1,5 +1,5 @@
 #' @importFrom stats rpois runif
-#' @importFrom sf as_Spatial
+#' @importFrom sf as_Spatial st_coordinates st_as_sf st_intersection
 generate.pop.D <- function(population.description, region){
 #this function generates a population based on the values in the
 #Density object grid (not from a fixed population size)
@@ -33,20 +33,16 @@ generate.pop.D <- function(population.description, region){
       #generate random locations within grid cell
       rx <- runif(nrow(grid.locations), -density@x.space/2, density@x.space/2)
       ry <- runif(nrow(grid.locations), -density@y.space/2, density@y.space/2)
-      #find x,y coords of animals
-      grid.locations$x.coord <- grid.locations$x+rx
-      grid.locations$y.coord <- grid.locations$y+ry
-      #find which x,y coords are within the region
-      pts <- sp::SpatialPoints(data.frame(x = grid.locations$x.coord,
-                                          y = grid.locations$y.coord))
-      #Extract shape for current strata
-      strata.sp <- sf::as_Spatial(temp.region[strat,][[sf.column]])
-      # Find which points are inside the current strata
-      inside <- pts[strata.sp,]
+      # Put x,y coords of animals in a data frame
+      pts <- data.frame(x = grid.locations$x+rx, y = grid.locations$y+ry)
+      # Make it an sf object
+      pts.sf <- sf::st_as_sf(pts, coords = c("x", "y"))
+      inside <- suppressWarnings(sf::st_intersection(pts.sf, temp.region[strat,]))
       # Extract the coordinates
-      pop.locations <- as.data.frame(inside@coords)
-      #Record strata ID
-      pop.locations$Region.Label <- rep(strata.names[strat], nrow(pop.locations))
+      pop.locations <- as.data.frame(st_coordinates(inside))
+      names(pop.locations) <- c("x","y")
+      # Record strata ID
+      pop.locations$Region.Label <- strata.names[strat]
       if(strat == 1){
         all.pop.locations <- pop.locations
       }else{
