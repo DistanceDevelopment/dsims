@@ -1,8 +1,7 @@
 #' @importFrom graphics points
-#' @importFrom sp Polygon Polygons SpatialPolygons
-#' @importFrom sf as_Spatial
-#' @importFrom rgeos gIntersects
+#' @importFrom sf st_intersection st_drop_geometry st_crs
 #' @importFrom methods is
+#' @importFrom purrr reduce
 calc.perp.dists <- function(population, transects, plot = FALSE){
   # Calculates the possible detection distances to the transects
   # Arguments:
@@ -11,20 +10,21 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
   # Returns:
   #   A data frame of possible detection distances
 
-  subset.buff.func <- function(i, sp.pop, samplers, cov.areas){
+  subset.buff.func <- function(i, sf.pop, samplers, cov.areas){
     #returns the locations of the population within the truncation distance of transect i.
+    # Extract relevant sampler
     sf.column.t <- attr(samplers, "sf_column")
     samp <- samplers[[sf.column.t]][[i]]
-    sf.column.ca <- attr(cov.areas, "sf_column")
-    ca <- cov.areas[[sf.column.ca]][[i]]
-    sfc.ca <- sf::st_sfc(ca)
-    sp.ca <- sf::as_Spatial(sfc.ca)
-    #Get population within covered area
-    available_ind <- which(rgeos::gIntersects(sp.pop, sp.ca, byid=TRUE))
-    #get the points in the region
-    sub.pop <- sp.pop[available_ind,]
-    #Extract just the dataframe
-    sub.pop <- sub.pop@data
+    #Extract associated covered area
+    cov.area <- cov.areas[cov.areas$transect == i,]
+    # Find the population in the covered area of transect i
+    pop.in.cov <- suppressWarnings(
+      st_intersection(sf.pop, cov.area))
+    #Turn into a data.frame
+    sub.pop.coords <- as.data.frame(sf::st_coordinates(pop.in.cov))
+    names(sub.pop.coords) <- c("x","y")
+    # Add other info back in
+    sub.pop.coords <- cbind(sub.pop.coords, st_drop_geometry(pop.in.cov))
     #Find start and end point [note may be a multilinestring]
     if(is(samp, "LINESTRING")){
       start.X <- samp[1]
@@ -40,21 +40,21 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
     }else{
       stop("sampler is not of type linestring or multilinestring", call. = TRUE)
     }
-    #now calculate dists to transect
+    #now calculate distances to transect
     #find the angle between the transect and the vector from the animal to the start of the transect
     transect.angle <- atan2(end.Y-start.Y, end.X-start.X)
-    animal.angle <- atan2(sub.pop$y-start.Y, sub.pop$x-start.X)
+    animal.angle <- atan2(sub.pop.coords$y-start.Y, sub.pop.coords$x-start.X)
     delta.angle <- abs(animal.angle-transect.angle)
     delta.angle <- (ifelse(delta.angle > pi, 2*pi - delta.angle, delta.angle))
     #calculate the distance from the transect start to the animal (the hypotenuse)
-    hyp <- sqrt((sub.pop$y-start.Y)^2+(sub.pop$x-start.X)^2)
+    hyp <- sqrt((sub.pop.coords$y-start.Y)^2+(sub.pop.coords$x-start.X)^2)
     #calculate the perpendicular distance (the opposite side of the RA triangle)
     perp.dists  <- hyp*sin(delta.angle)
     #Add perp distances
-    if(nrow(sub.pop) > 0){
+    if(nrow(sub.pop.coords) > 0){
       #Make new dataset
-      new.data <- cbind(sub.pop,
-                        Sample.Label = rep(samplers$transect[i], nrow(sub.pop)),
+      new.data <- cbind(sub.pop.coords,
+                        Sample.Label = rep(samplers$transect[i], nrow(sub.pop.coords)),
                         distance = perp.dists)
     }else{
       new.data <- NULL
@@ -66,34 +66,26 @@ calc.perp.dists <- function(population, transects, plot = FALSE){
   samplers <- transects@samplers
   covered.areas <- transects@cov.area.polys
   pop <- population@population
-  # make individuals points
-  sp.pop <- sp::SpatialPointsDataFrame(sp::SpatialPoints(pop[,c("x","y")]), pop)
+  sf.pop <- st_as_sf(pop, coords = c("x", "y")) 
+  sf::st_crs(sf.pop) <- sf::st_crs(covered.areas)
   #get all possible detection distances
-  sf.column.t <- attr(samplers, "sf_column")
-  all.poss.detects <- lapply(1:length(samplers[[sf.column.t]]),
+  all.poss.detects <- lapply(1:nrow(samplers),
                              FUN = subset.buff.func,
-                             sp.pop = sp.pop,
+                             sf.pop = sf.pop,
                              samplers = samplers,
                              cov.areas = covered.areas)
+  
   #Build up into a single data.frame
-  sub.pop.size <- 0
-  first <- TRUE
-  new.dataframe <- NULL
-  for(i in seq(along = all.poss.detects)){
-    if(!is.null(all.poss.detects[[i]]) && nrow(all.poss.detects[[i]]) > 0){
-      if(first){
-        new.dataframe <- all.poss.detects[[i]]
-        sub.pop.size <- sub.pop.size + nrow(all.poss.detects[[i]])
-        first <- FALSE
-      }else{
-        new.dataframe <- rbind(new.dataframe, all.poss.detects[[i]])
-        sub.pop.size <- sub.pop.size + nrow(all.poss.detects[[i]])
-      }
-    }
-  }
-  #In the case there are no data
-  if(is.null(new.dataframe)){
+  new.dataframe <- reduce(all.poss.detects, rbind)
+  if(!is.null(new.dataframe)){
+    # Order the data by individual
+    index <- order(new.dataframe$individual)
+    new.dataframe <- new.dataframe[index,]
+  }else{
     new.dataframe <- data.frame()
   }
+  # remove duplicate / redundant cols
+  #index <- which(names(tmp4) %in% c("transect", "strata"))
+  #ordered.data <- ordered.data[,-index]
   return(new.dataframe)
 }

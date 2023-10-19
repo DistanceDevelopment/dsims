@@ -1,5 +1,5 @@
 #' @importFrom stats runif
-#' @importFrom sf st_crs
+#' @importFrom sf st_crs st_coordinates st_as_sf st_intersection
 generate.pop.N <- function(population.description, region){
 #This function generates a Population based on a fixed population size
   N <- population.description@N
@@ -23,13 +23,25 @@ generate.pop.N <- function(population.description, region){
       pop.locations <- data.frame()
       while(nrow(pop.locations) < N[strat] && counter < 10){
         #Generate some animal locations
-        inside <- get.animal.locations(strata.data, temp.region, N[strat], strat, density.obj@x.space, density.obj@y.space)
+        inside <- get.animal.locations(strata.data, 
+                                       temp.region, 
+                                       N[strat], 
+                                       strat, 
+                                       density.obj@x.space, 
+                                       density.obj@y.space)
+        inside <- as.data.frame(sf::st_coordinates(inside))
+        # if no animals were in the region skip this loop
+        if(nrow(inside) == 0){
+          counter <- counter + 1
+          next
+        }
+        names(inside) <- c("x","y")
         if(nrow(pop.locations) == 0){
-          pop.locations <- as.data.frame(inside@coords)[1:min(N[strat],nrow(inside@coords)),]
+          pop.locations <- inside[1:min(N[strat],nrow(inside)),]
         }else{
-          #Number of animal locations still requires
+          #Number of animal locations still required
           n.more <- N[strat]-nrow(pop.locations)
-          pop.locations <- rbind(pop.locations, as.data.frame(inside@coords)[1:min(n.more, nrow(inside@coords)),])
+          pop.locations <- rbind(pop.locations, inside[1:min(n.more, nrow(inside)),])
         }
         #Increment counter so we leave loop after 10 iterations even if we still don't have enough animals
         counter <- counter + 1
@@ -62,16 +74,11 @@ get.animal.locations <- function(strata.data, temp.region, Nj, strat, x.space, y
   #generate random locations within grid cell
   rx <- runif(nrow(grid.locations), -x.space/2, x.space/2)
   ry <- runif(nrow(grid.locations), -y.space/2, y.space/2)
-  #find x,y coords of animals
-  grid.locations$x.coord <- grid.locations$x+rx
-  grid.locations$y.coord <- grid.locations$y+ry
-  #find which x,y coords are within the region
-  pts <- sp::SpatialPoints(data.frame(x = grid.locations$x.coord, y = grid.locations$y.coord))
-  #Get sf column
-  sf.column <- attr(temp.region, "sf_column")
-  #Extract shape for current strata
-  strata.sp <- sf::as_Spatial(temp.region[[sf.column]][strat])
-  inside <- pts[strata.sp,]
+  # Put x,y coords of animals in a data frame
+  pts <- data.frame(x = grid.locations$x+rx, y = grid.locations$y+ry)
+  # Make it an sf object
+  pts.sf <- sf::st_as_sf(pts, coords = c("x", "y"))
+  inside <- suppressWarnings(sf::st_intersection(pts.sf, temp.region[strat,]))
   return(inside)
 }
 

@@ -5,10 +5,10 @@ Imports:
     mrds,
     Distance,
     sf,
-    sp,
     ggplot2,
+    purrr,
+    dplyr,
     mgcv,
-    rgeos,
     methods,
     rstudioapi,
     gridExtra,
@@ -23,7 +23,7 @@ Suggests:
 VignetteBuilder: knitr
 Type: Package
 Title: Distance Sampling Simulations
-Version: 1.0.2.9000
+Version: 1.0.3
 Authors@R: c(
   person("Laura", "Marshall", email = "lhm@st-and.ac.uk", role = c("aut", "cre")),
   person("Thomas", "Len", email = "len.thomas@st-andrews.ac.uk", role = "ctb"))
@@ -48,7 +48,7 @@ Language: en-GB
 URL: https://github.com/DistanceDevelopment/dsims
 BugReports: https://github.com/DistanceDevelopment/dsims/issues
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Collate: 
     'AICc.R'
     'generic.functions.R'

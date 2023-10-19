@@ -29,7 +29,7 @@ the supplied directory, dsims will generate the survey transects directly in R.
 
 Further information on distance sampling methods and example code is available at \url{http://distancesampling.org/R/}.
 
-We are also in the process of setting up a new area of the website for vignettes / example code at \url{http://examples.distancesampling.org }. While this is being developed, the 'dsims' vignette can still be found within this package.
+Also see our website for vignettes / example code at \url{http://examples.distancesampling.org}.
 
 For help with distance sampling and this package, there is a Google Group \url{https://groups.google.com/forum/#!forum/distance-sampling}.
 }
