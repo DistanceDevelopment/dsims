@@ -623,12 +623,23 @@ setMethod(
       RMSE.N = apply(cbind(results$individuals$N[, "Estimate", rep.index], true.N.individuals), 1, calc.RMSE, reps = length(rep.index))
       RMSE.D = apply(cbind(results$individuals$D[, "Estimate", rep.index], true.D.individuals), 1, calc.RMSE, reps = length(rep.index))
     }
+    # Extract values to avoid ifelse below
+    if("n.miss.dist" %in% dimnames(results$individuals$summary)[[2]]){
+      n.miss.dists <- results$individuals$summary[,"n.miss.dist","mean"]
+    }else{
+      n.miss.dists <-  NA
+    }
+    if("k" %in% dimnames(results$individuals$summary)[[2]]){
+      mean.k <- results$individuals$summary[,"k","mean"]
+    }else{
+      mean.k <-  NA
+    }
     individual.summary <- data.frame(mean.Cover.Area = results$individuals$summary[,"CoveredArea","mean"],
                                      mean.Effort = results$individuals$summary[,"Effort","mean"],
                                      mean.n = results$individuals$summary[,"n","mean"],
-                                     mean.n.miss.dist = ifelse("n.miss.dist" %in% dimnames(results$individuals$summary)[[2]], results$individuals$summary[,"n.miss.dist","mean"], NA),
+                                     mean.n.miss.dist = n.miss.dists,
                                      no.zero.n = zero.n,
-                                     mean.k = ifelse("k" %in% dimnames(results$individuals$summary)[[2]], results$individuals$summary[,"k","mean"], NA),
+                                     mean.k = mean.k,
                                      mean.ER = results$individuals$summary[,"ER","mean"],
                                      mean.se.ER = results$individuals$summary[,"se.ER","mean"],
                                      sd.mean.ER = results$individuals$summary[,"ER","sd"])
@@ -680,10 +691,16 @@ setMethod(
         RMSE.N = apply(cbind(results$clusters$N[, "Estimate", rep.index], true.N.clusters), 1, calc.RMSE, reps = length(rep.index))
         RMSE.D = apply(cbind(results$clusters$D[, "Estimate", rep.index], true.D.clusters), 1, calc.RMSE, reps = length(rep.index))
       }
+      # Extract values to avoid ifelse below
+      if("n.miss.dist" %in% dimnames(results$clusters$summary)[[2]]){
+        clus.n.miss.dists <- results$clusters$summary[,"n.miss.dist","mean"]
+      }else{
+        clus.n.miss.dists <-  NA
+      }
       cluster.summary <- data.frame(mean.Cover.Area = results$clusters$summary[,"CoveredArea","mean"],
                                     mean.Effort = results$clusters$summary[,"Effort","mean"],
                                     mean.n = results$clusters$summary[,"n","mean"],
-                                    mean.n.miss.dist = ifelse("n.miss.dist" %in% dimnames(results$clusters$summary)[[2]], results$clusters$summary[,"n.miss.dist","mean"], NA),
+                                    mean.n.miss.dist = clus.n.miss.dists,
                                     no.zero.n = zero.n,
                                     mean.k = results$clusters$summary[,"k","mean"],
                                     mean.ER = results$clusters$summary[,"ER","mean"],

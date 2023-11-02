@@ -1,3 +1,10 @@
+dsims 1.0.4
+-------------------
+ 
+Bug Fixes
+
+ * Fixed a bug when generating the simulation summary which meant that only the first value of mean.k and n.miss.dists was repeated rather than including all values in the summary tables.
+
 dsims 1.0.3
 -------------------
  
