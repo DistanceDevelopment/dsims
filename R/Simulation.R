@@ -173,6 +173,9 @@ setValidity("Simulation",
                   return("Variance estimators other than R2 are currently only supported for systematic parallel line designs.")
                 }
               }
+              if(object@ds.analysis@er.var == "P2" && inherits(object@design, "Line.Transect.Design")){
+                return("P2 variance estimator is not applicable for line transect designs. Please check the er.var argument used to create your analysis object.")
+              }
 
               return(TRUE)
             }

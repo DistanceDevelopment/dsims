@@ -243,7 +243,11 @@ test_that("Can create objects or return correct error / warning messages", {
                                 er.var = "ZZ",
                                 criteria = "AIC"),
                "The er.var argument must be one of: 'R2', 'R3', 'R4', 'S1', 'S2', 'O1', 'O2', 'O3', 'P2', 'P3'.")
-
+  
+  ds.analysis <- make.ds.analysis(er.var = "P2")
+  expect_error(make.simulation(ds.analysis = ds.analysis),
+               "P2 variance estimator is not applicable for line transect designs. Please check the er.var argument used to create your analysis object.")
+  
   analysis <- make.ds.analysis(dfmodel = list(~1, ~size, ~size+sex),
                                key = c("hn","hr","hr"),
                                truncation = 25)
