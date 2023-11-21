@@ -3,7 +3,8 @@ dsims 1.0.4
  
 Bug Fixes
 
- * Fixed a bug when generating the simulation summary which meant that only the first value of mean.k and n.miss.dists was repeated rather than including all values in the summary tables.
+ * Fixed a bug when generating the simulation summary which meant that only the first value of mean.k and n.miss.dists was repeated rather than including all values in the summary tables. Issue #84
+ * The make.simulation function now throws an error if the P2 ER variance estimator is used with line transects designs (rather than after the simulation has completed). Issue #61 
 
 dsims 1.0.3
 -------------------
