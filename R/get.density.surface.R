@@ -1,5 +1,4 @@
-#' @importFrom sp Polygon Polygons SpatialPolygons
-#' @importFrom sf st_crs st_make_grid
+#' @importFrom sf st_crs st_make_grid st_coordinates st_as_sf st_intersection
 #' @importFrom mgcv predict.gam
 get.density.surface <- function(region, x.space, y.space, constant = numeric(0), model.fit = NULL, grid.formula = character(0)){
   #Creates a density surface with a constant value across the whole survey region

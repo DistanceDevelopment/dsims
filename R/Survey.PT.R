@@ -48,45 +48,62 @@ setValidity("Survey.PT",
 
 #' @rdname run.survey-methods
 #' @export
+#' @importFrom dplyr left_join full_join
 setMethod(
   f="run.survey",
   signature="Survey.PT",
   definition=function(object, region = NULL){
-    population <- object@population
-    point.transect <- object@transect
-    # Find possible detection distances
-    poss.distances <- calc.rad.dists(population, point.transect)
-    if(!is.null(poss.distances$distance)){
-      object@dists.in.covered <- poss.distances$distance
-    }
-    # Simulate detections
-    dist.data <- simulate.detections(poss.distances, object@population@detectability)
-    # Check if there are any detections
-    if(nrow(dist.data) == 0){
-      return(object)
-    }
-    # Get the covariate names
-    all.col.names <- names(object@population@population)
-    cov.param.names <- all.col.names[!all.col.names %in% c("object", "x", "y", "Region.Label", "Sample.Label", "scale.param", "shape.param", "individual")]
-    dist.data <- dist.data[,c("object", "individual", "Region.Label", "Sample.Label", "distance", "x", "y", cov.param.names)]
-    # Add in the transect lengths
-    sample.table <- data.frame(Region.Label = point.transect@samplers$strata,
-                               Sample.Label = point.transect@samplers$transect,
-                               Effort = rep(1,length(point.transect@samplers$transect)))
-    # If the region is supplied then add in the survey region Area
-    if(!is.null(region)){
-      region.table <- data.frame(Region.Label = region@strata.name,
-                                 Area = region@area)
-      sample.table <- dplyr::left_join(sample.table, region.table, by = "Region.Label")
-    }
-    dist.data <- dplyr::full_join(dist.data, sample.table, by = c("Sample.Label", "Region.Label"))
-    # Order by transect id
-    index <- order(dist.data$Sample.Label)
-    dist.data <- dist.data[index,]
-    object@dist.data <- dist.data
-    object@dists.in.covered <- poss.distances$distance
+    # To allow debugging via breakpoints
+    object <- run.survey.body.PT(object, region)
     return(object)
   }
 )
+
+run.survey.body.PT <- function(object, region){
+  population <- object@population
+  point.transect <- object@transect
+  # Find possible detection distances
+  poss.distances <- calc.rad.dists(population, point.transect)
+  if(!is.null(poss.distances$distance)){
+    object@dists.in.covered <- poss.distances$distance
+  }
+  # Simulate detections
+  dist.data <- simulate.detections(poss.distances, object@population@detectability)
+  # Check if there are any detections
+  if(nrow(dist.data) == 0){
+    return(object)
+  }
+  # Get the covariate names
+  all.col.names <- names(object@population@population)
+  cov.param.names <- all.col.names[!all.col.names %in% c("object", "x", "y", "Region.Label", "Sample.Label", "scale.param", "shape.param", "individual")]
+  dist.data <- dist.data[,c("object", "individual", "Region.Label", "Sample.Label", "distance", "x", "y", cov.param.names)]
+  # Add in the transect lengths
+  sample.table <- data.frame(Region.Label = point.transect@samplers$strata,
+                             Sample.Label = point.transect@samplers$transect,
+                             Effort = rep(1,length(point.transect@samplers$transect)))
+  # If the region is supplied then add in the survey region Area
+  if(!is.null(region)){
+    region.table <- data.frame(Region.Label = region@strata.name,
+                               Area = region@area)
+    sample.table <- dplyr::left_join(sample.table, region.table, by = "Region.Label")
+  }
+  # Rename Region.Label to obs.Region.Label
+  index <- which(names(dist.data) == "Region.Label")
+  names(dist.data)[index] <- "obs.Region.Label"
+  # Only join by sampler ID
+  dist.data <- dplyr::full_join(dist.data, sample.table, by = c("Sample.Label"))
+  # Check if any Region.Labels and obs.Region.Label don't match (detections across stratum boundaries)
+  index <- which(dist.data$obs.Region.Label != dist.data$Region.Label)
+  if(length(index) > 0){
+    # Remove any detections across stratum boundaries
+    dist.data <- dist.data[-index,]
+  }
+  # Order by transect id
+  index <- order(dist.data$Sample.Label)
+  dist.data <- dist.data[index,]
+  object@dist.data <- dist.data
+  return(object)
+}
+
 
 
