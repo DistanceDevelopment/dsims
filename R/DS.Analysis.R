@@ -84,7 +84,7 @@ setValidity("DS.Analysis",
                 return("This selection criteria is not currently supported, please select from 'AIC', 'BIC' or 'AICc'.")
               }
               # Check key functions
-              if(!all(object@key %in% c("hr", "hn"))){
+              if(!all(object@key %in% c("hr", "hn", "unif"))){
                 return("All key function values should be either 'hn' or 'hr'.")
               }
               # Check no models are repeated
