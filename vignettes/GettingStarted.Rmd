@@ -1,8 +1,21 @@
 ---
 title: "Getting Started with dsims"
-author: "L Marshall"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+description: |
+  Assessing behaviour of a survey before going into the field
+author:
+  - name: L. Marshall
+    url: http://distancesampling.org
+    affiliation: CREEM, Univ of St Andrews
+    affiliation_url: https://creem.st-andrews.ac.uk
+date: "`r format(Sys.time(), '%B %Y')`"
+output: 
+  bookdown::html_document2:
+    number_sections: false
+    toc: true
+    toc_depth: 2
+    base_format: rmarkdown::html_vignette
+pkgdown:
+  as_is: true   
 bibliography: refs.bib
 vignette: >
   %\VignetteIndexEntry{Getting Started with dsims}
@@ -10,10 +23,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
 ## Distance Sampling Simulations
-
-Additional vignettes can be found in the distance sampling examples page of our website: http://examples.distancesampling.org
 
 This vignette introduces the basic procedure for setting up and running a distance sampling simulation using 'dsims' [@dsims-pkg]. The 'dsims' package uses the distance sampling survey design package 'dssd' [@dssd-pkg] to define the design and generate the surveys (sets of transects). For further details on defining designs please refer to the 'dssd' vignettes. 'dsims' was designed to be largely similar to the 'DSsim' package [@DSsim-pkg] in terms of work flow, functions and arguments. The main differences in terms of its use lie in the definition of the designs which can now be generated in R using the 'dssd' package (these packages are automatically linked) and the definition of analyses. Analyses are now defined using terminology based on the 'Distance' package [@Distance-pkg]. In addition, the underlying functionality now makes use of the 'sf' package [@sf-pkg].
 
@@ -328,4 +338,4 @@ We can see in Figure 9 that there were a couple of high estimates generated >500
 
 Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain some precision. It should be noted that the cost in accuracy will vary depending on the distribution of animals in the survey region. 
 
-## Bibliography
+## References
