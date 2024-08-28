@@ -169,8 +169,8 @@ setValidity("Simulation",
 
               # Analysis checks
               if(object@ds.analysis@er.var != "R2" && inherits(object@design, "Line.Transect.Design")){
-                if(!all(object@design@design == "systematic")){
-                  return("Variance estimators other than R2 are currently only supported for systematic parallel line designs.")
+                if(!all(object@design@design %in% c("systematic", "eszigzag"))){
+                  return("Variance estimators other than R2 are currently only supported for systematic parallel and equal spaced zigzag line designs.")
                 }
               }
               if(object@ds.analysis@er.var == "P2" && inherits(object@design, "Line.Transect.Design")){
