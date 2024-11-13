@@ -1,9 +1,8 @@
-pandoc: 3.1.11
-pkgdown: 2.0.9
+pandoc: '3.2'
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   dsims-examples: dsims-examples.html
   dsims_grouped_strata: dsims_grouped_strata.html
   GettingStarted: GettingStarted.html
-last_built: 2024-05-10T12:24Z
-
+last_built: 2024-11-13T16:38Z
