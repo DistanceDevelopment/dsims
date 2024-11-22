@@ -76,7 +76,7 @@ calculate.scale.param <- function(pop.data, detectability, region){
         factor.tab <- detectability@cov.param[[index[fac]]]
         if(!is.null(factor.tab$strata)){
           # Subset table for strata
-          factor.tab <- factor.tab[factor.tab$strata == strata.names[strata.ids[strat]],]
+          factor.tab <- factor.tab[factor.tab$strata == strata.ids[strat],]
         }
 
         for(level in seq(along = factor.tab$level)){

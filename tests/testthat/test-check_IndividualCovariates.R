@@ -229,3 +229,55 @@ test_that("Size biased testing", {
   
 })
 
+
+
+test_that("Factor level covariates", {
+  
+  # Multi-strata example (make sf shape)
+  s1 = matrix(c(0,0,0,2,1,2,1,0,0,0),ncol=2, byrow=TRUE)
+  s2 = matrix(c(1,0,1,2,2,2,2,0,1,0),ncol=2, byrow=TRUE)
+  pol1 = sf::st_polygon(list(s1))
+  pol2 = sf::st_polygon(list(s2))
+  sfc <- sf::st_sfc(pol1,pol2)
+  strata.names <- c("low", "high")
+  
+  mytrunc <- 0.2
+  sf.pol <- sf::st_sf(strata = strata.names, geom = sfc)
+  
+  region <- make.region(region.name = "Multi-strata Eg",
+                        strata.name = strata.names,
+                        shape = sf.pol)
+  
+  cov.param <- list()
+  cov.param$size <- c(log(1.02),log(1.005))
+  cov.param$sex <- data.frame(level = c("male", "female", "male", "female"),
+                              param = c(log(1.5), 0, log(1.7), log(1.2)),
+                              strata = c("low","low","high","high"))
+  
+  # define the detecability
+  detect <- make.detectability(key.function = "hn",
+                               scale.param = 0.08,
+                               cov.param = cov.param,
+                               truncation = mytrunc)
+  
+  individual <- 1:5
+  x <- c(0.1919572, 0.3876822, 0.3894108, 0.2305219, 0.5572704)
+  y <- c(0.1811401, 0.2098292, 0.1137614, 0.1911631, 0.1512140)
+  Region.Label <- c(rep("low",3),rep("high",2))
+  size <- c(19, 17, 25, 26, 30)
+  sex <- c("male", "male", "female", "female", "male")
+  
+  pop.data <- data.frame(individual, x, y, Region.Label, size, sex)
+  
+  check.scale.params <- calculate.scale.param(pop.data, detect, region)
+  
+  ind1.scale <- exp(log(0.08) + log(1.02)*size[1] + log(1.5))
+  ind2.scale <- exp(log(0.08) + log(1.02)*size[2] + log(1.5))
+  ind3.scale <- exp(log(0.08) + log(1.02)*size[3])
+  ind4.scale <- exp(log(0.08) + log(1.005)*size[4] + log(1.2))
+  ind5.scale <- exp(log(0.08) + log(1.005)*size[5] + log(1.7))
+  check.scale <- c(ind1.scale, ind2.scale, ind3.scale, ind4.scale, ind5.scale)
+  
+  expect_equivalent(check.scale.params$scale.param, check.scale)
+  
+})
