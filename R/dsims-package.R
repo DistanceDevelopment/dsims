@@ -28,8 +28,7 @@
 #'
 #' @name dsims-package
 #' @aliases dsims-package dsims
-#' @docType package
 #' @author Laura Marshall <lhm@@st-and.ac.uk>
-#' @keywords package
+#' "_PACKAGE"
 #'
 NULL
