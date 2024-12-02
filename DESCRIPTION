@@ -15,6 +15,7 @@ Imports:
     rlang
 Suggests:
     testthat,
+    bookdown,
     parallel,
     pbapply,
     knitr,
