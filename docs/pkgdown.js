@@ -153,9 +153,6 @@ async function searchFuse(query, callback) {
   });
 })(window.jQuery || window.$)
 
-<<<<<<< HEAD
-
-=======
 document.addEventListener('keydown', function(event) {
   // Check if the pressed key is '/'
   if (event.key === '/') {
@@ -163,4 +160,3 @@ document.addEventListener('keydown', function(event) {
     document.getElementById('search-input').focus();  // Set focus to the search input
   }
 });
->>>>>>> 27c21928aa011d2896717dce6fa50cb8563a8ac1
