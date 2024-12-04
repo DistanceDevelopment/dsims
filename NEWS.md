@@ -1,3 +1,9 @@
+# dsims 1.0.5
+
+Bug Fixes
+
+* Fixed bug which generated NA's as scale parameters when factor covariates were included. Issue #89
+
 # dsims 1.0.4
 
 Bug Fixes

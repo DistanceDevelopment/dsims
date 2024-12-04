@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -145,3 +146,56 @@
     <loc>/reference/Survey.PT-class.html</loc>
   </url>
 </urlset>
+=======
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/dsims-examples.html</loc></url>
+<url><loc>/articles/dsims_grouped_strata.html</loc></url>
+<url><loc>/articles/GettingStarted.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/add.hotspot-methods.html</loc></url>
+<url><loc>/reference/analyse.data-methods.html</loc></url>
+<url><loc>/reference/Density-class.html</loc></url>
+<url><loc>/reference/Density.Summary-class.html</loc></url>
+<url><loc>/reference/description.summary.html</loc></url>
+<url><loc>/reference/Detectability-class.html</loc></url>
+<url><loc>/reference/DS.Analysis-class.html</loc></url>
+<url><loc>/reference/dsims-package.html</loc></url>
+<url><loc>/reference/generate.population-methods.html</loc></url>
+<url><loc>/reference/generate.transects.Simulation-methods.html</loc></url>
+<url><loc>/reference/get.densities-methods.html</loc></url>
+<url><loc>/reference/get.N-methods.html</loc></url>
+<url><loc>/reference/histogram.N.ests-methods.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/make.density.html</loc></url>
+<url><loc>/reference/make.detectability.html</loc></url>
+<url><loc>/reference/make.ds.analysis.html</loc></url>
+<url><loc>/reference/make.population.description.html</loc></url>
+<url><loc>/reference/make.simulation.html</loc></url>
+<url><loc>/reference/plot-methods.html</loc></url>
+<url><loc>/reference/plot.Density-methods.html</loc></url>
+<url><loc>/reference/plot.Detectability-methods.html</loc></url>
+<url><loc>/reference/plot.Population-methods.html</loc></url>
+<url><loc>/reference/Population-class.html</loc></url>
+<url><loc>/reference/Population.Description-class.html</loc></url>
+<url><loc>/reference/run.simulation-methods.html</loc></url>
+<url><loc>/reference/run.survey-methods.html</loc></url>
+<url><loc>/reference/rztpois.html</loc></url>
+<url><loc>/reference/save.sim.results-methods.html</loc></url>
+<url><loc>/reference/set.densities-methods.html</loc></url>
+<url><loc>/reference/show.Density.Summary-methods.html</loc></url>
+<url><loc>/reference/show.Simulation-methods.html</loc></url>
+<url><loc>/reference/show.Simulation.Summary-methods.html</loc></url>
+<url><loc>/reference/Simulation-class.html</loc></url>
+<url><loc>/reference/Simulation.Summary-class.html</loc></url>
+<url><loc>/reference/summary.Density-methods.html</loc></url>
+<url><loc>/reference/summary.Simulation-methods.html</loc></url>
+<url><loc>/reference/Survey-class.html</loc></url>
+<url><loc>/reference/Survey.LT-class.html</loc></url>
+<url><loc>/reference/Survey.PT-class.html</loc></url>
+</urlset>
+
+>>>>>>> 27c21928aa011d2896717dce6fa50cb8563a8ac1
