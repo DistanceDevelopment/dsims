@@ -138,6 +138,8 @@ setMethod(
     .Object@ds.analysis     <- ds.analysis
     .Object@results         <- results
     .Object@warnings        <- list()
+    #Consistency check
+    .Object <- simulation.consistency.check(.Object)
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
     if(is(valid, "character")){
@@ -151,14 +153,7 @@ setMethod(
 setValidity("Simulation",
             function(object){
               strata.names <- object@design@region@strata.name
-              # truncation
-              # Check to see if the analysis truncation distance is larger than the
-              # if(length(object@ds.analysis@truncation[[1]]) > 0){
-              #   if(object@ds.analysis@truncation > object@detectability@truncation ||
-              #      object@ds.analysis@truncation > object@design@truncation){
-              #     warning("The truncation distance for analysis is larger than the truncation distance for data generation, this will likely cause biased results.", immediate. = TRUE, call. = FALSE)
-              #   }
-              # }
+              
               # Population.Description checks
               pop.desc <- object@population.description
 
