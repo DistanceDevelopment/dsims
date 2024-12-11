@@ -99,3 +99,44 @@ test_that("AICc simulation", {
  
   expect_s4_class(sim, "Simulation")
 })
+
+test_that("Check cannot get detections greater than truncation", {
+  
+  outer <- matrix(c(0,0,15,0,15,10,0,10,0,0),ncol=2, byrow=TRUE)
+  pol1 <- sf::st_polygon(list(outer))
+  pol2 <- sf::st_polygon(list(outer + 15))
+  pol3 <- sf::st_polygon(list(outer + 30))
+  sfc <- sf::st_sfc(pol1,pol2,pol3)
+  strata.names <- c("SW", "central", "NE")
+  mp1 <- sf::st_sf(strata = strata.names, geom = sfc)
+  
+  region <- make.region(region.name = "study.area", 
+                        strata.name = strata.names, 
+                        shape = mp1)
+  
+  density <- make.density(region = region,
+                          x.space = 0.25,
+                          constant = rep(1,3))
+  
+  popdesc <- make.population.description(region = region,
+                                         density = density,
+                                         N = rep(100,3),
+                                         fixed.N = TRUE)
+  
+  design <- make.design(region,
+                        spacing = 1,
+                        truncation = 0.5)
+  
+  detect <- make.detectability(scale.param = 0.5,
+                               truncation = 0.5)
+  
+  suppressWarnings(sim <- make.simulation(reps = 10,
+                                          design = design,
+                                          population.description = popdesc,
+                                          detectability = detect))
+  
+  
+  survey <- run.survey(sim)
+  # Check all distances are less than truncation distance (Issue #76)
+  expect_true(all(survey@dist.data$distance <= 0.5))
+})
