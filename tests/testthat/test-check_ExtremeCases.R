@@ -14,7 +14,7 @@ test_that("Test very few or no detections", {
                                           N = 1)
   detect <- make.detectability(key.function = "hn",
                                scale.param = 0.000000001,
-                               truncation = 0.00001)
+                               truncation = 0.000001)
   design <- make.design(region = region,
                         transect.type = "line",
                         samplers = 1,

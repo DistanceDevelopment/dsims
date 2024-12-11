@@ -276,3 +276,66 @@ test_that("Can create objects or return correct error / warning messages", {
   survey <- run.survey(sim)
 
 })
+
+test_that("Test simulation validation and consistency checks", {
+  # Create a basic rectangular study area
+  region <- make.region()
+  
+  # Make a density grid (large spacing for speed)
+  density <- make.density(region = region,
+                          x.space = 300,
+                          y.space = 100,
+                          constant = 1)
+  density <- add.hotspot(density, centre = c(1000, 100), sigma = 250, amplitude = 10)
+  
+  # Define the population description
+  popdsc <- make.population.description(region = region,
+                                        density = density,
+                                        N = 200)
+  
+  # Define the detecability
+  detect <- make.detectability(key.function = "hn",
+                               scale.param = 25,
+                               truncation = 50)
+  
+  # Define the design
+  design <- make.design(region = region,
+                        transect.type = "line",
+                        design = "systematic",
+                        samplers = 20,
+                        design.angle = 0,
+                        truncation = 1)
+  
+  # Define the analyses
+  ds.analyses <- make.ds.analysis(dfmodel = ~1,
+                                  key = "hn",
+                                  truncation = 100,
+                                  criteria = "AIC")
+  
+  # Test when truncation design/detect mismatch and analysis truncation too large
+  expect_warning(simulation <- make.simulation(reps = 1,
+                                               design = design,
+                                               population.description = popdsc,
+                                               detectability = detect,
+                                               ds.analysis = ds.analyses),
+                 "Truncation distance for design and detectability differ, updating design truncation to be 50. In addition, analysis truncation is greater than 50 this may introduce bias!")
+  
+  design@truncation <- 50
+  # Test when only analysis truncation too large
+  expect_warning(simulation <- make.simulation(reps = 1,
+                                               design = design,
+                                               population.description = popdsc,
+                                               detectability = detect,
+                                               ds.analysis = ds.analyses),
+                 "Truncation distance for analysis is larger than for design/detectability this may introduce bias!")
+  
+  design@truncation <- 20
+  ds.analyses@truncation[[1]] <- 50
+  # Test when truncation design/detect mismatch
+  expect_warning(simulation <- make.simulation(reps = 1,
+                                               design = design,
+                                               population.description = popdsc,
+                                               detectability = detect,
+                                               ds.analysis = ds.analyses),
+                 "Truncation distance for design and detectability differ, updating design truncation to be 50.")
+})

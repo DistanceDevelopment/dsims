@@ -3,6 +3,7 @@
 Bug Fixes
 
 * Fixed bug which generated NA's as scale parameters when factor covariates were included. Issue #89
+* Simulation validation checks: consistency in truncation distances (Issue #76)
 
 # dsims 1.0.4
 

@@ -24,7 +24,7 @@ Suggests:
 VignetteBuilder: knitr
 Type: Package
 Title: Distance Sampling Simulations
-Version: 1.0.4.9000
+Version: 1.0.4.9001
 Authors@R: c(
   person("Laura", "Marshall", email = "lhm@st-and.ac.uk", role = c("aut", "cre")),
   person("Thomas", "Len", email = "len.thomas@st-andrews.ac.uk", role = "ctb"))
@@ -93,6 +93,7 @@ Collate:
     'rztpois.R'
     'save.sim.results.R'
     'simulate.detections.R'
+    'simulation.consistency.check.R'
     'single.sim.loop.R'
     'store.ddf.results.R'
     'store.dht.results.R'
