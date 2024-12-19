@@ -20,7 +20,8 @@ There is currently three vignette within the dsims package to help you get start
 
 The easiest way to get `dsims` is to install it from CRAN within R-studio or the R interface. We endeavour to make all new functionality available on CRAN in a timely manor. However, if you wish to download the development version with the latest updates immediately you can do this using Hadley Wickham's `devtools` package:
 
-      install.packages("devtools")
+      # First, ensure you have a copy of the `devtools` package:
+      if (!nzchar(system.file(package = "devtools"))) install.packages("devtools")
 
 then install `dsims` from github:
 

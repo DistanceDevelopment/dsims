@@ -152,7 +152,33 @@ setMethod(
 
 setValidity("Simulation",
             function(object){
+    
               strata.names <- object@design@region@strata.name
+              
+              # REGION CHECKS
+              # Check the intersection between design and population regions - they must overlap
+              intersect <- suppressWarnings(sf::st_intersection(object@design@region@region, object@population.description@density@density.surface[[1]]))
+              intersect.area <- sum(sf::st_area(intersect))
+              if(intersect.area == 0){
+                return("The regions associated with the design and the population description do not overlap!")
+              }
+              # Compare the area of the design region and population region with the intersection.
+              pop.area <- sum(sf::st_area(object@population.description@density@density.surface[[1]]))
+              design.area <- sum(sf::st_area(object@design@region@region))
+              area.diff.pop <- abs(pop.area-intersect.area)
+              area.diff.des <- abs(design.area-intersect.area)
+              # Check that the areas of both the population and design and their intersection match, using a toleance of 0.1%.
+              if(area.diff.pop > 0.001*pop.area || area.diff.des > 0.001*design.area){
+                return("The regions for the population density surface and the design do not match, these must be the same.")
+              }
+              # The following checks are for when simulations allow differing regions between population and design - this cannot be implemented yet as requires updates to population generation code
+              # Using 0.5% as toerance for difference
+              if(area.diff.pop > 0.005*pop.area && area.diff.des < 0.005*design.area){
+                warning("The population density surface extends beyond the design survey region, only part of the population will be surveyed.", immediate. = TRUE, call. = FALSE)
+              }
+              if(intersect.area < design.area && area.diff.des > 0.005*design.area){
+                warning("The survey design extends beyond the density grid for the population, some survey areas will have no animals.", immediate. = TRUE, call. = FALSE)
+              }
               
               # Population.Description checks
               pop.desc <- object@population.description
