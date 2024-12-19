@@ -18,7 +18,7 @@ simulation.consistency.check <- function(sim){
     warning(paste("Truncation distance for design and detectability differ, updating design truncation to be ", sim@detectability@truncation, ". In addition, analysis truncation is greater than ", sim@detectability@truncation, " this may introduce bias!", sep = ""), immediate. = TRUE, call. = FALSE)
     sim@design@truncation <- sim@detectability@truncation
   }
- 
+  
   # Return object with any updates
   return(sim)
 }

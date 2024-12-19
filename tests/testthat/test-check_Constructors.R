@@ -338,4 +338,65 @@ test_that("Test simulation validation and consistency checks", {
                                                detectability = detect,
                                                ds.analysis = ds.analyses),
                  "Truncation distance for design and detectability differ, updating design truncation to be 50.")
+  
+  # Test case where there is no overlap between region used for population and region used for design. 
+  outer <- matrix(c(0,1000,2000,1000,2000,1500,0,1500,0,1000),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions associated with the design and the population description do not overlap!")
+  
+  # Test case where the design only covers part of the population. 
+  outer <- matrix(c(0,0,2000,0,2000,1500,0,1500,0,0),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions for the population density surface and the design do not match, these must be the same.")
+
+  #expect_warning(make.simulation(population.description = pop.desc),"The population density surface extends beyond the design survey region, only part of the population will be surveyed.")
+  
+  
+  # Test case where the design only covers part of the population. 
+  outer <- matrix(c(-100,-100,2500,-100,2500,800,-100,800,-100,-100),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions for the population density surface and the design do not match, these must be the same.")
+  
+  #expect_warning(make.simulation(population.description = pop.desc),"The population density surface extends beyond the design survey region, only part of the population will be surveyed.")
+  
+  # Test case where the design extends beyond the population. 
+  outer <- matrix(c(500,100,1500,100,1500,400,500,400,500,100),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions for the population density surface and the design do not match, these must be the same.")
+  #expect_warning(make.simulation(population.description = pop.desc),"The survey design extends beyond the density grid for the population, some survey areas will have no animals.")
+  
+  # Test case where the design extends beyond the population. 
+  outer <- matrix(c(1500,100,2500,100,2500,400,1500,400,1500,100),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions for the population density surface and the design do not match, these must be the same.")
+  
+  #expect_warning(make.simulation(population.description = pop.desc),"The population density surface extends beyond the design survey region, only part of the population will be surveyed.")
 })
