@@ -13,7 +13,7 @@ make.population.description(
 )
 }
 \arguments{
-\item{region}{the Region object in which this population exists (see \link{make.region}).}
+\item{region}{the Region object in which this population exists (see \link[dssd]{make.region}).}
 
 \item{density}{the Density object describing the distribution of the individuals / clusters (see \link{make.density}).}
 

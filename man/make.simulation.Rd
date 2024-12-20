@@ -16,7 +16,7 @@ make.simulation(
 \item{reps}{number of times the simulation should be repeated}
 
 \item{design}{an object of class Survey.Design created by a call to
-\link{make.design}}
+\link[dssd]{make.design}}
 
 \item{population.description}{an object of class Population.Description
 created by a call to \link{make.population.description}}
