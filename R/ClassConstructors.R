@@ -112,7 +112,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #'                lognormal     \tab meanlog     \tab sdlog   \cr
 #'               }
 #'
-#' @param region the Region object in which this population exists (see \link{make.region}).
+#' @param region the Region object in which this population exists (see \link[dssd]{make.region}).
 #' @param density the Density object describing the distribution of the individuals / clusters (see \link{make.density}).
 #' @param covariates Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular distribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.
 #' @param N the number of individuals / clusters in a population with one value per
@@ -465,7 +465,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'   line) it can run a simple simulation example. See examples.
 #' @param reps number of times the simulation should be repeated
 #' @param design an object of class Survey.Design created by a call to
-#'  \link{make.design}
+#'  \link[dssd]{make.design}
 #' @param population.description an object of class Population.Description
 #'  created by a call to \link{make.population.description}
 #' @param detectability and object of class Detectability created by a call to
