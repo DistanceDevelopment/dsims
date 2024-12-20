@@ -31,7 +31,7 @@
 #' @importFrom dssd make.region
 #' @importFrom methods new
 #' @author Laura Marshall
-#' @seealso \code{\link{make.region}}
+#' @seealso \code{\link[dssd]{make.region}}
 #' @examples
 #' # A simple density surface with a constant value of 1 can be created within a rectangular
 #' # Create a region from shapefile
@@ -377,7 +377,7 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' @export
 #' @importFrom methods new is
 #' @author Laura Marshall
-#' @seealso \code{\link{ds}} \code{\link{make.simulation}}
+#' @seealso \code{\link[Distance]{ds}} \code{\link{make.simulation}}
 #' @examples
 #'
 #' # Model selection considering both a half-normal and a hazard-rate model
@@ -477,7 +477,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' @importFrom methods new is
 #' @importFrom dssd make.region make.design
 #' @author Laura Marshall
-#' @seealso \code{\link{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link{make.design}}
+#' @seealso \code{\link[dssd]{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link[dssd]{make.design}}
 #' @examples
 #' # Create a basic rectangular study area
 #' region <- make.region()

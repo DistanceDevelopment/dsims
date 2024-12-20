@@ -12,7 +12,7 @@
 #'  maximum distance from the transect at which animals may be detected.
 #' @keywords classes
 #' @importClassesFrom dssd Line.Transect
-#' @seealso \code{\link{make.design}}
+#' @seealso \code{\link[dssd]{make.design}}
 #' @export
 setClass(Class = "Survey.LT",
          representation = representation(transect = "Line.Transect",

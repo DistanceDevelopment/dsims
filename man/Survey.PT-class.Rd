@@ -19,6 +19,6 @@ maximum distance from the transect at which animals may be detected.}
 }}
 
 \seealso{
-\code{\link{make.design}}
+\code{\link[dssd]{make.design}}
 }
 \keyword{classes}
