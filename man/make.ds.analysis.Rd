@@ -95,7 +95,7 @@ ds.analyses <- make.ds.analysis(dfmodel = list(~1, ~size, ~1),
 
 }
 \seealso{
-\code{\link{ds}} \code{\link{make.simulation}}
+\code{\link[Distance]{ds}} \code{\link{make.simulation}}
 }
 \author{
 Laura Marshall

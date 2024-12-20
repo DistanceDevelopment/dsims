@@ -76,7 +76,7 @@ plot(density, region)
 
 }
 \seealso{
-\code{\link{make.region}}
+\code{\link[dssd]{make.region}}
 }
 \author{
 Laura Marshall

@@ -105,7 +105,7 @@ vignette("GettingStarted", 'dsims')
 
 }
 \seealso{
-\code{\link{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link{make.design}}
+\code{\link[dssd]{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link[dssd]{make.design}}
 }
 \author{
 Laura Marshall
