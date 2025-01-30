@@ -1,3 +1,9 @@
+# dsims 1.0.6
+
+Bug Fixes
+
+* Fixed bug when simulation checks generated an error for projected shapes. Issue #94
+
 # dsims 1.0.5
 
 Bug Fixes
