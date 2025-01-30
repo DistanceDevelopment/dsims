@@ -159,7 +159,7 @@ setValidity("Simulation",
               # Check the intersection between design and population regions - they must overlap
               intersect <- suppressWarnings(sf::st_intersection(object@design@region@region, object@population.description@density@density.surface[[1]]))
               intersect.area <- sum(sf::st_area(intersect))
-              if(intersect.area == 0){
+              if(as.numeric(intersect.area) == 0){
                 return("The regions associated with the design and the population description do not overlap!")
               }
               # Compare the area of the design region and population region with the intersection.

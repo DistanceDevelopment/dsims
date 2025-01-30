@@ -400,3 +400,54 @@ test_that("Test simulation validation and consistency checks", {
   
   #expect_warning(make.simulation(population.description = pop.desc),"The population density surface extends beyond the design survey region, only part of the population will be surveyed.")
 })
+
+
+test_that("Test issue 94", {
+  #Load a multi strata unprojected shapefile
+  # Find the full file path to the shapefile on the users machine
+  shapefile.path <- system.file("extdata", "AreaRProjStrata.shp", package = "dssd")
+  
+  # Create the region object
+  region <- make.region(region.name = "study area", 
+                        strata.name = c("North", "NW", "West Upper", "West Lower", "SW", "South"), 
+                        shape = shapefile.path)
+  
+  # Plot the survey region
+  design <- make.design(region = region, 
+                        transect.type = "line", 
+                        design = "systematic",
+                        spacing = c(rep(16000, 3), rep(8000, 3)), 
+                        design.angle = c(160, 135, 80, 135, 50, 150), 
+                        edge.protocol = "minus", 
+                        truncation = 1500)
+  
+  # Make a density grid with values of 1 across the region
+  my.density <- make.density(region = region, 
+                             x.space = 2500, 
+                             y.space = 2500, 
+                             constant = 1)
+  
+  # Create the population description
+  pop.description <- make.population.description(region = region, 
+                                                 density = my.density,
+                                                 N = rep(400,6), 
+                                                 fixed.N = TRUE)
+  
+  # Create the detectability
+  detect <- make.detectability(key.function = "hn", 
+                               scale.param = 750, 
+                               truncation = 1500)
+  
+  # Define the analyses - both the hn and hr models use the ~strata.group formula
+  ds.analyses <- make.ds.analysis(truncation = 1500)
+  
+  # Make simulation
+  simulation <- make.simulation(reps = 3, 
+                                design = design, 
+                                population.description = pop.description,
+                                detectability = detect, 
+                                ds.analysis = ds.analyses)
+  
+  # Check a simulation object is returned 
+  expect_true(is(simulation, "Simulation"))
+})
