@@ -460,9 +460,21 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' the Arguments for links to the functions which make the definitions for the
 #' individual simulation components. For a more in depth example please refer to the
 #' 'GettingStarted' vignette.
-#' @details The \code{make.simulation} function is now set up so that by
-#'  default (with the exception of specifying point transects rather than
-#'   line) it can run a simple simulation example. See examples.
+#' @details The \code{make.simulation} function is now set up so that by 
+#' default (with the exception of specifying point transects rather than 
+#' line) it can run a simple simulation example. See examples.
+#' 
+#' \strong{Restrictions}
+#' 
+#' Currently we have a number of restrictions, in
+#' particular:
+#' \itemize{
+#'  \item{Minus Sampling}{Currently only minus sampling surveys can be simulated
+#'  in dsims.}
+#'  \item{variance Estimation}{It is only possible to use systematic variance
+#'  estimators for the systematic parallel line design, the equal spaced
+#'  zigzag design and the complementary zigzag design.}
+#' }
 #' @param reps number of times the simulation should be repeated
 #' @param design an object of class Survey.Design created by a call to
 #'  \link{make.design}
