@@ -276,3 +276,178 @@ test_that("Can create objects or return correct error / warning messages", {
   survey <- run.survey(sim)
 
 })
+
+test_that("Test simulation validation and consistency checks", {
+  # Create a basic rectangular study area
+  region <- make.region()
+  
+  # Make a density grid (large spacing for speed)
+  density <- make.density(region = region,
+                          x.space = 300,
+                          y.space = 100,
+                          constant = 1)
+  density <- add.hotspot(density, centre = c(1000, 100), sigma = 250, amplitude = 10)
+  
+  # Define the population description
+  popdsc <- make.population.description(region = region,
+                                        density = density,
+                                        N = 200)
+  
+  # Define the detecability
+  detect <- make.detectability(key.function = "hn",
+                               scale.param = 25,
+                               truncation = 50)
+  
+  # Define the design
+  design <- make.design(region = region,
+                        transect.type = "line",
+                        design = "systematic",
+                        samplers = 20,
+                        design.angle = 0,
+                        truncation = 1)
+  
+  # Define the analyses
+  ds.analyses <- make.ds.analysis(dfmodel = ~1,
+                                  key = "hn",
+                                  truncation = 100,
+                                  criteria = "AIC")
+  
+  # Test when truncation design/detect mismatch and analysis truncation too large
+  expect_warning(simulation <- make.simulation(reps = 1,
+                                               design = design,
+                                               population.description = popdsc,
+                                               detectability = detect,
+                                               ds.analysis = ds.analyses),
+                 "Truncation distance for design and detectability differ, updating design truncation to be 50. In addition, analysis truncation is greater than 50 this may introduce bias!")
+  
+  design@truncation <- 50
+  # Test when only analysis truncation too large
+  expect_warning(simulation <- make.simulation(reps = 1,
+                                               design = design,
+                                               population.description = popdsc,
+                                               detectability = detect,
+                                               ds.analysis = ds.analyses),
+                 "Truncation distance for analysis is larger than for design/detectability this may introduce bias!")
+  
+  design@truncation <- 20
+  ds.analyses@truncation[[1]] <- 50
+  # Test when truncation design/detect mismatch
+  expect_warning(simulation <- make.simulation(reps = 1,
+                                               design = design,
+                                               population.description = popdsc,
+                                               detectability = detect,
+                                               ds.analysis = ds.analyses),
+                 "Truncation distance for design and detectability differ, updating design truncation to be 50.")
+  
+  # Test case where there is no overlap between region used for population and region used for design. 
+  outer <- matrix(c(0,1000,2000,1000,2000,1500,0,1500,0,1000),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions associated with the design and the population description do not overlap!")
+  
+  # Test case where the design only covers part of the population. 
+  outer <- matrix(c(0,0,2000,0,2000,1500,0,1500,0,0),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions for the population density surface and the design do not match, these must be the same.")
+
+  #expect_warning(make.simulation(population.description = pop.desc),"The population density surface extends beyond the design survey region, only part of the population will be surveyed.")
+  
+  
+  # Test case where the design only covers part of the population. 
+  outer <- matrix(c(-100,-100,2500,-100,2500,800,-100,800,-100,-100),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions for the population density surface and the design do not match, these must be the same.")
+  
+  #expect_warning(make.simulation(population.description = pop.desc),"The population density surface extends beyond the design survey region, only part of the population will be surveyed.")
+  
+  # Test case where the design extends beyond the population. 
+  outer <- matrix(c(500,100,1500,100,1500,400,500,400,500,100),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions for the population density surface and the design do not match, these must be the same.")
+  #expect_warning(make.simulation(population.description = pop.desc),"The survey design extends beyond the density grid for the population, some survey areas will have no animals.")
+  
+  # Test case where the design extends beyond the population. 
+  outer <- matrix(c(1500,100,2500,100,2500,400,1500,400,1500,100),ncol=2, byrow=TRUE)
+  mp1 <- sf::st_polygon(list(outer))
+  region <- make.region(shape=mp1, units = "km")
+  pop.desc <- make.population.description(region = region,
+                                          density = make.density(region=region),
+                                          N=200)
+  
+  expect_error(make.simulation(population.description = pop.desc), 
+               "The regions for the population density surface and the design do not match, these must be the same.")
+  
+  #expect_warning(make.simulation(population.description = pop.desc),"The population density surface extends beyond the design survey region, only part of the population will be surveyed.")
+})
+
+
+test_that("Test issue 94", {
+  #Load a multi strata unprojected shapefile
+  # Find the full file path to the shapefile on the users machine
+  shapefile.path <- system.file("extdata", "AreaRProjStrata.shp", package = "dssd")
+  
+  # Create the region object
+  region <- make.region(region.name = "study area", 
+                        strata.name = c("North", "NW", "West Upper", "West Lower", "SW", "South"), 
+                        shape = shapefile.path)
+  
+  # Plot the survey region
+  design <- make.design(region = region, 
+                        transect.type = "line", 
+                        design = "systematic",
+                        spacing = c(rep(16000, 3), rep(8000, 3)), 
+                        design.angle = c(160, 135, 80, 135, 50, 150), 
+                        edge.protocol = "minus", 
+                        truncation = 1500)
+  
+  # Make a density grid with values of 1 across the region
+  my.density <- make.density(region = region, 
+                             x.space = 2500, 
+                             y.space = 2500, 
+                             constant = 1)
+  
+  # Create the population description
+  pop.description <- make.population.description(region = region, 
+                                                 density = my.density,
+                                                 N = rep(400,6), 
+                                                 fixed.N = TRUE)
+  
+  # Create the detectability
+  detect <- make.detectability(key.function = "hn", 
+                               scale.param = 750, 
+                               truncation = 1500)
+  
+  # Define the analyses - both the hn and hr models use the ~strata.group formula
+  ds.analyses <- make.ds.analysis(truncation = 1500)
+  
+  # Make simulation
+  simulation <- make.simulation(reps = 3, 
+                                design = design, 
+                                population.description = pop.description,
+                                detectability = detect, 
+                                ds.analysis = ds.analyses)
+  
+  # Check a simulation object is returned 
+  expect_true(is(simulation, "Simulation"))
+})

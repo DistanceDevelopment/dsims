@@ -31,7 +31,7 @@
 #' @importFrom dssd make.region
 #' @importFrom methods new
 #' @author Laura Marshall
-#' @seealso \code{\link{make.region}}
+#' @seealso \code{\link[dssd]{make.region}}
 #' @examples
 #' # A simple density surface with a constant value of 1 can be created within a rectangular
 #' # Create a region from shapefile
@@ -112,7 +112,7 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #'                lognormal     \tab meanlog     \tab sdlog   \cr
 #'               }
 #'
-#' @param region the Region object in which this population exists (see \link{make.region}).
+#' @param region the Region object in which this population exists (see \link[dssd]{make.region}).
 #' @param density the Density object describing the distribution of the individuals / clusters (see \link{make.density}).
 #' @param covariates Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular distribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.
 #' @param N the number of individuals / clusters in a population with one value per
@@ -377,7 +377,7 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' @export
 #' @importFrom methods new is
 #' @author Laura Marshall
-#' @seealso \code{\link{ds}} \code{\link{make.simulation}}
+#' @seealso \code{\link[Distance]{ds}} \code{\link{make.simulation}}
 #' @examples
 #'
 #' # Model selection considering both a half-normal and a hazard-rate model
@@ -477,7 +477,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' }
 #' @param reps number of times the simulation should be repeated
 #' @param design an object of class Survey.Design created by a call to
-#'  \link{make.design}
+#'  \link[dssd]{make.design}
 #' @param population.description an object of class Population.Description
 #'  created by a call to \link{make.population.description}
 #' @param detectability and object of class Detectability created by a call to
@@ -489,7 +489,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #' @importFrom methods new is
 #' @importFrom dssd make.region make.design
 #' @author Laura Marshall
-#' @seealso \code{\link{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link{make.design}}
+#' @seealso \code{\link[dssd]{make.region}} \code{\link{make.density}} \code{\link{make.population.description}} \code{\link{make.detectability}} \code{\link{make.ds.analysis}} \code{\link[dssd]{make.design}}
 #' @examples
 #' # Create a basic rectangular study area
 #' region <- make.region()

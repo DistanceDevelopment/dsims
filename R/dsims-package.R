@@ -18,18 +18,17 @@
 #' package relied on survey transects already being contained in shapefiles within
 #' the supplied directory, dsims will generate the survey transects directly in R.
 #'
-#'  The main functions in this package are: \link{make.density}, \link{make.population.description}, \link{make.detectability}, \link{make.ds.analysis}, \link{make.simulation}, \link{run.survey} and \link{run.simulation}. See also \link{make.region} and \link{make.design} in the dssd package for examples of how to define study regions and designs.
+#'  The main functions in this package are: \link{make.density}, \link{make.population.description}, \link{make.detectability}, \link{make.ds.analysis}, \link{make.simulation}, \link{run.survey} and \link{run.simulation}. See also \link[dssd]{make.region} and \link[dssd]{make.design} in the dssd package for examples of how to define study regions and designs.
 #'
-#' Further information on distance sampling methods and example code is available at \url{http://distancesampling.org/R/}.
-#'
-#' Also see our website for vignettes / example code at \url{http://examples.distancesampling.org}.
+#' Further information on distance sampling methods and example code is 
+#' available at \url{https://distancesampling.org/}. Specifically, see our 
+#' website for vignettes / example code at \url{https://distancesampling.org/resources/vignettes.html}.
 #'
 #' For help with distance sampling and this package, there is a Google Group \url{https://groups.google.com/forum/#!forum/distance-sampling}.
 #'
 #' @name dsims-package
 #' @aliases dsims-package dsims
-#' @docType package
 #' @author Laura Marshall <lhm@@st-and.ac.uk>
-#' @keywords package
+#' "_PACKAGE"
 #'
 NULL

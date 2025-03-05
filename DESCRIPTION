@@ -15,12 +15,12 @@ Imports:
     rlang
 Suggests:
     testthat,
+    bookdown,
     parallel,
     pbapply,
     knitr,
     lwgeom,
     rmarkdown
-VignetteBuilder: knitr
 Type: Package
 Title: Distance Sampling Simulations
 Version: 1.0.5.9001
@@ -42,7 +42,7 @@ Description: Performs distance sampling simulations. 'dsims' repeatedly generate
     978-0199225873). General distance sampling methods are detailed in Introduction 
     to Distance Sampling: Estimating Abundance of Biological Populations, Buckland 
     et. al. (2004, ISBN-13: 978-0198509271). Find out more about estimating 
-    animal/plant abundance with distance sampling at <http://distancesampling.org/>.
+    animal/plant abundance with distance sampling at <https://distancesampling.org/>.
 License: GPL (>=2)
 Language: en-GB
 URL: https://github.com/DistanceDevelopment/dsims
@@ -92,6 +92,7 @@ Collate:
     'rztpois.R'
     'save.sim.results.R'
     'simulate.detections.R'
+    'simulation.consistency.check.R'
     'single.sim.loop.R'
     'store.ddf.results.R'
     'store.dht.results.R'

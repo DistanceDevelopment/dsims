@@ -5,3 +5,8 @@ cran-comments.md
 ^Meta$
 ^CRAN-RELEASE$
 ^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^vignettes
+

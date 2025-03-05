@@ -1,8 +1,21 @@
 ---
 title: "Getting Started with dsims"
-author: "L Marshall"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+description: |
+  Assessing behaviour of a survey before going into the field
+author:
+  - name: L. Marshall
+    url: http://distancesampling.org
+    affiliation: CREEM, Univ of St Andrews
+    affiliation_url: https://creem.st-andrews.ac.uk
+date: "`r format(Sys.time(), '%B %Y')`"
+output: 
+  bookdown::html_document2:
+    number_sections: false
+    toc: true
+    toc_depth: 2
+    base_format: rmarkdown::html_vignette
+pkgdown:
+  as_is: true   
 bibliography: refs.bib
 vignette: >
   %\VignetteIndexEntry{Getting Started with dsims}
@@ -10,10 +23,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
 ## Distance Sampling Simulations
-
-Additional vignettes can be found in the distance sampling examples page of our website: http://examples.distancesampling.org
 
 This vignette introduces the basic procedure for setting up and running a distance sampling simulation using 'dsims' [@dsims-pkg]. The 'dsims' package uses the distance sampling survey design package 'dssd' [@dssd-pkg] to define the design and generate the surveys (sets of transects). For further details on defining designs please refer to the 'dssd' vignettes. 'dsims' was designed to be largely similar to the 'DSsim' package [@DSsim-pkg] in terms of work flow, functions and arguments. The main differences in terms of its use lie in the definition of the designs which can now be generated in R using the 'dssd' package (these packages are automatically linked) and the definition of analyses. Analyses are now defined using terminology based on the 'Distance' package [@Distance-pkg]. In addition, the underlying functionality now makes use of the 'sf' package [@sf-pkg].
 
@@ -23,7 +33,7 @@ Distance Sampling techniques provide design based estimates of density and abund
 
 We will use the St Andrews bay area as an example study region for these simulations. This is a single strata study region which has been projected into metres. We will first load the 'dsims' package, this will also automatically load the 'dssd' package. As this shapefile does not have a projection recorded (in an associated .prj file) we tell 'dsims' that the units are metres.
 
-```{r region, fig.align='center', fig.cap="Figure 1: The study region.", fig.width=3.8, fig.height=4}
+```{r region, fig.align='center', fig.cap="The study region.", fig.dim=c(7,5)}
 library(dsims)
 # Find the file path to the example shapefile in dssd
 shapefile.name <- system.file("extdata", "StAndrew.shp", package = "dssd")
@@ -49,7 +59,7 @@ For the purposes of simulation you will likely want to test over a range of plau
 
 In this example, for the equal spaced zigzag design, as it is generated in a convex hull the areas with differing coverage are likely to be at the very top and very bottom of the survey region. In the density grid below these areas are shown to have lower animal density than the rest of the survey region, a likely scenario when a study region has been constructed in order to catch the range of a population of interest.
 
-```{r density, fig.align='center', fig.cap="Figure 2: A density map representing a plausible distributions of animals within the study region.", fig.width=4, fig.height=4}
+```{r density, fig.align='center', fig.cap="A density map representing a plausible distributions of animals within the study region.", fig.dim=c(7,5)}
 
 # We first create a flat density grid
 density <- make.density(region = region,
@@ -89,9 +99,9 @@ plot(density, region, scale = 0.001)
 
 ```
 
-In some situations you may not need to rely on constructing a density distribution from scratch. Now we will demonstrate how to use a gam to construct the density surface. As I do not have data for this area I will use the density grid I created above as an example dataset. I will fit a gam to this data and then use this to create a new density object. As I need to restrict the predicted values to be greater than zero, I will use a log link with the gaussian error distribution. This can also be a useful trick if you want to turn something created using the above method, which can look a bit lumpy and bumpy, into a smoother distribution surface. The gam fitted must only use a smooth over x and y to fit the model as no other predictor covariates will be present in the density surface.
+In some situations you may not need to rely on constructing a density distribution from scratch. Now we will demonstrate how to use a gam to construct the density surface. As I do not have data for this area I will use the density grid I created above as an example dataset. I will fit a gam to this data and then use this to create a new density object. As I need to restrict the predicted values to be greater than zero, I will use a log link with the Gaussian error distribution. This can also be a useful trick if you want to turn something created using the above method, which can look a bit lumpy and bumpy, into a smoother distribution surface. The gam fitted must only use a smooth over x and y to fit the model as no other predictor covariates will be present in the density surface.
 
-```{r densitygam, fig.align='center', fig.cap="Figure 3: A density map representing a plausible distributions of animals within the study region.", fig.width=4, fig.height=4}
+```{r densitygam, fig.align='center', fig.cap="A density map representing a plausible distributions of animals within the study region.", fig.dim=c(7,5)}
 
 # First extract the data above - this is simple in this case as we only have a single strata
 # Multi-strata regions will involve combining the density grids for each strata into a 
@@ -130,7 +140,6 @@ pop.desc <- make.population.description(region = region,
                                         covariates = covariates,
                                         N = 300,
                                         fixed.N = TRUE)
-
 ```
 
 ## Coverage Grid
@@ -139,7 +148,7 @@ It is good practice to create a coverage grid over your study area to assess how
 
 ## Defining the Design
 
-'dsims' working together with 'dssd' provides a number of point and line transect designs. Further details on defining designs can be found in the 'dssd' help and vignettes. We also provide examples online at \url{https://examples.distancesampling.org/}.
+'dsims' working together with 'dssd' provides a number of point and line transect designs. Further details on defining designs can be found in the 'dssd' help and vignettes. We also provide examples online at https://distancedevelopment.github.io/distancesamplingcom2/resources/vignettes.html .
 
 For these simulations we will compare two line transect designs, systematically spaced parallel lines and equal spaced zigzag lines. The zigzag design will be generated within a convex hull to try to minimise the off-effort transit time between the ends of transects. 
 
@@ -160,7 +169,6 @@ zigzag.design <- make.design(region = region,
                              design.angle = 0,
                              bounding.shape = "convex.hull",
                              truncation = 750)
-
 ```
 
 
@@ -172,12 +180,12 @@ It is always a good idea to run a quick check that your design is as expected by
 set.seed(476)
 ```
 
-```{r paralleltransects, fig.align='center', fig.cap="Figure 4: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=3.8, fig.height=4, fig.align='center'}
+```{r paralleltransects, fig.align='center', fig.cap="An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.dim=c(7,5), fig.align='center'}
 p.survey <- generate.transects(parallel.design)
 plot(region, p.survey)
 ```
 
-```{r zigzagtransects, fig.align='center', fig.cap="Figure 5: An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.width=3.8, fig.height=4, fig.align='center'}
+```{r zigzagtransects, fig.align='center', fig.cap="An example set of transects generated from the systematic parallel line design plotted within the study region.", fig.dim=c(7,5), fig.align='center'}
 z.survey <- generate.transects(zigzag.design)
 plot(region, z.survey)
 ```
@@ -193,7 +201,7 @@ where $j$ is the individual, $\sigma_0$ is the base line scale parameter (passed
 
 We will assume a half normal detection function with a scale parameter of 300. We will set the truncation distance to be the same as the design at 750 m. and set the covariate slope coefficient on the log scale to log(1.08) = 0.077. We can check what our detection functions will look like for the different covariate values by plotting them. To plot the example detection functions we need to provide the population description as well as detectability. 
 
-```{r detect, fig.align='center', fig.cap="Figure 6: Plot of the detection function for the mean group size (solid line) and for the 2.5 and 97.5 percentile values  of group size (dashed lines) for this population. ", fig.width=6, fig.height=4}
+```{r detect, fig.align='center', fig.cap="Plot of the detection function for the mean group size (solid line) and for the 2.5 and 97.5 percentile values  of group size (dashed lines) for this population.", fig.dim=c(7,5)}
 
 # Define the covariate parameters on the log scale
 cov.param <- list(size = log(1.08))
@@ -206,7 +214,6 @@ detect <- make.detectability(key.function = "hn",
 
 # Plot the simulation detection functions
 plot(detect, pop.desc)
-
 ```
 
 We can also calculate the average detection function for our mean cluster size of 3 as defined in our population description:
@@ -216,7 +223,7 @@ $$\sigma_{size = 3} = exp(log(300)+log(1.05)*3) = 347.3 $$
 
 ## Defining Analyses
 
-The final component to a simulation is the analysis or set of analyses you wish to fit to the simulated data. We will define a number of models and allow automatic model selection based on the minimum AIC value. The models included below are a half-normal with no covariates, a hazard rate with no covariates and a half-normal with cluster size as a covariate. We will leave the truncation value at 750 as previously defined (it must be <= to the truncation values used previously). We will use the default error variance estimator "R2". See '?mrds::varn' for descriptions of the various empirical variance estimators for encounter rate.
+The final component to a simulation is the analysis or set of analyses you wish to fit to the simulated data. We will define a number of models and allow automatic model selection based on the minimum AIC value. The models included below are a half-normal with no covariates, a hazard rate with no covariates and a half-normal with cluster size as a covariate. We will leave the truncation value at 750 as previously defined (it must be $\le$ to the truncation values used previously). We will use the default error variance estimator "R2". See `?mrds::varn` for descriptions of the various empirical variance estimators for encounter rate.
 
 ```{r analysis}
 
@@ -225,7 +232,6 @@ analyses <- make.ds.analysis(dfmodel = list(~1, ~1, ~size),
                              truncation = 750,
                              er.var = "R2",
                              criteria = "AIC")
-
 ```
 
 ## Putting the Simulation Together
@@ -245,30 +251,27 @@ sim.zigzag <- make.simulation(reps = 999,
                               population.description = pop.desc,
                               detectability = detect,
                               ds.analysis = analyses)
-
 ```
 
 Once you have created a simulation we recommend you check to see what a simulated survey might look like. 
 
-```{r parallel.survey, fig.align='center', fig.cap="Figure 7: Example survey from systematic parallel design. Panels showing: top left - transects, top right - population, bottom left - transects, population and survey detections (cyan dots), bottom right -  histogram of detection distances", fig.width=6, fig.height=6}
+```{r parallelsurvey, fig.align='center', fig.cap="Example survey from systematic parallel design. Panels showing: top left - transects, top right - population, bottom left - transects, population and survey detections (cyan dots), bottom right -  histogram of detection distances", fig.dim=c(7,6)}
 # Generate a single instance of a survey: a population, set of transects 
 # and the resulting distance data
 eg.parallel.survey <- run.survey(sim.parallel)
 
 # Plot it to view a summary
 plot(eg.parallel.survey, region)
-
 ```
 
 
-```{r zigzag.survey, fig.align='center', fig.cap="Figure 8: Example survey from equal spaced zigzag design. Panels showing: top left - transects, top right - population, bottom left - transects, population and survey detections (cyan dots), bottom right -  histogram of detection distances", fig.width=6, fig.height=6}
+```{r zigzagsurvey, fig.align='center', fig.cap="Example survey from equal spaced zigzag design. Panels showing: top left - transects, top right - population, bottom left - transects, population and survey detections (cyan dots), bottom right -  histogram of detection distances", fig.dim=c(7,6)}
 # Generate a single instance of a survey: a population, set of transects 
 # and the resulting distance data
 eg.zigzag.survey <- run.survey(sim.zigzag)
 
 # Plot it to view a summary
 plot(eg.zigzag.survey, region)
-
 ```
 
 
@@ -277,11 +280,9 @@ plot(eg.zigzag.survey, region)
 The simulations can be run as follows. Note that these will take some time to run!
 
 ```{r runsim, eval=FALSE}
-
 # Running the simulations
 sim.parallel <- run.simulation(sim.parallel)
 sim.zigzag <- run.simulation(sim.zigzag)
-
 ```
 
 ## Simulation Results
@@ -293,9 +294,9 @@ load("files/sim.zigzag.ROBJ")
 
 Once the simulations have run we can view a summary of the results. Viewing a summary of a simulation will first summarise the simulation setup and then if the simulation has been run provide a summary of the results. A glossary is also provided to aid interpretation of the results. Note that each run will produce slightly different results due to the random component of the generation of both the populations and the sets of survey transects.
 
-Firstly, for the systematic parallel lines design we can see that there is very low bias 1.85% for the estimated abundance / density of individuals. The bias is even lower at only 0.16% for the estimated abundance / density of clusters. Also we can see that the analyses have done a good job at estimating the mean cluster size, there is only 1.72% bias. 
+Firstly, for the systematic parallel lines design we can see that there is very low bias 1.85% for the estimated abundance/density of individuals. The bias is even lower at only 0.16% for the estimated abundance/density of clusters. Also we can see that the analyses have done a good job at estimating the mean cluster size, there is only 1.72% bias. 
 
-We can also see that the 95% confidence intervals calculated for the abundance / density estimates are in fact capturing the true value around 97% of the time (CI.coverage.prob). We can also note that the observed standard deviation of the estimates of the mean is a bit lower than the mean se, meaning we are realising a lower variance than we would estimate. This is often seen with systematic designs as the default variance estimator assumes a completely random allocation of transect locations, systematic designs usually have lower variance.  
+We can also see that the 95% confidence intervals calculated for the abundance/density estimates are in fact capturing the true value around 97% of the time (CI.coverage.prob). We can also note that the observed standard deviation of the estimates of the mean is a bit lower than the mean se, meaning we are realising a lower variance than we would estimate. This is often seen with systematic designs as the default variance estimator assumes a completely random allocation of transect locations, systematic designs usually have lower variance.  
 
 Reassuringly, these results are as expected for the systematic parallel line design. We expect low bias, as by definition, parallel line designs produce a very uniform coverage probability. The only areas where this design might not produce uniform coverage is around the boundary where there could be minor edge effects due to the minus sampling.
 
@@ -303,7 +304,7 @@ Reassuringly, these results are as expected for the systematic parallel line des
 summary(sim.parallel)
 ```
 
-We can now check the results for the zigzag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running 'run.coverage' but by itself this does not give much of an indication of the likely effects on the survey results. The degree to which non-uniform coverage may affect survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have run only one density scenario here, if you have non-uniform coverage probability it is advisable to test the effects under a range of plausible animal distributions.
+We can now check the results for the zigzag design. While zigzag designs generated inside a convex hull can be much more efficient than parallel line designs (less off-effort transit) there is the possibility of non-uniform coverage. The coverage can be assessed by running `run.coverage` but by itself this does not give much of an indication of the likely effects on the survey results. The degree to which non-uniform coverage may affect survey results is determined not only by the variability in coverage but also in how that combines with the density of animals in the region. Note that while we have run only one density scenario here, if you have non-uniform coverage probability it is advisable to test the effects under a range of plausible animal distributions.
 
 Under this assumed distribution of animals, it looks like any effects of non-uniform coverage are going to have minimal effects on the estimates of abundance / density. For individuals the bias is around 2.5% and for clusters it is 0.65%. Similar to the parallel line design, the confidence intervals are also giving a coverage of 97%. 
 
@@ -315,17 +316,17 @@ summary(sim.zigzag)
 
 Histograms of the estimates of abundance from each of the simulation replicates can also be viewed to check for the possible effects of extreme values or skewed distributions. 
 
-```{r hist.results, fig.align='center', fig.cap="Figure 9: Left - histogram of estimates of abundance of clusters for systematic parallel design. Right - histogram of estimates of abundance of clusters for zigzag design.", fig.width=6, fig.height=4}
+```{r histresults, fig.align='center', fig.cap="Left - histogram of estimates of abundance of clusters for systematic parallel design. Right - histogram of estimates of abundance of clusters for zigzag design.", fig.dim=c(7,5)}
 oldparams <- par(mfrow = c(1,2))
 histogram.N.ests(sim.parallel)
 histogram.N.ests(sim.zigzag)
 par(oldparams)
 ```
 
-We can see in Figure 9 that there were a couple of high estimates generated >500 for both the parallel line and zigzag designs. These probably represent data sets that were difficult to fit a model too (perhaps a chance spiked data set). Most of the estimates are centered around truth but these occasional high estimates may have increased the mean value slightly and could be associated with the small amount of positive bias.
+We can see in Figure \@ref(fig:histresults) that there were a couple of high estimates generated >500 for both the parallel line and zigzag designs. These probably represent data sets that were difficult to fit a model too (perhaps a chance spiked data set). Most of the estimates are centered around truth but these occasional high estimates may have increased the mean value slightly and could be associated with the small amount of positive bias.
 
 ## Simulation Conclusions
 
 Under these simulation assumptions it appears that the zigzag design will cost us a little in accuracy but allow us to gain some precision. It should be noted that the cost in accuracy will vary depending on the distribution of animals in the survey region. 
 
-## Bibliography
+## References
