@@ -4,6 +4,10 @@ Bug Fixes
 
 * Fixed bug when simulation checks generated an error for projected shapes. Issue #94
 
+Enhancements
+
+* Updated web site links in package documentation.
+
 # dsims 1.0.5
 
 Bug Fixes

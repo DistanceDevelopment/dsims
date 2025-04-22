@@ -23,7 +23,7 @@ Suggests:
     rmarkdown
 Type: Package
 Title: Distance Sampling Simulations
-Version: 1.0.5.9000
+Version: 1.0.6
 Authors@R: c(
   person("Laura", "Marshall", email = "lhm@st-and.ac.uk", role = c("aut", "cre")),
   person("Thomas", "Len", email = "len.thomas@st-andrews.ac.uk", role = "ctb"))
