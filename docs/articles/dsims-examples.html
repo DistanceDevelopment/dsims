@@ -9,8 +9,8 @@
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.9/font.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Transition from `DSsim` to `dsims`">
 <meta name="description" content="Learning the distinction between the former simulation engine and the current simulation engine by using dsims to investigate truncation distances with individual level covariates
 ">
@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dsims</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.5.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
       <h1>Transition from `DSsim` to `dsims`</h1>
                         <h4 data-toc-skip class="author">L. Marshall</h4>
             <address class="author_afil">
-      CREEM, Univ of St Andrews<br><h4 data-toc-skip class="date">December 2024</h4>
+      CREEM, Univ of St Andrews<br><h4 data-toc-skip class="date">April 2025</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/DistanceDevelopment/dsims/blob/HEAD/vignettes/dsims-examples.Rmd" class="external-link"><code>vignettes/dsims-examples.Rmd</code></a></small>
       <div class="d-none name"><code>dsims-examples.Rmd</code></div>
@@ -100,7 +100,7 @@ Figure 1: An example detection function. The histogram shows example distances r
 <p>Distance sampling simulations can be very useful to researchers who wish to optimise their survey design for their specific study regions and species of interest in order to try and achieve the most accurate / precise estimates for their populations. Setting up and running such simulations to optimise a design is a very small cost in comparison to those associated with actually completing the survey!</p>
 <div class="figure">
 <span style="display:block;" id="fig:flowchart"></span>
-<img src="SimulationDiagram.png" alt="Illustrates the simulation process. Blue rectangles indicate information supplied by the user. Green rectangles are objects created by dsims in the simulation process. Orange diamonds indicate the processes carried out by dsims." width="543"><p class="caption">
+<img src="SimulationDiagram.png" alt="Illustrates the simulation process. Blue rectangles indicate information supplied by the user. Green rectangles are objects created by dsims in the simulation process. Orange diamonds indicate the processes carried out by dsims."><p class="caption">
 Figure 2: Illustrates the simulation process. Blue rectangles indicate information supplied by the user. Green rectangles are objects created by dsims in the simulation process. Orange diamonds indicate the processes carried out by dsims.
 </p>
 </div>
@@ -181,7 +181,7 @@ Figure 4: Half-normal detection function which varies based on cluster size and 
 <div class="section level3">
 <h3 id="region">Region<a class="anchor" aria-label="anchor" href="#region"></a>
 </h3>
-<p>These simulations will use a rectangular study region of 5 km by 20 km. Survey regions can be defined in any units but all units must be the same throughout the components of the simulation. If a shapefile is used to create the survey region, then information on the units will be taken from the .prj file. Here we will define the coordinates in m. As this is a simple study region (Figure <a href="#fig:region">5</a>) with few vertices we can simply provide the coordinates. A change from DSsim is that you now need to turn the coordinates into an sf polygon shape prior to creating the region. This step is documented below. Note that while standard shapefiles have their outer polygon coordinates given in a clockwise direction, sf uses counter clockwise for external polygons and clockwise for holes within polygons. Further details on creating multi-part or multi-strata sf objects can be found at the end of the <a href="https://examples.distancesampling.org/dssd-multi-strata/MultiStrataVignette-distill.html" class="external-link">multi-strata dssd vignette</a>.</p>
+<p>These simulations will use a rectangular study region of 5 km by 20 km. Survey regions can be defined in any units but all units must be the same throughout the components of the simulation. If a shapefile is used to create the survey region, then information on the units will be taken from the .prj file. Here we will define the coordinates in m. As this is a simple study region (Figure <a href="#fig:region">5</a>) with few vertices we can simply provide the coordinates. A change from DSsim is that you now need to turn the coordinates into an sf polygon shape prior to creating the region. This step is documented below. Note that while standard shapefiles have their outer polygon coordinates given in a clockwise direction, sf uses counter clockwise for external polygons and clockwise for holes within polygons. Further details on creating multi-part or multi-strata sf objects can be found at the end of the <a href="https://distancesampling.org/dssd/articles/MultiStrataVignette.html" class="external-link">multi-strata dssd vignette</a>.</p>
 <p>You will also note that units are no longer a plotting option. The plot functions have been modified to use ggplot2 and if additional plotting options are desired the ggplot object can be captured and modified.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## # Create a polgon</span></span>
@@ -362,7 +362,7 @@ Figure 9: The detection functions for males and females.
 </h3>
 <p>The design section of the simulations in dsims is the part which differs most significantly from DSsim. DSsim only generated very basic designs and anything more complex needed to be generated externally and loaded as shapefiles. dsims uses the dssd survey design package in R to specify designs and generate transects from them.</p>
 <p>For this example we will use a systematic parallel line transect design. As the recommended minimum number of transects is between 10 and 20 <span class="citation">(Buckland et al., 2001)</span> we have set the spacing between the lines to be 1000 m to give 20 transects per survey.</p>
-<p>For basic designs the arguments to the make.design function have only changed slightly: <em>region.obj</em> is now <em>region</em> and <em>design.details</em> is now <em>design</em>. Note, it is now important to define a truncation distance for the design, this allows design coverage to be assessed. dssd also now provides a more comprehensive set of arguments for defining designs. To investigate these further, please see our <a href="https://examples.distancesampling.org/dssd-getting-started/GettingStarted-distill.html" class="external-link">Getting Started with dssd vignette</a> and our <a href="https://examples.distancesampling.org/dssd-multi-strata/MultiStrataVignette-distill.html" class="external-link">Multiple Strata in dssd vignette</a>.</p>
+<p>For basic designs the arguments to the make.design function have only changed slightly: <em>region.obj</em> is now <em>region</em> and <em>design.details</em> is now <em>design</em>. Note, it is now important to define a truncation distance for the design, this allows design coverage to be assessed. dssd also now provides a more comprehensive set of arguments for defining designs. To investigate these further, please see our <a href="https://distancesampling.org/dssd/articles/GettingStarted.html" class="external-link">Getting Started with dssd vignette</a> and our <a href="https://distancesampling.org/dssd/articles/MultiStrataVignette.html" class="external-link">Multiple Strata in dssd vignette</a>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## # Define the design</span></span>
 <span><span class="co">## design &lt;- make.design(region.obj = region,</span></span>
