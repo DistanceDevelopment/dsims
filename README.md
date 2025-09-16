@@ -4,7 +4,7 @@ Distance Sampling Simulations
 
 [![CRAN (RStudio Mirror) Downloads](http://cranlogs.r-pkg.org/badges/dsims)](https://www.r-pkg.org/pkg/dsims)
 [![CRAN Version](http://www.r-pkg.org/badges/version/dsims)](https://www.r-pkg.org/pkg/dsims)
-[![Codecov test coverage](https://app.codecov.io/gh/DistanceDevelopment/dsims/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DistanceDevelopment/dsims?branch=master)
+[![Codecov test coverage](https://codecov.io/gh/DistanceDevelopment/dsims/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DistanceDevelopment/dsims?branch=master)
 
 `dsims` is a package for simulating distance sampling surveys to allow users to optimise survey design for studies with particular properties.
 
