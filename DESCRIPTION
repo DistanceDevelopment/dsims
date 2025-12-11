@@ -23,10 +23,12 @@ Suggests:
     rmarkdown
 Type: Package
 Title: Distance Sampling Simulations
-Version: 1.0.6
+Version: 1.0.6.9000
 Authors@R: c(
   person("Laura", "Marshall", email = "lhm@st-and.ac.uk", role = c("aut", "cre")),
-  person("Thomas", "Len", email = "len.thomas@st-andrews.ac.uk", role = "ctb"))
+  person("Thomas", "Len", email = "len.thomas@st-andrews.ac.uk", role = "ctb"),
+  person("Nowacek", "Jack", email = "jn85@st-andrews.ac.uk", role = "ctb")
+  )
 Maintainer: Laura Marshall <lhm@st-and.ac.uk>
 Description: Performs distance sampling simulations. 'dsims' repeatedly generates
     instances of a user defined population within a given survey region. It then 

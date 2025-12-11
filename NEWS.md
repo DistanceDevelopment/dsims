@@ -1,3 +1,9 @@
+# dsims 1.0.6.9000
+
+New Features 
+
+* covariate distribution zero truncated negative binomial distribution added
+
 # dsims 1.0.6
 
 Bug Fixes

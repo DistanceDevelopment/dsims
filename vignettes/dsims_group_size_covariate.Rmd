@@ -1,0 +1,65 @@
+---
+title: "Group Size Covariate"
+description: |
+  Overview of the options for specifying a distribution for groups sizes.
+author:
+  - name: J Nowacek
+    url: http://distancesampling.org
+    affiliation: Univ of St Andrews
+    affiliation_url: https://creem.st-andrews.ac.uk
+date: "`r format(Sys.time(), '%B %Y')`"
+output: 
+  bookdown::html_document2:
+    number_sections: false
+    toc: true
+    toc_depth: 2
+    base_format: rmarkdown::html_vignette
+pkgdown:
+  as_is: true   
+bibliography: refs-grouped.bib
+csl: apa.csl
+vignette: >
+  %\VignetteIndexEntry{Group Size Covariate}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(eval=TRUE, echo=TRUE, message=FALSE, warnings=FALSE)
+```
+
+```{r loadpack, warning=FALSE, message=FALSE}
+library(knitr)
+library(dsims)
+library(Distance)
+library(tidyverse)
+```
+
+```{r, echo=FALSE,}
+myecho <- TRUE
+myeval <- TRUE
+opts_chunk$set(
+  tidy=TRUE     # display NOT code as typed
+)
+```
+
+When conducting an analysis of abundance using distance sampling, detection of groups of individuals requires the specification of a distribution of group size values. The current options are 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -18,7 +18,9 @@
 #' @slot strata.names Character vector giving the strata names for the study region.
 #' @slot covariates Named list with one named entry per individual level covariate.
 #' Cluster sizes can be defined here. Each list entry will either be a data.frame
-#' containing 2 columns, the first the level (level) and the second the probability
+#' containing 2 columns, the first the level (level) and the second the probability,
+#' or will specify a distribution which that covariate will follow (first level), 
+#' along with the parameters of that distribution, (second level).
 #' @slot size logical value indicating whether the population occurs in
 #' clusters.
 #' (prob). The cluster size entry in the list must be named 'size'.
