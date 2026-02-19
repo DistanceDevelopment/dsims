@@ -43,7 +43,9 @@ opts_chunk$set(
 )
 ```
 
-When conducting an analysis of abundance using distance sampling, detection of groups of individuals requires the specification of a distribution of group size values. The current options are 
+When conducting an analysis of abundance using distance sampling, detection of groups of individuals requires the specification of a distribution of group size values. The current options for user-input distributions for all covariates, including group size, are Normal, Poisson, Zero-truncated Poisson, Zero-Truncated Negative Binomial, and Log Normal. The zero-inflated distributions are optimal for this application of covariates, as group size of 0 would not constitute a detection. 
+
+Selecting between those distributions will be an important consideration, as the mean-variance relationship of the distribution selected should reflect that of your group-size data. Zero-truncation 
 
 
 

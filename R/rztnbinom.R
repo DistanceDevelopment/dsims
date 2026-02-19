@@ -1,22 +1,23 @@
-#' Randomly generates values from a 
-#' zero-truncated Negative Binomial distribution
-#'
 #' Generates values from a zero-truncated Negative Binomial distribution with 
 #' mean and variance equal to that specified. 
-#' It uses an optimization routine to check which values of parameters N and p 
-#' will give values with the requested mean and variance.
+#' Function uses an optimization routine to check which values of parameters N and p 
+#' will parametrize a distribution whose mean and variance 
+#' match the specified values.
 #'
 #' @param n number of values to randomly generate
 #' @param mean mean of the generated values
 #' @param var variance of the generated values
-#' @return returns a randomly generated value from a zero-truncated 
-#' Negative Binomial distribution.
+#' @return returns a vector of randomly generated values from a 
+#' zero-truncated Negative Binomial distribution.
 #' @note Internal function not intended to be called by user.
 #' @author Jack Nowacek
 #' @importFrom stats runif optim
 #' @importFrom dplyr tibble
 #'
 rztnbinom <- function(n.vals, mean = NA, var = NA){
+  
+  # set seed for reproducibility
+  set.seed(120902)
 
   input_check <- function(mean, var) {
     

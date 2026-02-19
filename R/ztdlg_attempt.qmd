@@ -1,0 +1,272 @@
+---
+title: "ztdlg_attempt"
+format: html
+---
+```{r}
+library(tidyverse)
+library(stats)
+
+rztpoilog <- function(n, mean, var, verbose = FALSE) {
+  
+  # 1. Moment Calculation Logic
+  # We need to solve for mu and sigma such that the theoretical ZT moments match inputs.
+  obj_fun <- function(par) {
+    mu <- par[1]
+    sigma <- par[2]
+    
+    # Validation: sigma must be positive
+    if (sigma <= 0) return(1e9)
+    
+    # Calculate p0 (Probability of zero) via numerical integration
+    # Integral of: P(Y=0 | lambda) * PDF(lambda)
+    # P(Y=0 | lambda) = exp(-lambda) = exp(-exp(x)) where x is normal
+    p0_res <- tryCatch(
+      integrate(function(x) exp(-exp(x)) * dnorm(x, mu, sigma), 
+                lower = mu - 10*sigma, upper = mu + 10*sigma),
+      error = function(e) list(value = NA)
+    )
+    p0 <- p0_res$value
+    
+    if (is.na(p0) || p0 >= 1 || p0 < 0) return(1e9)
+    
+    # --- FIX IS HERE ---
+    # Theoretical Moments of the UNTRUNCATED Poisson-Lognormal
+    # E[Y] = E[Lambda]
+    m1_untrunc <- exp(mu + 0.5 * sigma^2)
+    
+    # E[Y^2] = E[Lambda] + E[Lambda^2]  <-- The + E[Lambda] was missing before
+    m2_untrunc <- m1_untrunc + exp(2 * mu + 2 * sigma^2)
+    
+    # Theoretical Moments of the ZERO-TRUNCATED distribution
+    # E[Z] = E[Y] / (1 - p0)
+    mean_zt <- m1_untrunc / (1 - p0)
+    
+    # E[Z^2] = E[Y^2] / (1 - p0)
+    m2_zt <- m2_untrunc / (1 - p0)
+    
+    # Var(Z) = E[Z^2] - (E[Z])^2
+    var_zt <- m2_zt - (mean_zt^2)
+    
+    # Objective: Squared Error
+    return((mean_zt - mean)^2 + (var_zt - var)^2)
+  }
+  
+  # 2. Optimization
+  # Initial guesses are critical.
+  # We guess sigma=0.5 (moderate dispersion) and approximate mu from log(mean)
+  start_par <- c(log(mean) - 0.1, 0.5)
+  
+  # L-BFGS-B allows bounds to keep sigma positive
+  opt <- optim(
+    par = start_par, 
+    fn = obj_fun, 
+    method = "L-BFGS-B",
+    lower = c(-Inf, 0.001), 
+    upper = c(Inf, Inf)
+  )
+  
+  est_mu <- opt$par[1]
+  est_sigma <- opt$par[2]
+  
+  if (verbose) {
+    cat(sprintf("Optimization:\n  Target Mean: %.2f, Target Var: %.2f\n  Found Mu: %.4f, Sigma: %.4f\n", 
+                mean, var, est_mu, est_sigma))
+  }
+
+  # 3. Generation (Rejection Sampling)
+  draws <- numeric(n)
+  count <- 0
+  
+  while (count < n) {
+    needed <- n - count
+    batch_size <- ceiling(needed * 1.5) 
+    
+    # Draw Lambda from LogNormal
+    lambdas <- rlnorm(batch_size, est_mu, est_sigma)
+    
+    # Draw Counts from Poisson
+    # Note: Using rpois vectorization 
+    candidates <- rpois(batch_size, lambdas)
+    
+    # Filter Zeros
+    valid <- candidates[candidates > 0]
+    
+    n_valid <- length(valid)
+    if (n_valid > 0) {
+      take <- min(n_valid, needed)
+      draws[(count + 1):(count + take)] <- valid[1:take]
+      count <- count + take
+    }
+  }
+  
+  return(draws)
+}
+```
+
+```{r}
+# --- PARAMETERS ---
+target_n    <- 5000
+target_mean <- 15
+target_var  <- 100 # Try changing this to see the fit adapt
+
+# --- RUN ---
+set.seed(123)
+sample_vals <- rztpoilog(target_n, target_mean, target_var, verbose = TRUE)
+
+# --- PLOT ---
+actual_mean <- mean(sample_vals)
+actual_var  <- var(sample_vals)
+
+# Create stats label for top-right corner
+label_text <- paste0(
+  "Target Mean: ", target_mean, "\n",
+  "Actual Mean: ", round(actual_mean, 2), "\n\n",
+  "Target Var: ", target_var, "\n",
+  "Actual Var: ", round(actual_var, 2)
+)
+
+ggplot(data.frame(x = sample_vals), aes(x = x)) +
+  geom_histogram(aes(y = after_stat(density)), binwidth = 1, 
+                 fill = "#69b3a2", color = "black", alpha = 0.7) +
+  geom_density(color = "red", linewidth = 1, adjust = 2) +
+  annotate("label", x = Inf, y = Inf, label = label_text, 
+           hjust = 1.1, vjust = 1.1, size = 4, 
+           fill = "white", alpha = 0.9, family = "mono") +
+  labs(
+    title = "Zero-Truncated Poisson-Lognormal Fit",
+    subtitle = "Comparing requested moments vs. generated sample moments",
+    x = "Value",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+ztpln_feasible_vec <- function(mean, var) {
+  tibble(
+    mean = mean,
+    var = var,
+    lower_bound = mean - 1,
+    feasible = mean > 1 & var >= (mean - 1)
+  )
+}
+
+ztpln_feasible_vec(seq(1, 3, 0.1), seq(1, 3, 0.1))
+```
+
+```{r}
+# --- 3. Run Diagnostic (Stabilized) ---
+
+# Define a safe wrapper to handle crashes/hangs in specific grid points
+safe_run <- function(f, n, m, v) {
+  tryCatch({
+    # Add a timeout-like check or simplified constraints if needed
+    if(v <= m * 1.05) return(rep(NA, n)) # Skip if variance is too close to mean
+    f(n, m, v)
+  }, error = function(e) rep(NA, n))
+}
+
+sim_grid <- crossing(
+  # Start mean at 2 to avoid the infinite-loop "Zero Trap" of mean < 1
+  target_mean = seq(2, 100, length.out = 10), 
+  target_var  = seq(5, 500, length.out = 10)
+) %>%
+  # STRICT FILTER: Ensure variance is at least 10% higher than mean
+  # This prevents the optimizer from getting stuck in the "Poisson boundary"
+  filter(target_var > target_mean * 1.1) 
+
+results <- sim_grid %>%
+  mutate(
+    # Simulate 50 draws (Reduced n for speed as requested)
+    # Using 'safe_run' to prevent one bad apple from crashing the whole script
+    nb_res = map2(target_mean, target_var, ~safe_run(rztnbinom, 50, .x, .y)),
+    pl_res = map2(target_mean, target_var, ~safe_run(rztplognormal, 50, .x, .y)),
+    
+    # Calculate Relative Error (Handle NAs if safe_run skipped)
+    nb_mean_err = map_dbl(nb_res, ~ifelse(all(is.na(.x)), NA, abs(mean(.x) - target_mean)/target_mean)),
+    nb_var_err  = map_dbl(nb_res, ~ifelse(all(is.na(.x)), NA, abs(var(.x) - target_var)/target_var)),
+    
+    pl_mean_err = map_dbl(pl_res, ~ifelse(all(is.na(.x)), NA, abs(mean(.x) - target_mean)/target_mean)),
+    pl_var_err  = map_dbl(pl_res, ~ifelse(all(is.na(.x)), NA, abs(var(.x) - target_var)/target_var))
+  ) %>%
+  select(-nb_res, -pl_res) %>%
+  pivot_longer(cols = ends_with("err"), names_to = "metric", values_to = "error") %>%
+  filter(!is.na(error)) %>% # Remove failed points from plot
+  mutate(
+    Distribution = ifelse(str_detect(metric, "nb_"), "NegBinomial", "PoissonLogNormal"),
+    Type = ifelse(str_detect(metric, "_mean_"), "Mean Accuracy", "Variance Accuracy"),
+    error_clamped = pmin(error, 1.0) 
+  )
+
+# --- 4. Plot ---
+ggplot(results, aes(x = target_mean, y = target_var, fill = error_clamped)) +
+  geom_tile() +
+  facet_grid(Type ~ Distribution) +
+  scale_fill_gradientn(
+    colors = c("#4daf4a", "#ffff33", "#e41a1c"), # Green -> Yellow -> Red
+    values = c(0, 0.2, 1), 
+    limits = c(0, 1),
+    name = "Relative\nError",
+    labels = scales::percent,
+    na.value = "grey50"
+  ) +
+  labs(
+    title = "Accuracy Diagnostic: ZT-NegBinom vs. ZT-PoisLogNorm",
+    subtitle = "Comparing accuracy over stable parameter space (Var > 1.1 * Mean)",
+    x = "Input Mean",
+    y = "Input Variance"
+  ) +
+  theme_minimal() +
+  theme(panel.grid = element_blank())
+```
+```{r}
+library(tidyverse)
+
+# --- 1. Define Safe Grid ---
+# We avoid the "danger zone" where Mean < 2 or Variance approx Mean
+proof_grid <- crossing(
+  target_mean = seq(2, 500, length.out = 10),
+  target_var  = seq(3, 1000, length.out = 10)
+) %>%
+  # STRICT FILTER: Variance must be significantly higher than mean
+  filter(target_var > target_mean * 1.2)
+
+# --- 2. Run Simulation (Poisson Only) ---
+results_poc <- proof_grid %>%
+  mutate(
+    # Run the function (assuming rztplognormal is in your environment)
+    # We use a small n=50 for speed in this proof of concept
+    sim_data = map2(target_mean, target_var, ~tryCatch(
+      rztpln(50, .x, .y, verbose = FALSE),
+      error = function(e) NA
+    )),
+    
+    # Calculate Mean Error
+    actual_mean = map_dbl(sim_data, ~mean(.x, na.rm=TRUE)),
+    mean_error  = abs(actual_mean - target_mean) / target_mean,
+    
+    # Clamp for plotting (cap error at 50% so the gradient looks good)
+    error_clamped = pmin(mean_error, 0.5)
+  )
+
+# --- 3. Plot Mean Error Heatmap ---
+ggplot(results_poc, aes(x = factor(round(target_mean, 1)), 
+                        y = factor(round(target_var, 1)), 
+                        fill = error_clamped)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    low = "green", mid = "yellow", high = "red",
+    midpoint = 0.1, # Yellow at 10% error
+    limit = c(0, 0.5),
+    name = "Relative\nMean Error",
+    labels = scales::percent
+  ) +
+  labs(
+    title = "Proof of Concept: Poisson-Lognormal Accuracy",
+    subtitle = "Mean Error across a safe parameter grid (Var > 1.2 * Mean)",
+    x = "Input Mean",
+    y = "Input Variance"
+  ) +
+  theme_minimal()
+```
+

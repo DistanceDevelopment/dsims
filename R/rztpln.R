@@ -1,64 +1,73 @@
-#' Randomly generates values from a 
-#' zero-truncated Poisson-lognormal distribution
-#'
-#' Finds parameters mu and sigma that match the user-specified mean and variance
-#' for a zero-truncated Poisson-lognormal distribution, then generates random draws.
+#' Generates values from a zero-truncated Poisson Log-normal distribution with 
+#' mean and variance equal to that specified. 
+#' It uses an optimization routine to check which values of the parameters 
+#' mu and sigma will parametrize a distribution whose mean and variance match
+#' the specified values.
 #'
 #' @param n number of values to randomly generate
 #' @param mean target mean of the generated values
 #' @param var target variance of the generated values
 #' @param verbose boolean to print optimization details
 #' @return vector of randomly generated values
-rztplognormal <- function(n, mean = NA, var = NA, verbose = FALSE) {
+#' @note Internal function not intended to be called by user.
+#' @author Jack Nowacek
+#' @importFrom stats runif optim
+#' @importFrom dplyr tibble
+#' 
+#' sources: 
+#' https://discourse.mc-stan.org/t/zero-truncated-poisson-lognormal-distribution/26155
+#' https://mattocci27.github.io/assets/poilog.html
+#' 
+rztpln <- function(n, mean = NA, var = NA, verbose = FALSE) {
   
-  # 1. Input Checks
+  # checks input values to make sure they are reasonable
   if (mean < 1) warning("Target mean is very low; zero-truncation may be unstable.")
   if (!is.na(mean) && !is.na(var) && var <= mean) {
     warning(paste("Target variance (", var, ") <= Mean (", mean, "). ",
                   "Poisson-lognormal is naturally overdispersed. Optimization may fail."))
   }
   
-  # 2. Optimization Setup
+  # optimization function
   find_parameters <- function(goal_mean, goal_var) {
     
     obj_fun <- function(par) {
       mu <- par[1]
       sigma <- par[2]
       
-      # Penalty for invalid sigma
+      # check for invalid sigma 
       if (sigma <= 0.001) return(1e20)
       
-      # A. Calculate p0 (Probability of zero)
+      # A. calculate p0 (probability of zero)
       p0 <- tryCatch(
         integrate(function(x) exp(-exp(x)) * dnorm(x, mean = mu, sd = sigma), 
                   lower = mu - 10*sigma, upper = mu + 10*sigma)$value,
         error = function(e) NA
       )
       
-      # If integration fails or p0 is invalid, return penalty
+      # if integration fails or p0 is invalid, return penalty
       if (is.na(p0) || p0 >= 0.9999 || p0 < 0) return(1e20)
       
-      # B. Calculate Moments (with Overflow Protection)
+      # calculate moments of the distribution
       # We check the exponent size before calculating exp() to avoid Inf
       term1_arg <- mu + 0.5 * sigma^2
       term2_arg <- 2 * mu + 2 * sigma^2
       
-      # exp(700) is approx the limit for double precision. If we exceed this, punish.
+      # another error check
       if (term1_arg > 700 || term2_arg > 700) return(1e20)
       
       m1_untrunc <- exp(term1_arg)
       # E[Y^2] = E[Lambda] + E[Lambda^2]
       m2_untrunc <- m1_untrunc + exp(term2_arg)
       
-      # C. Truncated Moments
+      # find the truncated moments using the probability of 0
       mean_zt <- m1_untrunc / (1 - p0)
       m2_zt   <- m2_untrunc / (1 - p0)
       var_zt  <- m2_zt - mean_zt^2
       
-      # D. Final check for valid numbers
+      # final check
       if (!is.finite(mean_zt) || !is.finite(var_zt)) return(1e20)
       
-      # Objective: Squared Error
+      # sets error 
       err <- (mean_zt - goal_mean)^2 + (var_zt - goal_var)^2
       
       if (!is.finite(err)) return(1e20)
@@ -87,27 +96,30 @@ rztplognormal <- function(n, mean = NA, var = NA, verbose = FALSE) {
     return(list(mu = res$par[1], sigma = res$par[2]))
   }
   
-  # Execute Optimization
+  # execute optimization
   params <- find_parameters(mean, var)
   
-  # 3. Rejection Sampling
+  # sampling
   draws <- numeric(n)
   count <- 0
   
-  # Safety break for infinite loops
+  # ensures the sampler will not be stuck
   max_iter <- 1000
   iter <- 0
+  
+  # set seed for reproducibility
+  set.seed(120902)
   
   while (count < n && iter < max_iter) {
     iter <- iter + 1
     needed <- n - count
     batch_size <- ceiling(needed * 1.5) 
     
-    # 1. Sample lambda
+    # 1. sample lambda
     lambdas <- rlnorm(batch_size, meanlog = params$mu, sdlog = params$sigma)
-    # 2. Sample counts
+    # 2. sample counts
     candidates <- rpois(batch_size, lambda = lambdas)
-    # 3. Filter Zeros
+    # 3. filter zeros
     valid <- candidates[candidates > 0]
     
     take <- min(length(valid), needed)
