@@ -45,10 +45,6 @@ check.covariates <- function(covariate.list, no.strata){
           if(length(param.names) != 2 | !all(param.names %in% c("mean", "sd"))){
             stop(paste("The distribution parameters for covariate ", list.names[cov]," and strata ", strat," should be mean and sd.", sep = ""), call. = FALSE)  
           }
-        }else if(distribution  == "lognormal"){
-          if(length(param.names) != 2 | !all(param.names %in% c("meanlog", "sdlog"))){
-            stop(paste("The distribution parameters for covariate ", list.names[cov]," and strata ", strat," should be meanlog and sdlog.", sep = ""), call. = FALSE)  
-          }
         }else if(distribution == "poisson"){
           if(length(param.names) != 1 | !all(param.names %in% c("lambda"))){
             stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be lambda.", sep = ""), call. = FALSE)  
@@ -56,6 +52,18 @@ check.covariates <- function(covariate.list, no.strata){
         }else if(distribution == "ztruncpois"){
           if(length(param.names) != 1 | !all(param.names %in% c("mean"))){
             stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean.", sep = ""), call. = FALSE)  
+          }
+        }else if(distribution  == "lognormal"){
+          if(length(param.names) != 2 | !all(param.names %in% c("meanlog", "sdlog"))){
+            stop(paste("The distribution parameters for covariate ", list.names[cov]," and strata ", strat," should be meanlog and sdlog.", sep = ""), call. = FALSE)  
+          }
+        }else if(distribution == "ztruncnbinom"){
+          if(length(param.names) != 2 | !all(param.names %in% c("mean", "variance"))){
+            stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean and variance.", sep = ""), call. = FALSE)  
+          }
+        }else if(distribution == "ztruncpoislognormal"){
+          if(length(param.names) != 2 | !all(param.names %in% c("mean", "variance"))){
+            stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean and variance.", sep = ""), call. = FALSE)  
           }
           # Check that the mean is > 1
           if(params$mean <= 1){
@@ -71,3 +79,4 @@ check.covariates <- function(covariate.list, no.strata){
   }
   return(covariate.list)
 }
+

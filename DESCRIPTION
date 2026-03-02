@@ -92,6 +92,8 @@ Collate:
     'read.seg.transects.R'
     'run.simulation.R'
     'rztpois.R'
+    'rztnbinom.R'
+    'rztpln.R'
     'save.sim.results.R'
     'simulate.detections.R'
     'simulation.consistency.check.R'

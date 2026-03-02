@@ -585,7 +585,9 @@ setMethod(
                                        "normal" = dist.param$mean,
                                        "poisson" = dist.param$lambda,
                                        "ztruncpois" = dist.param$mean,
-                                       "lognormal" = exp(dist.param$meanlog + 0.5 * dist.param$sdlog^2))
+                                       "lognormal" = exp(dist.param$meanlog + 0.5 * dist.param$sdlog^2),
+                                       "ztruncnbinom" = dist.param$mean,
+                                       "ztruncpoislognormal" = dist.param$mean)
         }
       }
       # Re-order to match

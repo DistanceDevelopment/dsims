@@ -236,7 +236,9 @@ make.population.description <- make.pop.description <- function(region = make.re
                          normal = c("mean", "sd"),
                          poisson = "lambda",
                          ztruncpois = "mean",
-                         lognormal = c("meanlog", "sdlog"))
+                         lognormal = c("meanlog", "sdlog"),
+                         ztruncnbinom = c("mean", "variance"),
+                         ztruncpoislognormal = c("mean", "variance"))
         if(!all(params %in% names(covariates[[cov]][[i]]))){
           stop(paste("You have not supplied all the required parameters (", paste(params, collapse = ", "),") for the following covariate distribution: ", covariates[[cov]][[i]]$distribution, sep = ""), call. = FALSE)
         }
@@ -246,7 +248,9 @@ make.population.description <- make.pop.description <- function(region = make.re
                              normal = list(mean = pvs$mean, sd = pvs$sd),
                              poisson = list(lambda = pvs$lambda),
                              ztruncpois = list(mean = pvs$mean),
-                             lognormal = list(meanlog = pvs$meanlog, sdlog = pvs$sdlog))
+                             lognormal = list(meanlog = pvs$meanlog, sdlog = pvs$sdlog),
+                             ztruncnbinom = list(mean = pvs$mean, variance = pvs$variance),
+                             ztruncpoislognormal = list(mean = pvs$mean, variance = pvs$variance))
         old.format <- list(covariates[[cov]][[i]]$distribution, param.vals)
         strat.list[[i]] <- old.format
       }
@@ -563,3 +567,4 @@ make.simulation <- function(reps = 10,
 
   return(simulation)
 }
+
