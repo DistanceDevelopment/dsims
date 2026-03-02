@@ -14,9 +14,6 @@
 #' @importFrom stats runif optim
 #' @importFrom dplyr tibble
 #' 
-#' sources: 
-#' https://discourse.mc-stan.org/t/zero-truncated-poisson-lognormal-distribution/26155
-#' https://mattocci27.github.io/assets/poilog.html
 #' 
 rztpln <- function(n, mean = NA, var = NA, verbose = FALSE) {
   
