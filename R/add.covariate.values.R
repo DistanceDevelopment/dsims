@@ -27,7 +27,7 @@ add.covariate.values <- function(pop.data, covariates){
                              ztruncpois = rztpois(n.vals, mean = params$mean),
                              lognormal = rlnorm(n.vals, meanlog = params$meanlog, sdlog = params$sdlog),
                              ztruncnbinom = rztnbinom(n.vals, mean = params$mean, var = params$var),
-                             ztruncpoislognormal = rztpln(n.vals, mean = params$mean, sdlog = params$sdlog))
+                             ztruncpoislognormal = rztpln(n.vals, mean = params$mean, var = params$var))
         list.data[[strata.ids[strat]]][[cov.names[covar]]] <- cov.values
       }
     }

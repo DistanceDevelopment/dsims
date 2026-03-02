@@ -65,13 +65,14 @@ check.covariates <- function(covariate.list, no.strata){
           if(length(param.names) != 2 | !all(param.names %in% c("mean", "variance"))){
             stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean and variance.", sep = ""), call. = FALSE)  
           }
+        }else{
+          stop(paste("The distribution for covariate ", list.names[cov]," and strata ", strat," is not implemented at present. Please select from: normal, lognormal, poisson and ztruncpois.", sep = ""), call. = FALSE)
+        }
+        if(distribution %in% c("ztruncpois", "ztruncnbinom", "ztruncpoislognormal"))
           # Check that the mean is > 1
           if(params$mean <= 1){
             stop(paste("The mean parameter for covariate ", list.names[cov]," and strata ", strat," must be greater than 1.", sep = ""), call. = FALSE)  
           }
-        }else{
-          stop(paste("The distribution for covariate ", list.names[cov]," and strata ", strat," is not implemented at present. Please select from: normal, lognormal, poisson and ztruncpois.", sep = ""), call. = FALSE)
-        }
       }else{
         stop(paste("Element ", cov, " of your covariate list is not an accepted format. Please supply either a data.frame or a list", sep = ""), call. = FALSE)
       }

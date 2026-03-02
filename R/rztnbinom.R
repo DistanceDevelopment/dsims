@@ -4,7 +4,7 @@
 #' will parametrize a distribution whose mean and variance 
 #' match the specified values.
 #'
-#' @param n number of values to randomly generate
+#' @param n.vals number of values to randomly generate
 #' @param mean mean of the generated values
 #' @param var variance of the generated values
 #' @return returns a vector of randomly generated values from a 

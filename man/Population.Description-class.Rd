@@ -25,7 +25,9 @@ the region in which the population exists.}
 
 \item{\code{covariates}}{Named list with one named entry per individual level covariate.
 Cluster sizes can be defined here. Each list entry will either be a data.frame
-containing 2 columns, the first the level (level) and the second the probability}
+containing 2 columns, the first the level (level) and the second the probability,
+or will specify a distribution which that covariate will follow (first level), 
+along with the parameters of that distribution, (second level).}
 
 \item{\code{size}}{logical value indicating whether the population occurs in
 clusters.

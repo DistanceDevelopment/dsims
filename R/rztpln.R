@@ -11,7 +11,7 @@
 #' @return vector of randomly generated values
 #' @note Internal function not intended to be called by user.
 #' @author Jack Nowacek
-#' @importFrom stats runif optim
+#' @importFrom stats runif optim integrate dnorm
 #' @importFrom dplyr tibble
 #' 
 #' 

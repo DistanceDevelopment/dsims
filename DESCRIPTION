@@ -50,7 +50,7 @@ Language: en-GB
 URL: https://github.com/DistanceDevelopment/dsims
 BugReports: https://github.com/DistanceDevelopment/dsims/issues
 Encoding: UTF-8
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Collate: 
     'AICc.R'
     'generic.functions.R'
@@ -91,9 +91,9 @@ Collate:
     'read.point.transects.R'
     'read.seg.transects.R'
     'run.simulation.R'
-    'rztpois.R'
     'rztnbinom.R'
     'rztpln.R'
+    'rztpois.R'
     'save.sim.results.R'
     'simulate.detections.R'
     'simulation.consistency.check.R'
