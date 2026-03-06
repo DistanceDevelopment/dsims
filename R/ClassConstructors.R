@@ -103,13 +103,15 @@ make.density <- function(region = make.region(), x.space = 20, y.space = NULL, c
 #' Creates an object which describes a population. The values in this object
 #' will be used to create instances of the population.
 #'
-#' @details Individual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
+#' @details Individual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois', 'ztruncnbinom', 'ztruncpoislognormal', or 'lognormal'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
 #'
-#' \tabular{lll}{ Distribution  \tab Parameters  \tab         \cr
-#'                normal        \tab mean        \tab sd      \cr
-#'                poisson       \tab lambda      \tab         \cr
-#'                ztruncpois    \tab mean        \tab         \cr
-#'                lognormal     \tab meanlog     \tab sdlog   \cr
+#' \tabular{lll}{ Distribution          \tab Parameters  \tab         \cr
+#'                normal                \tab mean        \tab sd      \cr
+#'                poisson               \tab lambda      \tab         \cr
+#'                ztruncpois            \tab mean        \tab         \cr
+#'                ztruncnbinom          \tab mean        \tab sd      \cr
+#'                ztruncpoislognormal   \tab mean        \tab sd      \cr
+#'                lognormal             \tab meanlog     \tab sdlog   \cr
 #'               }
 #'
 #' @param region the Region object in which this population exists (see \link[dssd]{make.region}).
@@ -237,8 +239,8 @@ make.population.description <- make.pop.description <- function(region = make.re
                          poisson = "lambda",
                          ztruncpois = "mean",
                          lognormal = c("meanlog", "sdlog"),
-                         ztruncnbinom = c("mean", "variance"),
-                         ztruncpoislognormal = c("mean", "variance"))
+                         ztruncnbinom = c("mean", "sd"),
+                         ztruncpoislognormal = c("mean", "sd"))
         if(!all(params %in% names(covariates[[cov]][[i]]))){
           stop(paste("You have not supplied all the required parameters (", paste(params, collapse = ", "),") for the following covariate distribution: ", covariates[[cov]][[i]]$distribution, sep = ""), call. = FALSE)
         }
@@ -249,8 +251,8 @@ make.population.description <- make.pop.description <- function(region = make.re
                              poisson = list(lambda = pvs$lambda),
                              ztruncpois = list(mean = pvs$mean),
                              lognormal = list(meanlog = pvs$meanlog, sdlog = pvs$sdlog),
-                             ztruncnbinom = list(mean = pvs$mean, variance = pvs$variance),
-                             ztruncpoislognormal = list(mean = pvs$mean, variance = pvs$variance))
+                             ztruncnbinom = list(mean = pvs$mean, sd = pvs$sd),
+                             ztruncpoislognormal = list(mean = pvs$mean, sd = pvs$sd))
         old.format <- list(covariates[[cov]][[i]]$distribution, param.vals)
         strat.list[[i]] <- old.format
       }

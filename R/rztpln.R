@@ -6,7 +6,7 @@
 #'
 #' @param n number of values to randomly generate
 #' @param mean target mean of the generated values
-#' @param var target variance of the generated values
+#' @param sd target standard deviation of the generated values
 #' @param verbose boolean to print optimization details
 #' @return vector of randomly generated values
 #' @note Internal function not intended to be called by user.
@@ -15,13 +15,16 @@
 #' @importFrom dplyr tibble
 #' 
 #' 
-rztpln <- function(n, mean = NA, var = NA, verbose = FALSE) {
+ztruncpoislognormal <- function(n, mean = NA, sd = NA, verbose = FALSE) {
   
-  # checks input values to make sure they are reasonable
-  if (mean < 1) warning("Target mean is very low; zero-truncation may be unstable.")
-  if (!is.na(mean) && !is.na(var) && var <= mean) {
-    warning(paste("Target variance (", var, ") <= Mean (", mean, "). ",
-                  "Poisson-lognormal is naturally overdispersed. Optimization may fail."))
+  var = sd^2
+  
+  if (mean < 1) {
+    stop("Target mean must be larger than 1.", call. = FALSE)
+  }
+  
+  if (var <= mean) {
+    stop("Square of the target standard deviation must be larger than the mean.", call. = FALSE)
   }
   
   # optimization function
@@ -30,9 +33,6 @@ rztpln <- function(n, mean = NA, var = NA, verbose = FALSE) {
     obj_fun <- function(par) {
       mu <- par[1]
       sigma <- par[2]
-      
-      # check for invalid sigma 
-      if (sigma <= 0.001) return(1e20)
       
       # A. calculate p0 (probability of zero)
       p0 <- tryCatch(
@@ -49,9 +49,6 @@ rztpln <- function(n, mean = NA, var = NA, verbose = FALSE) {
       term1_arg <- mu + 0.5 * sigma^2
       term2_arg <- 2 * mu + 2 * sigma^2
       
-      # another error check
-      if (term1_arg > 700 || term2_arg > 700) return(1e20)
-      
       m1_untrunc <- exp(term1_arg)
       # E[Y^2] = E[Lambda] + E[Lambda^2]
       m2_untrunc <- m1_untrunc + exp(term2_arg)
@@ -61,13 +58,11 @@ rztpln <- function(n, mean = NA, var = NA, verbose = FALSE) {
       m2_zt   <- m2_untrunc / (1 - p0)
       var_zt  <- m2_zt - mean_zt^2
       
-      # final check
-      if (!is.finite(mean_zt) || !is.finite(var_zt)) return(1e20)
-      
       # sets error 
       err <- (mean_zt - goal_mean)^2 + (var_zt - goal_var)^2
       
       if (!is.finite(err)) return(1e20)
+      
       return(err)
     }
     
@@ -103,9 +98,6 @@ rztpln <- function(n, mean = NA, var = NA, verbose = FALSE) {
   # ensures the sampler will not be stuck
   max_iter <- 1000
   iter <- 0
-  
-  # set seed for reproducibility
-  set.seed(120902)
   
   while (count < n && iter < max_iter) {
     iter <- iter + 1

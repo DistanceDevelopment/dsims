@@ -1,0 +1,265 @@
+---
+title: Size bias---how large is the problem?
+author: Centre for Research into Ecological and Environmental Modelling <br> **University of St Andrews**
+date: "`r Sys.Date()`"
+format: 
+  html: 
+    embed-resources: true
+---
+
+:::{.callout-tip}
+
+## Supplement
+
+Correcting size bias via `size` as a covariate.  When does it matter?
+
+:::
+
+```{r}
+#| label = "setup",
+#| include = FALSE
+library(dsims)
+library(Distance)
+library(extraDistr)
+```
+
+# Size bias in distance sampling surveys
+
+As shown in the lecture, if detectability is a function not only of distance, but also size (big groups are easier to see than small groups), then groups in the sample are likely to be larger than groups in the entire population.  Consequently, when the density of groups is scaled up to the density of individuals
+$$\hat{D}_{indiv} = \hat{D}_{groups} \times \overline{size}_{group}$$
+
+$\hat{D}_{indiv}$ is overestimated.
+
+A resolution to this problem is to explicitly model the probability of detection as a function of group size using `size` as a covariate in the detection function.  I will demonstrate two applications: one where group size variability is small and one where group size variability is large.  I will use simulation (where the answer is known) to demonstrate.
+
+The necessary syntax to include covariates, group size in this instance, in the detection function is:
+
+```{r}
+#| echo = TRUE,
+#| eval = FALSE
+a.covariate <- ds(my.data, transect="line", key="hn", formula=~size)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: ex1para
+numgroup1 <- 200
+meangroup1 <- 10
+nsim1 <- 500
+```
+
+# Example 1: Perhaps a terrestrial ungulate
+
+Here animals occur in small herds.  The distribution of herd size is Poisson with a mean herd size of `r meangroup1`.
+
+```{r}
+#| label: "fig-nocap-margin-first"
+#| echo: FALSE
+#| fig-cap: "Group size distribution for animals in small groups"
+group.size <- rtpois(1000,lambda = meangroup1)
+hist(group.size, xlab="Group size", breaks=seq(0, max(group.size)),
+     main="True group size in population")
+```
+
+You can see it is very rare for herds to exceed a size of twice the mean.
+
+I'll create a population with this distribution of herd size, with a true number of **herds** of `r numgroup1`; hence true number of individuals in the population is `r numgroup1*meangroup1`.  
+
+```{r}
+#| label = "sim10",
+#| echo = FALSE,
+#| message = FALSE,
+#| warning = FALSE
+#set.seed(4561532)
+nsim <- nsim1
+eg.region <- make.region()
+covariate.list <- list()
+true.N.groups <- numgroup1
+true.mean.size <- meangroup1
+covariate.list$size <- list(list(distribution="ztruncpois", 
+                                 mean = true.mean.size))
+pop.desc <- make.population.description(region = eg.region,
+                                        density = make.density(region=eg.region),
+                                        covariates = covariate.list, 
+                                        N=true.N.groups)
+cov.params <- list(size = c(0.10))
+detect <- make.detectability(scale.param = 10, 
+                             cov.param = cov.params, 
+                             truncation = 80)
+plot(detect, pop.desc)
+my.pop <- generate.population(pop.desc, detect, eg.region)
+transects <- make.design(truncation=80)
+simulation <- make.simulation()
+detmodel.size <- make.ds.analysis(dfmodel = list(~size),
+                                  key = "hn",
+                                  criteria = "AIC",
+                                  truncation=80)
+size.cov <- make.simulation(reps=nsim, design=transects, 
+                            pop=pop.desc, det=detect,
+                            ds.analysis = detmodel.size)
+size.cov.survey <- run.survey(size.cov)
+```
+
+Do we have the tell-tale sign of size bias--missing small groups at large distances?
+
+```{r}
+#| echo = FALSE
+scatter.smooth(size.cov.survey@dist.data$distance,
+               size.cov.survey@dist.data$size,
+               xlab="Detection distance",
+               ylab="Observed group size",
+               main="Detected group size as fn of detection distance")
+```
+
+Perhaps small groups at large distances are missed; include group size in the detection function.
+
+## Analysis including group size covariate
+
+```{r}
+#| label = "sim-small-with",
+#| message = FALSE,
+#| echo = FALSE
+runsim.cov <- run.simulation(size.cov, run.parallel = TRUE)
+```
+
+```{r}
+#| label = "small-with-covar",
+#| fig.width = 8,
+#| echo = FALSE
+hist(runsim.cov@results$expected.size[1,1,1:nsim], 
+     main="Computed average group size\nGroup size covariate", 
+     xlab="Group size", xlim=c(8,12))
+abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
+indiv <- runsim.cov@results$individuals$N[1,1:6,nsim+1]
+```
+
+The distribution of computed average group size centred on the true size of 10 and there was no problem with fitting a detection function.  The average over the simulations estimated number of individuals was `r round(indiv[1],2)`, a bias of `r round((indiv[1]-(true.N.groups*true.mean.size))/(true.N.groups*true.mean.size)*100, 1)`\%.
+
+## Analysis without group size covariate
+
+As a comparison, what happens if we don't include size as a covariate in our detection function?
+
+```{r}
+#| label = "nocov-10",
+#| echo = FALSE,
+#| message = FALSE,
+#| fig.width = 8
+detmodel.const <- make.ds.analysis(dfmodel = list(~1),
+                                  key = "hn",
+                                  criteria = "AIC",
+                                  truncation=80)
+no.size.cov <- make.simulation(reps=nsim, 
+                               design=transects, pop=pop.desc, det=detect,
+                               ds.analysis = detmodel.const)
+no.size.sim <- run.simulation(no.size.cov, run.parallel = TRUE)
+hist(no.size.sim@results$expected.size[1,1,1:nsim],
+     main="Computed average group size\nNo covariate", 
+     xlab="Group size", xlim=c(8,12))
+abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
+nosize.indiv <- no.size.sim@results$individuals$N[1,1:6,nsim+1]
+```
+
+The distribution of computed average groups sizes is shown above.  We would expect an overestimate of mean group size because small groups at large distances are missing from our sample; but that effect is small in this instance. As a consequence, the average $\hat{N}_{indiv}$ across all simulations is `r round(nosize.indiv[1],2)`, a bias of `r round((nosize.indiv[1]-(true.N.groups*true.mean.size))/(true.N.groups*true.mean.size)*100, 1)`\%.
+
+# Example 2: Possible dolphin pods or seabird rafts
+
+I use a different distribution to mimic the group size distribution.  A log normal distribution (you heard about it during the **precision** lecture) is like a normal distribution that has had its right tail pulled out. In all other respects the survey is the same (same design, etc.)
+
+```{r}
+#| label: param2
+#| echo: false
+#| eval: true
+
+dolph.median <- 12
+ml <- log(dolph.median)
+sl <- log(3)
+group.size <- rlnorm(1000, ml, sl)
+mean.group.size <- mean(group.size)
+true.N.indiv.dolphin <- true.N.groups * mean.group.size
+```
+
+The *median* of this distribution is `r dolph.median` (not far from 10 in the previous example), but because of the right tail, the *mean* is `r round(mean.group.size,1)`.  This changes the true number of individuals in the population (for the same `r true.N.groups` groups) to `r round(true.N.indiv.dolphin)`.
+
+```{r}
+#| label: "lognor-with"
+#| fig.margin: TRUE
+#| echo: FALSE
+#| message: false
+
+#mybr <- c(0,5,10,15,20,25,30,35,40,50,60,100,300,1000)
+hist(group.size, nc=25, main="Distribution of group size in population")
+covariate.list$size <- list(list(distribution="lognormal", 
+                                 meanlog = ml, sdlog = sl))
+pop.desc <- make.population.description(region = eg.region,
+                                        density = make.density(region=eg.region),
+                                        covariates = covariate.list, 
+                                        N=true.N.groups)
+cov.params <- list(size = c(0.01))
+detect <- make.detectability(scale.param = 30, 
+                             cov.param = cov.params, 
+                             truncation = 80)
+plot(detect, pop.desc)
+tail.size.cov <- make.simulation(reps=nsim, design=transects, 
+                                 pop=pop.desc, det=detect,
+                                 ds.analysis = detmodel.size)
+tail.size.cov.sim <- run.simulation(tail.size.cov, run.parallel = TRUE)
+tail.indiv <- tail.size.cov.sim@results$individuals$N[1,1:6,nsim+1]
+```
+
+How about "missingness" of small groups at large distances?
+```{r}
+#| echo = FALSE
+size.cov.survey <- run.survey(tail.size.cov)
+scatter.smooth(size.cov.survey@dist.data$distance,
+               size.cov.survey@dist.data$size,
+               xlab="Detection distance",
+               ylab="Observed group size",
+               main="Detected group size as fn of detection distance")
+```
+
+## Analysis with covariate
+
+```{r}
+#| echo = FALSE,
+#| fig.margin = TRUE
+hist(tail.size.cov.sim@results$expected.size[1,1,1:nsim], 
+     main="Computed average group size\nGroup size covariate", 
+     xlab="Group size")
+abline(v=exp(ml+sl^2/2), lty=3)
+```
+
+When including `size` as a covariate, estimates of average group size are not affected (figure above). Likewise, mean $\hat{N}_{indiv}$ is effectively unbiased: `r round(tail.indiv[1], 2)`, a bias of `r round((tail.indiv[1]-true.N.indiv.dolphin)/true.N.indiv.dolphin*100, 1)`\%.
+.
+
+## Analysis without the covariate
+
+```{r}
+#| label = "lognor-without",
+#| echo = FALSE,
+#| fig.margin = TRUE
+tail.size.NOcov <- make.simulation(reps=nsim, design=transects, 
+                                   pop=pop.desc, det=detect,
+                                   ds.analysis = detmodel.const)  
+tail.size.NOcov.sim <- run.simulation(tail.size.NOcov, run.parallel = TRUE)
+tail.indiv.NO <- tail.size.NOcov.sim@results$individuals$N[1,1:6,nsim+1]
+hist(tail.size.NOcov.sim@results$expected.size[1,1,1:nsim], 
+     main="Computed average group size\nNo covariate", 
+     xlab="Group size")
+abline(v=exp(ml+sl^2/2), lty=3)
+```
+
+
+Now mean $\hat{N}_{indiv}$ is **considerably biased**: `r round(tail.indiv.NO[1], 2)`, a bias of `r round((tail.indiv.NO[1]-true.N.indiv.dolphin)/true.N.indiv.dolphin*100, 1)`\%.
+
+```{r}
+#| echo = FALSE
+hist(tail.size.NOcov.sim@results$individuals$N[1,1,1:nsim],
+     main="Estimates of abundance without size covariate", xlab="Abundance estimate",
+     sub="Dotted vertical line is true abundance")
+abline(v=exp(ml+sl^2/2)*200, lty=3)
+```
+
+# Take home message
+
+When variability in group size is small for your study animal, size bias is unlikely to cause a problem, because even missing small groups at large distances does not cause the average size in the detected sample to be too different from the average size in the population.  However, when group size variation is large, the average size in the sample can be considerably larger than the average group size in the population, inducing positive bias in the estimated number of individuals in the population.  Under those situations, include group size as a covariate in the detection function modelling.

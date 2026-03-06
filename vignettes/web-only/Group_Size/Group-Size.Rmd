@@ -1,0 +1,211 @@
+---
+title: "Using the Group Size Covariate to Correct Size Bias"
+description: |
+  Overview of the options for specifying a distribution for groups sizes.
+author:
+  - name: Jackson D. Nowacek, Eric Rexstad, Laura Marshall, Len Thomas
+    url: http://distancesampling.org
+    affiliation: University of St Andrews
+    affiliation_url: https://creem.st-andrews.ac.uk
+date: "`r format(Sys.time(), '%B %Y')`"
+output: 
+  bookdown::html_document2:
+    number_sections: false
+    toc: true
+    toc_depth: 2
+    base_format: rmarkdown::html_vignette
+pkgdown:
+  as_is: true   
+bibliography: Group-Size.bib
+csl: apa.csl
+vignette: >
+  %\VignetteIndexEntry{Group Size Covariate}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## Background
+
+```{r include=FALSE}
+knitr::opts_chunk$set(eval=TRUE, echo=TRUE, message=FALSE, warnings=FALSE)
+```
+
+```{r loadpack, warning=FALSE, message=FALSE, include=F}
+library(knitr)
+library(dsims)
+library(Distance)
+library(tidyverse)
+library(extraDistr)
+
+set.seed(3)
+```
+
+```{r, echo=FALSE,}
+myecho <- TRUE
+myeval <- TRUE
+opts_chunk$set(
+  tidy=TRUE     # display NOT code as typed
+)
+```
+
+When conducting an analysis of abundance using distance sampling, detection of groups, rather than individuals, requires the specification of a distribution of group sizes. The current options for user-input distributions for all covariates, including group size, are:
+
+-   Normal
+
+-   Log Normal
+
+-   Poisson
+
+-   Zero-truncated Poisson
+
+-   Zero-Truncated Negative Binomial
+
+-   Zero-Truncated Poisson Log Normal
+
+The zero-inflated distributions are best here, as a group size of 0 would not constitute a detection.
+
+Selecting between those distributions is an important consideration, as the mean-variance relationship of the distribution selected should reflect that of your group-size data. The most flexible option is the poisson log normal, where the only restrictions are that the group size mean must be larger than 1, and the variance must be greater than the mean. For the negative binomial, the variance of the group sizes must be between 1.2 and 1.8 times the mean, and for the Poisson, the mean and the variance need to be equal. 
+
+The following simulation study will demonstrate how to implement the group size covariate, and why it is important. 
+
+Covariates in general, other potential uses are numeric covariates affecting detection (grass height?)
+
+## Simulation Study
+
+Let us consider a population of terrestrial ungulates which are typically found in groups of about 10:
+
+```{r}
+true_sizes <- data.frame(sizes = rpois(1000, lambda = 10))
+
+ggplot(true_sizes, aes(x = sizes)) +
+  geom_histogram(binwidth = 2, fill = "grey", color = "black") +
+  theme_bw() +
+  labs(x = "True Distribution of Group Sizes", y = "Frequency")
+```
+
+We will now create a population with this distribution of herd size, with a true number of herds of 200; hence true number of individuals in the population is around 200 times our mean group size of 10, so 2000. 
+
+```{r}
+nsim <- 500
+
+eg.region <- make.region()
+
+covariate.list <- list()
+
+true.N.groups <- 400
+true.mean.size <- 10
+
+covariate.list$size <- list(list(distribution="ztruncpois", 
+                                 mean = 10))
+
+pop.desc <- make.population.description(region = eg.region,
+                                        density = make.density(region = eg.region),
+                                        covariates = covariate.list, 
+                                        N = true.N.groups)
+
+cov.params <- list(size = c(0.10))
+
+detect <- make.detectability(scale.param = 10, 
+                             cov.param = cov.params, 
+                             truncation = 80)
+
+plot(detect, pop.desc)
+
+my.pop <- generate.population(pop.desc, detect, eg.region)
+
+transects <- make.design(truncation = 80)
+
+simulation <- make.simulation()
+
+detmodel.size <- make.ds.analysis(dfmodel = list(~size),
+                                  key = "hn",
+                                  criteria = "AIC",
+                                  truncation = 80)
+
+size.cov <- make.simulation(reps = nsim, 
+                            design = transects, 
+                            pop = pop.desc, 
+                            det = detect,
+                            ds.analysis = detmodel.size)
+
+size.cov.survey <- run.survey(size.cov)
+```
+
+```{r}
+scatter.smooth(size.cov.survey@dist.data$distance + 20,
+               size.cov.survey@dist.data$size,
+               xlab="Detection distance",
+               ylab="Observed group size",
+               main="Detected group size as fn of detection distance")
+```
+
+This plot shows that as the detection distance increases, we see fewer groups which we expect, but we also see only larger groups. Since we assume groups are evenly distributed, regardless of distance, we seem to be missing the smaller groups at larger distances. To account for this, we need to include the group size covariate in the detection function.
+
+```{r}
+runsim.cov <- run.simulation(size.cov, run.parallel = TRUE)
+```
+
+```{r}
+hist(runsim.cov@results$expected.size[1,1,1:nsim], 
+     main="Computed average group size\nGroup size covariate", 
+     xlab="Group size", xlim=c(8,12))
+abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
+indiv <- runsim.cov@results$individuals$N[1,1:6,nsim+1]
+```
+
+The distribution of computed average group size is centered on the true size of 10. The average over the simulations estimated number of individuals was `r round(indiv[1],2)`, a bias of `r round((indiv[1]-(true.N.groups*true.mean.size))/(true.N.groups*true.mean.size)*100, 1)`\%.
+
+Now if we run the simluation witohout the group size covariate:
+
+```{r}
+pop.desc_no_cov <- make.population.description(region = eg.region,
+                                        density = make.density(region = eg.region),
+                                        N = true.N.groups)
+
+detect <- make.detectability(scale.param = 10,
+                             truncation = 80)
+
+my.pop_no_cov <- generate.population(pop.desc_no_cov, detect, eg.region)
+
+transects <- make.design(truncation = 80)
+
+simulation <- make.simulation()
+
+detmodel.size_no_cov <- make.ds.analysis(dfmodel = NA,
+                                  key = "hn",
+                                  criteria = "AIC",
+                                  truncation = 80)
+
+no_size <- make.simulation(reps = nsim, 
+                            design = transects, 
+                            pop = pop.desc_no_cov, 
+                            det = detect,
+                            ds.analysis = detmodel.size_no_cov)
+
+survey_no_cov <- run.survey(no_size)
+```
+
+```{r}
+scatter.smooth(survey_no_cov@dist.data$distance + 20,
+               survey_no_cov@dist.data$size,
+               xlab="Detection distance",
+               ylab="Observed group size",
+               main="Detected group size as fn of detection distance")
+```
+
+```{r}
+runsim <- run.simulation(no_size, run.parallel = TRUE)
+```
+
+
+
+
+
+First, the necessary syntax to include the group size covariate in the detection function is:
+
+```{r}
+#| echo = TRUE,
+#| eval = FALSE
+a.covariate <- ds(my.data, transect="line", key="hn", formula=~size)
+```
+

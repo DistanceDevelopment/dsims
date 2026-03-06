@@ -58,17 +58,29 @@ check.covariates <- function(covariate.list, no.strata){
             stop(paste("The distribution parameters for covariate ", list.names[cov]," and strata ", strat," should be meanlog and sdlog.", sep = ""), call. = FALSE)  
           }
         }else if(distribution == "ztruncnbinom"){
-          if(length(param.names) != 2 | !all(param.names %in% c("mean", "variance"))){
-            stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean and variance.", sep = ""), call. = FALSE)  
+          if(length(param.names) != 2 | !all(param.names %in% c("mean", "sd"))){
+            stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean and standard deviation", sep = ""), call. = FALSE)  
+          }
+          if (params$mean < 3) {
+            stop("Target mean must be larger than 3.", call. = FALSE)
+          }
+          if ((params$sd)^2/params$mean < 1.2 || (params$sd)^2/params$mean > 1.8) {
+            stop("Square of the target standard deviation must be between 1.2 and 1.8 times the target mean.", call. = FALSE)
           }
         }else if(distribution == "ztruncpoislognormal"){
-          if(length(param.names) != 2 | !all(param.names %in% c("mean", "variance"))){
-            stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean and variance.", sep = ""), call. = FALSE)  
+          if(length(param.names) != 2 | !all(param.names %in% c("mean", "sd"))){
+            stop(paste("The distribution parameter for covariate ", list.names[cov]," and strata ", strat," should be mean and standard deviation", sep = ""), call. = FALSE)  
+          }
+          if (params$mean < 1) {
+            stop("Target mean must be larger than 1.", call. = FALSE)
+          }
+          if ((params$sd)^2 <= params$mean) {
+            stop("Square of the target standard deviation must be larger than the mean.", call. = FALSE)
           }
         }else{
-          stop(paste("The distribution for covariate ", list.names[cov]," and strata ", strat," is not implemented at present. Please select from: normal, lognormal, poisson and ztruncpois.", sep = ""), call. = FALSE)
+          stop(paste("The distribution for covariate ", list.names[cov]," and strata ", strat," is not implemented at present. Please select from: normal, lognormal, poisson, ztruncpois, ztruncnbinom, and ztruncpoislognormal.", sep = ""), call. = FALSE)
         }
-        if(distribution %in% c("ztruncpois", "ztruncnbinom", "ztruncpoislognormal"))
+        if(distribution == "ztruncpois")
           # Check that the mean is > 1
           if(params$mean <= 1){
             stop(paste("The mean parameter for covariate ", list.names[cov]," and strata ", strat," must be greater than 1.", sep = ""), call. = FALSE)  

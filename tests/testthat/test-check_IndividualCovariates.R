@@ -48,6 +48,41 @@ test_that("Can deal with different covariate options", {
                                            fixed.N = FALSE),
                "The mean parameter for covariate size and strata 1 must be greater than 1.")
   
+  covs <- list()
+  covs$size <- list(list(distribution = "ztruncnbinom", mean = 5, sd = 2.5),
+                    list(distribution = "ztruncnbinom", mean = 1, sd = 1.2))
+  expect_error(make.population.description(region = region,
+                                           density = density,
+                                           covariates = covs,
+                                           fixed.N = FALSE),
+               "Target mean must be larger than 3.")
+  
+  covs <- list()
+  covs$size <- list(list(distribution = "ztruncnbinom", mean = 10, sd = 3.8),
+                    list(distribution = "ztruncnbinom", mean = 4, sd = 3.1))
+  expect_error(make.population.description(region = region,
+                                           density = density,
+                                           covariates = covs,
+                                           fixed.N = FALSE),
+               "Square of the target standard deviation must be between 1.2 and 1.8 times the target mean.")
+  
+  covs <- list()
+  covs$size <- list(list(distribution = "ztruncpoislognormal", mean = 5, sd = 2.5),
+                    list(distribution = "ztruncpoislognormal", mean = 0.5, sd = 1))
+  expect_error(make.population.description(region = region,
+                                           density = density,
+                                           covariates = covs,
+                                           fixed.N = FALSE),
+               "Target mean must be larger than 1.")
+  
+  covs <- list()
+  covs$size <- list(list(distribution = "ztruncpoislognormal", mean = 5, sd = 2),
+                    list(distribution = "ztruncpoislognormal", mean = 10, sd = 3.5))
+  expect_error(make.population.description(region = region,
+                                           density = density,
+                                           covariates = covs,
+                                           fixed.N = FALSE),
+               "Square of the target standard deviation must be larger than the mean.")
 
   covariate.list <- list()
   covariate.list$height <- list(distribution = "normal", mean = 1.7, sd = 0.25)
@@ -88,7 +123,7 @@ test_that("Can deal with different covariate options", {
 
 test_that("Can run simulation with cluster size", {
   
-  #Set up simulatio
+  #Set up simulation
   region <- make.region(region.name = "main")
   
   density <- make.density(region = region)

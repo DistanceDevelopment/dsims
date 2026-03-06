@@ -4,9 +4,9 @@
 #' will parametrize a distribution whose mean and variance 
 #' match the specified values.
 #'
-#' @param n.vals number of values to randomly generate
-#' @param mean mean of the generated values
-#' @param var variance of the generated values
+#' @param n number of values to randomly generate
+#' @param mean target mean of the generated values
+#' @param sd target standard deviation of the generated values
 #' @return returns a vector of randomly generated values from a 
 #' zero-truncated Negative Binomial distribution.
 #' @note Internal function not intended to be called by user.
@@ -14,30 +14,19 @@
 #' @importFrom stats runif optim
 #' @importFrom dplyr tibble
 #'
-rztnbinom <- function(n.vals, mean = NA, var = NA){
+ztruncnbinom <- function(n, mean = NA, sd = NA){
   
-  # set seed for reproducibility
-  set.seed(120902)
+  var = sd^2
   
-  input_check <- function(mean, var) {
-    
-    # 1. Check for small mean (Mean < 3)
-    if (mean < 3) {
-      warning("Target mean (", mean, ") is less than 3. Optimization may be unstable or inaccurate in this region.")
-    }
-    
-    # 2. Check for Variance/Mean ratio outside [1.2, 1.8]
-    if (!is.na(mean) && !is.na(var) && mean > 0) {
-      ratio <- var / mean
-      if (ratio < 1.2 || ratio > 1.8) {
-        warning(
-          "Variance/Mean ratio (", round(ratio, 3), ") is outside the stable range of [1.2, 1.8]. ",
-          "Optimization may be unstable or inaccurate in this region."
-        )
-      }
-    }
+  if (mean < 3) {
+    stop("Target mean must be larger than 3.", call. = FALSE)
   }
-  input_check(mean, var)
+  
+  ratio = var/mean
+  
+  if (ratio < 1.2 || ratio > 1.8) {
+    stop("Square of the target standard deviation must be between 1.2 and 1.8 times the target mean.", call. = FALSE)
+  }
   
   # calculates the mean of the ztnbinom function based on the input parameters, N and p
   mean_ztnbinom_book <- function(N, p) {
@@ -95,6 +84,8 @@ rztnbinom <- function(n.vals, mean = NA, var = NA){
       return(error)
     }
     
+    # initial guesses are values from a regression analysis of the 
+    # relationship between parameters and mean/variance.
     start_guesses <- c(goal_mean*0.9, (2.096 - 2.362*(goal_mean/goal_variance)))
     result <- optim(
       par = start_guesses,
@@ -129,8 +120,8 @@ rztnbinom <- function(n.vals, mean = NA, var = NA){
   min = 0
   max = cdf_ztnbinom_book(k = upper, N = est_params$est_N, p = est_params$est_p) # can do e^huge
   # max = 1
-  draws <- rep(0, n.vals)
-  for (i in 1:n.vals) {
+  draws <- rep(0, n)
+  for (i in 1:n) {
     unif_draw <- runif(n = 1, min = min, max = max)
     # which value of the cdf is just higher than this value
     cdf_val_of_draw <- pir(x = unif_draw, y = cdf_vals)

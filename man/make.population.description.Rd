@@ -33,13 +33,15 @@ Creates an object which describes a population. The values in this object
 will be used to create instances of the population.
 }
 \details{
-Individual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois' or 'lognormal'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
+Individual-level covariate values can be defined as one of the following distributions: 'normal', 'poisson', 'ztruncpois', 'ztruncnbinom', 'ztruncpoislognormal', or 'lognormal'. The distribution name and the associated parameters as defined in the table below must be provided in a named list. Either one list can be provided for the entire study area or multiple lists grouped together as a list with one per strata.
 
-\tabular{lll}{ Distribution  \tab Parameters  \tab         \cr
-               normal        \tab mean        \tab sd      \cr
-               poisson       \tab lambda      \tab         \cr
-               ztruncpois    \tab mean        \tab         \cr
-               lognormal     \tab meanlog     \tab sdlog   \cr
+\tabular{lll}{ Distribution          \tab Parameters  \tab         \cr
+               normal                \tab mean        \tab sd      \cr
+               poisson               \tab lambda      \tab         \cr
+               ztruncpois            \tab mean        \tab         \cr
+               ztruncnbinom          \tab mean        \tab sd      \cr
+               ztruncpoislognormal   \tab mean        \tab sd      \cr
+               lognormal             \tab meanlog     \tab sdlog   \cr
               }
 }
 \examples{
