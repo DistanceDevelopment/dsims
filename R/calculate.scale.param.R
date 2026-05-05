@@ -1,4 +1,5 @@
 #' @importFrom methods is
+#' @importFrom terra rast cellFromXY values
 calculate.scale.param <- function(pop.data, detectability, region){
 # This function calculates the scale parameters including any covariate effects
 # and adds these values to the population dataframe which is then returned. Also
@@ -32,6 +33,29 @@ calculate.scale.param <- function(pop.data, detectability, region){
       detectability@shape.param <- rep(shape[1], strata.no)
     }
   }
+  # Extract raster surface values at each animal's location and append as columns.
+  # This must happen before the covariate-name check so the columns are present.
+  if(length(detectability@cov.surface) > 0){
+    surf.names <- names(detectability@cov.surface)
+    pts <- cbind(pop.data$x, pop.data$y)
+    for(sn in surf.names){
+      surf <- detectability@cov.surface[[sn]]
+      if(is.character(surf)){
+        surf <- terra::rast(surf)
+      }
+      cell_ids <- terra::cellFromXY(surf, pts)
+      rast_vals <- terra::values(surf)[, 1]
+      vals <- rast_vals[cell_ids]
+      if(any(is.na(vals))){
+        warning(paste0("NA raster values for surface covariate '", sn,
+                       "' at some animal locations (outside raster extent). ",
+                       "Replacing with global raster mean."),
+                call. = FALSE, immediate. = TRUE)
+        vals[is.na(vals)] <- mean(vals, na.rm = TRUE)
+      }
+      pop.data[[sn]] <- vals
+    }
+  }
   # Check the covariate names in detectability are present in the population
   pop.cov.names <- names(pop.data)
   detect.cov.names <- names(detectability@cov.param)
@@ -44,7 +68,7 @@ calculate.scale.param <- function(pop.data, detectability, region){
   for(cov in seq(along = detectability@cov.param)){
     current.cov <- detectability@cov.param[[cov]]
     if(!is(current.cov, "data.frame")){
-      if(length(current.cov == 1)){
+      if(length(current.cov) == 1){
         # repeat it for the number of strata
         detectability@cov.param[[cov]] <- rep(current.cov, strata.no)
       }else if(length(current.cov) != strata.no){

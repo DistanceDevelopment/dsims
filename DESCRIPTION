@@ -5,6 +5,7 @@ Imports:
     mrds,
     Distance,
     sf,
+    terra,
     ggplot2,
     purrr,
     dplyr,
