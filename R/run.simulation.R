@@ -21,7 +21,7 @@
 #' @return the \code{\link{Simulation-class}} object which now includes
 #' the results
 #' @export
-#' @importFrom parallel detectCores makeCluster clusterEvalQ stopCluster parLapply
+#' @importFrom parallel detectCores makeCluster clusterEvalQ stopCluster parLapplyLB clusterExport
 #' @importFrom rstudioapi versionInfo
 #' @rdname run.simulation-methods
 #' @seealso \code{\link{make.simulation}}
@@ -77,8 +77,8 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
   # Two if(run.parallel) checks as if libraries not present will change to
   # false before running in parallel and then run in serial
   if(run.parallel){
-    if(!requireNamespace('parallel', quietly = TRUE) | !requireNamespace('pbapply', quietly = TRUE)){
-      warning("Could not run in parallel, check pbapply library is installed.", immediate. = TRUE, call. = FALSE)
+    if(!requireNamespace('parallel', quietly = TRUE)){
+      warning("Could not run in parallel, check parallel library is installed.", immediate. = TRUE, call. = FALSE)
       run.parallel = FALSE
     }else{
       # counts the number of cores you have
@@ -108,25 +108,50 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
     parallel::clusterEvalQ(myCluster, {
       require(dsims)
     })
+    worker.state <- list(simulation = simulation,
+                         save.data = save.data,
+                         load.data = load.data,
+                         data.path = data.path,
+                         transect.path = transect.path,
+                         save.transects = FALSE,
+                         progress.file = progress.file)
+    worker.fun <- function(i){
+      state <- get(".dsims_worker_state", envir = .GlobalEnv)
+      single.sim.loop(i = i,
+                      simulation = state$simulation,
+                      save.data = state$save.data,
+                      load.data = state$load.data,
+                      data.path = state$data.path,
+                      counter = FALSE,
+                      in.parallel = TRUE,
+                      transect.path = state$transect.path,
+                      save.transects = state$save.transects,
+                      progress.file = state$progress.file)
+    }
+    parallel::clusterExport(myCluster,
+                            varlist = c("worker.state", "worker.fun"),
+                            envir = environment())
+    parallel::clusterEvalQ(myCluster, {
+      .dsims_worker_state <- worker.state
+      NULL
+    })
     on.exit(stopCluster(myCluster))
     if(counter){
-        results <- pbapply::pblapply(X = as.list(1:simulation@reps), FUN = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, transect.path = transect.path, save.transects = FALSE, progress.file = progress.file, cl = myCluster, counter = FALSE)
-    }else{
-      results <- parLapply(myCluster, X = as.list(1:simulation@reps), fun = single.sim.loop, simulation = simulation, save.data = save.data, load.data = load.data, data.path = data.path, counter = FALSE, transect.path = transect.path, save.transects = FALSE, progress.file = progress.file)
+      message("Parallel run uses load-balanced scheduling; per-repetition progress bar is disabled.")
     }
+    results <- parallel::parLapplyLB(myCluster,
+                                     X = as.list(1:simulation@reps),
+                                     fun = worker.fun)
     #Extract results and warnings
-    sim.results <- sim.warnings <- list()
-    for(i in seq(along = results)){
-      sim.results[[i]] <- results[[i]]$results
-      sim.warnings[[i]] <- results[[i]]$warnings
-    }
-    simulation <- accumulate.PP.results(simulation = simulation, results = sim.results)
+    sim.warnings <- lapply(results, function(x) x$warnings)
+    simulation <- accumulate.PP.results(simulation = simulation, results = results)
     simulation@warnings <- accumulate.warnings(sim.warnings)
     stopCluster(myCluster)
     on.exit()
   }
   if(!run.parallel){
     #otherwise loop
+    sim.warnings <- vector("list", simulation@reps)
     for(i in 1:simulation@reps){
       results <- single.sim.loop(i = i,
                                  simulation = simulation,
@@ -137,9 +162,19 @@ run.simulation <- function(simulation, run.parallel = FALSE, max.cores = NA, cou
                                  transect.path = transect.path,
                                  save.transects = FALSE,
                                  progress.file = progress.file)
-      simulation@results <- results$results
-      simulation@warnings <- results$warnings
+      if(!is.null(results$rep.result)){
+        simulation@results <- apply.rep.result(simulation@results,
+                                               results$rep.result,
+                                               i)
+        if(!is.null(results$filename) && length(results$filename) > 0){
+          simulation@results$filename[i] <- results$filename
+        }
+      }else{
+        simulation@results <- results$results
+      }
+      sim.warnings[[i]] <- results$warnings
     }
+    simulation@warnings <- accumulate.warnings(sim.warnings)
   }
   simulation@results <- add.summary.results(results = simulation@results,
                                             model.count = length(simulation@ds.analysis@dfmodel))

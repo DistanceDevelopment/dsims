@@ -270,6 +270,22 @@ make.population.description <- make.pop.description <- function(region = make.re
 #' @param scale.param numeric vector with either a single value to be applied globally or a value for each strata. These should be supplied on the natural scale.
 #' @param shape.param numeric vector with either a single value to be applied globally or a value for each strata. These should be supplied on the natural scale.
 #' @param cov.param Named list with one named entry per individual level covariate. Covariate parameter values should be defined on the log scale (rather than the natural scale), this is the same scale as provided in the ddf output in mrds and also in the MCDS output in Distance. Cluster sizes parameter values can be defined here. Each list entry will either be a data.frame containing 2 or 3 columns: level, param and where desired strata. If the region has multiple strata but this column is omitted then the values will be assumed to apply globally. The cluster size entry in the list must be named 'size'. Alternatively the list element may a numeric vector with either a single value to be applied globally or a value for each strata.
+#' @param cov.surface Optional named list of raster surfaces providing spatially-explicit
+#'   covariate values based on each animal's simulated location. Each element name must
+#'   match a numeric entry in \code{cov.param} (which gives the log-scale slope applied to
+#'   the extracted raster value). Each element should be either a character file path to a
+#'   single-layer raster readable by \code{terra::rast()}, or an in-memory
+#'   \code{terra} SpatRaster object. At every simulation replicate the raster is sampled at
+#'   each animal's (x, y) location; the value is used as the covariate in the standard
+#'   log-linear scaling formula:
+#'   \eqn{\log(\sigma_i) = \log(\sigma_0) + \beta \cdot z_i}.
+#'   Use a negative \code{cov.param} slope to model lower detectability where raster values
+#'   are higher (e.g. denser canopy cover reduces detection range).
+#'   Animal locations outside the raster extent or with NA cell values are replaced with the
+#'   raster mean and a warning is issued.
+#'   \strong{Parallel note:} file paths are strongly preferred over in-memory SpatRaster
+#'   objects when using \code{run.parallel = TRUE}, as large objects may not serialise
+#'   efficiently to worker processes.
 #' @param truncation the maximum perpendicular (or radial) distance at which
 #'   objects may be detected from a line (or point) transect.
 #' @return \code{\link{Detectability-class}} object
@@ -323,9 +339,9 @@ make.population.description <- make.pop.description <- function(region = make.re
 #'
 #' plot(detect, popdesc)
 #'
-make.detectability <- function(key.function = "hn", scale.param = 25, shape.param = numeric(0), cov.param = list(), truncation = 50){
+make.detectability <- function(key.function = "hn", scale.param = 25, shape.param = numeric(0), cov.param = list(), cov.surface = list(), truncation = 50){
   # Passes all arguments to function to make a new instance of the class
-  detectability <- new(Class = "Detectability", key.function = key.function, scale.param = scale.param, shape.param = shape.param, cov.param = cov.param, truncation = truncation)
+  detectability <- new(Class = "Detectability", key.function = key.function, scale.param = scale.param, shape.param = shape.param, cov.param = cov.param, cov.surface = cov.surface, truncation = truncation)
   return(detectability)
 }
 

@@ -19,6 +19,7 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   # Output: list of simulation results and warnings
   #
   warnings <- simulation@warnings
+  rep.filename <- NA_character_
   # Display/write to file the progress of the simulation
   if(counter){
     if(length(progress.file) == 0 && !in.parallel){
@@ -72,9 +73,11 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
       warnings <- transects$warnings
       transects <- transects$transects
       if(is.null(transects)){
-        return(list(results = simulation@results, warnings = warnings))
+        rep.result <- extract.rep.result(simulation@results, i)
+        return(list(rep.result = rep.result, warnings = warnings, filename = rep.filename))
       }
       simulation@results$filename[i] <- filename
+      rep.filename <- filename
     }else{
       transects <- generate.transects(simulation)
       if(save.transects){
@@ -228,6 +231,9 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
                 survey = survey,
                 warnings = warnings))
   }
-  return(list(results = simulation@results, warnings = warnings))
+  rep.result <- extract.rep.result(simulation@results, i)
+  return(list(rep.result = rep.result,
+              warnings = warnings,
+              filename = rep.filename))
 }
 
