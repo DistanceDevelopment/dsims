@@ -36,6 +36,7 @@ library(dsims)
 library(Distance)
 library(tidyverse)
 library(extraDistr)
+library(sf)
 
 set.seed(3)
 ```
@@ -48,19 +49,19 @@ opts_chunk$set(
 )
 ```
 
-When conducting a simulation study of abundance using distance sampling, the make.population.description() function allows for the specification of individual-level covariates. ONe of those possible covariates is group size, for when the study includes detection of groups rather than individuals. You can include covariates as either a discrete distribution in a dataframe, or as one of the included distributions and their parameters. The current options for user-input distributions for all covariates, including group size, are:
+When conducting a simulation study of abundance using distance sampling, the make.population.description() function allows for the specification of individual-level covariates. One of those possible covariates is group size, for when the study includes detection of groups rather than individuals. You can include covariates as either a discrete distribution in a dataframe, or as one of the included distributions and their parameters. The current options for user-input distributions for all covariates, including group size, are:
 
--   Normal
+- Normal
 
--   Log Normal
+- Log Normal
 
--   Poisson
+- Poisson
 
--   Zero-truncated Poisson
+- Zero-truncated Poisson
 
--   Zero-Truncated Negative Binomial
+- Zero-Truncated Negative Binomial
 
--   Zero-Truncated Poisson Log Normal
+- Zero-Truncated Poisson Log Normal
 
 Since groups of animals are inherently non-zero in size, the zero-inflated distributions are more natural for simulating group sizes.
 
@@ -75,7 +76,7 @@ Let us consider a population of animals which are typically found in groups of a
 ```{r}
 true_sizes <- data.frame(sizes = rpois(1000, lambda = 10))
 
-true_sd <- sd(true_sizes$sizes)
+# true_sd <- sd(true_sizes$sizes)
 
 ggplot(true_sizes, aes(x = sizes)) +
   geom_histogram(binwidth = 2, fill = "grey", color = "black") +
@@ -85,25 +86,66 @@ ggplot(true_sizes, aes(x = sizes)) +
 
 We will now create a population with this distribution of group size, with a true number of groups of 400; hence true number of individuals in the population is around 400 times our mean group size of 10, so 4000.
 
+
+
 ```{r}
-nsim <- 50
+# Region set-up
+simsquare <- st_bbox(c(xmin = 0, xmax = 2000, ymin = 0, ymax = 1000)) |> 
+  st_as_sfc() |> 
+  st_as_sf()
 
-eg.region <- make.region()
 
+region <- make.region(region.name = "Study Area",
+                      shape = simsquare,
+                      units = "m")
+
+density <- make.density(region = region, x.space = 50, constant = 1)
+
+# Apply mild, asymmetrically distributed hot and low spots
+density <- add.hotspot(density, centre = c(500, 800), sigma = 300, amplitude = 0.6)
+density <- add.hotspot(density, centre = c(1600, 300), sigma = 400, amplitude = 0.4)
+density <- add.hotspot(density, centre = c(1200, 700), sigma = 200, amplitude = -0.5)
+
+# plot(density, region, scale = 1)
+
+density.data <- density@density.surface[[1]]
+
+# Smooth the true density surface
+fit.gam <- mgcv::gam(density ~ s(x,y), data = density.data, family = gaussian(link="log"))
+
+gam.density <- make.density(region = region,
+                                 x.space = 50,
+                                 fitted.model = fit.gam)
+
+plot(gam.density, region, scale = 1)
+```
+
+```{r}
 covariate.list <- list()
 
-true.N.groups <- 400
-true.mean.size <- 10
-true.sd.size <- true_sd
+covariate.list$size <- list(list(distribution = "ztruncpois", mean = 10))
 
-covariate.list$size <- list(list(distribution = "ztruncpoislognormal", 
-                                 mean = 10, sd = 3.5))
 
-pop.desc <- make.population.description(region = eg.region,
-                                        density = make.density(region = eg.region),
-                                        covariates = covariate.list, 
-                                        N = true.N.groups)
+# Assign N = 400 groups and simulate group size covariate (~10) via zero-truncated poisson
+pop.desc <- 
+  make.population.description(region = region,
+                              density = gam.density,
+                              covariates = covariate.list,
+                              N = 400,
+                              fixed.N = TRUE)
 
+detect <- make.detectability(key.function = "hn",
+                                  scale.param = 30,
+                                  truncation = 80)
+
+pop <- generate.population(object = pop.desc, 
+                                detectability = detect, 
+                                region = region)
+
+plot(pop, region)
+```
+
+```{r}
 cov.params <- list(size = c(0.10))
 
 detect <- make.detectability(scale.param = 10, 
@@ -111,10 +153,15 @@ detect <- make.detectability(scale.param = 10,
                              truncation = 80)
 
 plot(detect, pop.desc)
+```
 
-my.pop <- generate.population(pop.desc, detect, eg.region)
+```{r}
+my.pop <- generate.population(pop.desc, detect, region)
 
-transects <- make.design(truncation = 80)
+transects <- make.design(region = region,
+                         transect.type = "line",
+                         design = "systematic",
+                         truncation = 80)
 
 simulation <- make.simulation()
 
@@ -123,6 +170,8 @@ detmodel.size <- make.ds.analysis(dfmodel = list(~size),
                                   criteria = "AIC",
                                   truncation = 80)
 
+nsim <- 50
+
 size.cov <- make.simulation(reps = nsim, 
                             design = transects, 
                             pop = pop.desc, 
@@ -130,6 +179,19 @@ size.cov <- make.simulation(reps = nsim,
                             ds.analysis = detmodel.size)
 
 size.cov.survey <- run.survey(size.cov)
+
+sim.test <- make.simulation(reps = 1,
+                                design = transects,
+                                population.description = pop.desc,
+                                detectability = detect,
+                                ds.analysis = detmodel.size)
+
+# Generate a single instance of a survey: a population, set of transects
+# and the resulting distance data
+eg.test.survey <- run.survey(sim.test)
+
+# Plot it to view a summary
+plot(eg.test.survey, region)
 ```
 
 ```{r}
@@ -154,36 +216,52 @@ abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
 indiv <- runsim.cov@results$individuals$N[1,1:6,nsim+1]
 ```
 
-The distribution of computed average group size is centered on the true size of 10. The average over the simulations estimated number of individuals was `r round(indiv[1],2)`, a bias of `r round((indiv[1]-(true.N.groups*true.mean.size))/(true.N.groups*true.mean.size)*100, 1)`%.
-
-Now if we run the simluation without the group size covariate:
+Now if we run the simulation without the group size covariate:
 
 ```{r}
-pop.desc_no_cov <- make.population.description(region = eg.region,
-                                        density = make.density(region = eg.region),
-                                        N = true.N.groups)
+pop.desc_no_cov <- make.population.description(region = region,
+                                        density = gam.density,
+                                        N = 400,
+                                        fixed.N = TRUE)
 
-detect <- make.detectability(scale.param = 1.5,
-                             truncation = 60)
+detect_no_cov <- make.detectability(key.function = "hn",
+                                  scale.param = 30,
+                                  truncation = 80)
 
-my.pop_no_cov <- generate.population(pop.desc_no_cov, detect, eg.region)
+pop_no_cov <- generate.population(object = pop.desc_no_cov, 
+                                detectability = detect_no_cov, 
+                                region = region)
 
-transects <- make.design(truncation = 60)
+transects <- make.design(region = region,
+                         transect.type = "line",
+                         design = "systematic",
+                         truncation = 80)
 
-simulation <- make.simulation()
-
-detmodel.size_no_cov <- make.ds.analysis(dfmodel = NA,
-                                  key = "hn",
-                                  criteria = "AIC",
-                                  truncation = 60)
+detmodel.size_no_cov <- make.ds.analysis(dfmodel = ~1, 
+                                         key = "hn",
+                                         criteria = "AIC",
+                                         truncation = 80)
 
 no_size <- make.simulation(reps = nsim, 
                             design = transects, 
-                            pop = pop.desc_no_cov, 
-                            det = detect,
+                            pop = pop.desc, 
+                            det = detect_no_cov,
                             ds.analysis = detmodel.size_no_cov)
 
 survey_no_cov <- run.survey(no_size)
+
+sim.test_no_cov <- make.simulation(reps = 1,
+                                design = transects,
+                                population.description = pop.desc_no_cov,
+                                detectability = detect_no_cov,
+                                ds.analysis = detmodel.size_no_cov)
+
+# Generate a single instance of a survey: a population, set of transects
+# and the resulting distance data
+eg.test_no_cov.survey <- run.survey(sim.test_no_cov)
+
+# Plot it to view a summary
+plot(eg.test_no_cov.survey, region)
 ```
 
 ```{r}
@@ -195,13 +273,31 @@ scatter.smooth(survey_no_cov@dist.data$distance,
 ```
 
 ```{r}
-runsim <- run.simulation(no_size, run.parallel = TRUE)
+no.size.sim <- run.simulation(no_size, run.parallel = TRUE)
 ```
 
 First, the necessary syntax to include the group size covariate in the detection function is:
 
 ```{r}
-#| echo = TRUE,
-#| eval = FALSE
-a.covariate <- ds(my.data, transect="line", key="hn", formula=~size)
+hist(no.size.sim@results$expected.size[1,1,1:nsim],
+     main="Computed average group size\nNo covariate", 
+     xlab="Group size", xlim=c(8,12))
+abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
+nosize.indiv <- no.size.sim@results$individuals$N[1,1:6,nsim+1]
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
