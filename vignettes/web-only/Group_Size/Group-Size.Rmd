@@ -39,6 +39,8 @@ library(extraDistr)
 library(sf)
 
 set.seed(3)
+
+nsim <- 50
 ```
 
 ```{r, echo=FALSE,}
@@ -67,9 +69,15 @@ Since groups of animals are inherently non-zero in size, the zero-inflated distr
 
 Selecting between those distributions is an important consideration, as the mean-variance relationship of the distribution selected should reflect that of your group-size data. The most flexible option is the poisson log normal, where the only restrictions are that the group size mean must be larger than 1, and the variance must be greater than the mean. For the negative binomial, the variance of the group sizes must be between 1.2 and 1.8 times the mean, and the mean must be larger than 3, and for the Poisson, the mean and the variance need to be equal, with a mean of at least 1.
 
-The following simulation study will demonstrate how to implement the group size covariate, and why it is important.
+The following simulation study will demonstrate:
 
-## Simulation Study
+1.  How to set up a population to include group sizes
+
+2.  The bias resultant from a simulation run for which group size is not considered
+
+3.  How to correct this bias with a group size covariate
+
+## Region and Population Setup
 
 Let us consider a population of animals which are typically found in groups of about 10:
 
@@ -84,9 +92,7 @@ ggplot(true_sizes, aes(x = sizes)) +
   labs(x = "True Distribution of Group Sizes", y = "Frequency")
 ```
 
-We will now create a population with this distribution of group size, with a true number of groups of 400; hence true number of individuals in the population is around 400 times our mean group size of 10, so 4000.
-
-
+We will now create a population whose group sizes follow that distribution, with a true number of groups of 400; hence true number of individuals in the population is around 400 times our mean group size of 10, so 4000.
 
 ```{r}
 # Region set-up
@@ -117,60 +123,103 @@ gam.density <- make.density(region = region,
                                  x.space = 50,
                                  fitted.model = fit.gam)
 
-plot(gam.density, region, scale = 1)
+# plot(gam.density, region)
 ```
 
 ```{r}
 covariate.list <- list()
 
-covariate.list$size <- list(list(distribution = "ztruncpois", mean = 10))
+covariate.list$size <- list(list(distribution = "ztruncpoislognormal", mean = 10, sd = 3.5))
 
 
-# Assign N = 400 groups and simulate group size covariate (~10) via zero-truncated poisson
-pop.desc <- 
-  make.population.description(region = region,
-                              density = gam.density,
-                              covariates = covariate.list,
-                              N = 400,
-                              fixed.N = TRUE)
+# Assign N = 400 groups, simulate group size covariate via zero-truncated poisson log normal
+pop.desc <- make.population.description(region = region,
+                                        density = gam.density,
+                                        covariates = covariate.list,
+                                        N = 400,
+                                        fixed.N = TRUE)
 
-detect <- make.detectability(key.function = "hn",
-                                  scale.param = 30,
-                                  truncation = 80)
-
-pop <- generate.population(object = pop.desc, 
-                                detectability = detect, 
-                                region = region)
-
-plot(pop, region)
-```
-
-```{r}
+# Define the covariate effect (larger groups = higher detectability)
 cov.params <- list(size = c(0.10))
 
+# We must establish the true detectability with size bias included 
+# so the simulation actually generates biased survey data
 detect <- make.detectability(scale.param = 10, 
                              cov.param = cov.params, 
                              truncation = 80)
 
-plot(detect, pop.desc)
-```
-
-```{r}
-my.pop <- generate.population(pop.desc, detect, region)
+pop <- generate.population(object = pop.desc, 
+                           detectability = detect, 
+                           region = region)
 
 transects <- make.design(region = region,
                          transect.type = "line",
                          design = "systematic",
                          truncation = 80)
+```
 
-simulation <- make.simulation()
+## Lack of covariate analysis
 
+Now that we have set up our population to include group sizes, we need to set up an analysis that fails to account for those group sizes and observe the resulting bias. 
+
+
+```{r}
+# Create an analysis model that ignores the covariate (dfmodel = ~1)
+detmodel.size_no_cov <- make.ds.analysis(dfmodel = ~1, 
+                                         key = "hn",
+                                         criteria = "AIC",
+                                         truncation = 80)
+
+# Build the simulation using the biased detection process (detect) 
+#    but the UNBIASED analysis model (detmodel.size_no_cov)
+no_size <- make.simulation(reps = nsim, 
+                           design = transects, 
+                           pop = pop.desc,       # Keep original population
+                           det = detect,         # Keep original biased detectability
+                           ds.analysis = detmodel.size_no_cov)
+
+# Run a single survey to check the data
+no_cov_sim <- make.simulation(reps = 1,
+                                   design = transects,
+                                   population.description = pop.desc,
+                                   detectability = detect,
+                                   ds.analysis = detmodel.size_no_cov)
+
+no_cov_survey <- run.survey(no_cov_sim)
+
+# Plot it to view a summary
+# plot(eg.test_no_cov.survey, region)
+```
+
+```{r}
+scatter.smooth(no_cov_survey@dist.data$distance,
+               no_cov_survey@dist.data$size,
+               xlab="Detection distance",
+               ylab="Observed group size",
+               main="Detected group size as fn of detection distance")
+```
+
+```{r}
+no.size.simulation <- run.simulation(no_size, run.parallel = TRUE)
+```
+
+First, the necessary syntax to include the group size covariate in the detection function is:
+
+```{r}
+hist(no.size.simulation@results$expected.size[1,1,1:nsim],
+     main="Computed average group size\nNo covariate", 
+     xlab="Group size", xlim=c(8,12))
+abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
+nosize.indiv <- no.size.simulation@results$individuals$N[1,1:6,nsim+1]
+```
+
+Here we see the expected upward bias by not including the group size covariate. To resolve this, we need to include the group size covariate in the model. 
+
+```{r}
 detmodel.size <- make.ds.analysis(dfmodel = list(~size),
                                   key = "hn",
                                   criteria = "AIC",
                                   truncation = 80)
-
-nsim <- 50
 
 size.cov <- make.simulation(reps = nsim, 
                             design = transects, 
@@ -191,7 +240,7 @@ sim.test <- make.simulation(reps = 1,
 eg.test.survey <- run.survey(sim.test)
 
 # Plot it to view a summary
-plot(eg.test.survey, region)
+# plot(eg.test.survey, region)
 ```
 
 ```{r}
@@ -215,89 +264,4 @@ hist(runsim.cov@results$expected.size[1,1,1:nsim],
 abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
 indiv <- runsim.cov@results$individuals$N[1,1:6,nsim+1]
 ```
-
-Now if we run the simulation without the group size covariate:
-
-```{r}
-pop.desc_no_cov <- make.population.description(region = region,
-                                        density = gam.density,
-                                        N = 400,
-                                        fixed.N = TRUE)
-
-detect_no_cov <- make.detectability(key.function = "hn",
-                                  scale.param = 30,
-                                  truncation = 80)
-
-pop_no_cov <- generate.population(object = pop.desc_no_cov, 
-                                detectability = detect_no_cov, 
-                                region = region)
-
-transects <- make.design(region = region,
-                         transect.type = "line",
-                         design = "systematic",
-                         truncation = 80)
-
-detmodel.size_no_cov <- make.ds.analysis(dfmodel = ~1, 
-                                         key = "hn",
-                                         criteria = "AIC",
-                                         truncation = 80)
-
-no_size <- make.simulation(reps = nsim, 
-                            design = transects, 
-                            pop = pop.desc, 
-                            det = detect_no_cov,
-                            ds.analysis = detmodel.size_no_cov)
-
-survey_no_cov <- run.survey(no_size)
-
-sim.test_no_cov <- make.simulation(reps = 1,
-                                design = transects,
-                                population.description = pop.desc_no_cov,
-                                detectability = detect_no_cov,
-                                ds.analysis = detmodel.size_no_cov)
-
-# Generate a single instance of a survey: a population, set of transects
-# and the resulting distance data
-eg.test_no_cov.survey <- run.survey(sim.test_no_cov)
-
-# Plot it to view a summary
-plot(eg.test_no_cov.survey, region)
-```
-
-```{r}
-scatter.smooth(survey_no_cov@dist.data$distance,
-               survey_no_cov@dist.data$size,
-               xlab="Detection distance",
-               ylab="Observed group size",
-               main="Detected group size as fn of detection distance")
-```
-
-```{r}
-no.size.sim <- run.simulation(no_size, run.parallel = TRUE)
-```
-
-First, the necessary syntax to include the group size covariate in the detection function is:
-
-```{r}
-hist(no.size.sim@results$expected.size[1,1,1:nsim],
-     main="Computed average group size\nNo covariate", 
-     xlab="Group size", xlim=c(8,12))
-abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
-nosize.indiv <- no.size.sim@results$individuals$N[1,1:6,nsim+1]
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
