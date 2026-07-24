@@ -50,7 +50,6 @@ Language: en-GB
 URL: https://github.com/DistanceDevelopment/dsims
 BugReports: https://github.com/DistanceDevelopment/dsims/issues
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 Collate: 
     'AICc.R'
     'generic.functions.R'
@@ -103,3 +102,4 @@ Collate:
     'store.dht.results.R'
     'ztruncnbinom.R'
     'ztruncpoislognormal.R'
+Config/roxygen2/version: 8.0.0
