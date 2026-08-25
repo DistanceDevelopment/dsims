@@ -53,7 +53,7 @@ myeval <- TRUE
 
 ## Introduction
 
-The goal of this vignette is to explain the importance of accounting for group size when modelling animals in groups, and to showcase the new distributions added to the dsims package. Those functions, which generate values from a zero-truncated negative binomial distribution, and from a zero-truncated Poisson log-normal distribution respectively, allow for more flexible simulation of group size values. To this point, the distributions available did not allow for the simulation of over-dispersed group size distributions, which is a recurrent issue with this type of data (de Segura et al., 2007; Howe et al., 2019). The new functions allow users to simulate those cases much more accurately due to their improved flexibility in mean-variance relationship.
+This vignette demonstrates the importance of accounting for the effects of group size on detectability when using distance sampling to estimate population abundance. Additionally, we use this vignette to demonstrate new covariate distributions which have been included in the `dsims` package version 1.0.7 onwards. These include a zero-truncated negative binomial distribution and a zero-truncated Poisson log-normal distribution, which allow for more flexible simulation of discrete covariate values and are particularly relevant for generating group size values. Specifically, these distributions allow the simulation of over-dispersed count data rather than enforcing the fixed mean-variance relationship of the Poisson distribution, over-dispersion is a recurrent issue with group size values in distance sampling data (@segura_2007; @howe_2019). _LM: I'm not sure either of these papers are talking about over-dispersion in cluster sizes sounds more like over-dispersion due to non independence in Howe 2019. Look for better references from Eric's vignettes._
 
 ## Background
 
@@ -70,11 +70,11 @@ set.seed(3)
 nsim <- 1000
 ```
 
-When conducting a simulation study of abundance using distance sampling, the make.population.description() function allows for the specification of individual-level covariates. One of those possible covariates is group size, for when the study includes detection of groups rather than individuals. You can include covariates as either a discrete distribution in a dataframe, or as one of the included distributions and their parameters. The current options for user-input distributions for all covariates, including group size, are:
+When conducting a simulation study of population abundance using distance sampling, the `make.population.description()` function allows for the specification of individual-level covariates. One of those possible covariates is group size, for when the study involves the detection of groups rather than individuals. `dsims` allows the distribution associated with the covariates to either be a user-defined discrete distribution, where a `dataframe` specifies the possible values and associated probabilities, or alternatively as one of a number of distributions and their associated parameters. When generating an instance of a population during the simulation `dsims` will randomly generate covariate values for each group/individual based on these distributions. Currently, the covariate distributions implemented within `dsims` include:
 
 - Normal
 
-- Log Normal
+- Log-Normal
 
 - Poisson
 
@@ -82,36 +82,35 @@ When conducting a simulation study of abundance using distance sampling, the mak
 
 - Zero-Truncated Negative Binomial
 
-- Zero-Truncated Poisson Log Normal
+- Zero-Truncated Poisson Log-Normal
 
-Since groups of animals are inherently non-zero in size, the zero-inflated distributions are more natural for simulating group sizes.
-
-Selecting between those distributions is an important consideration, as the mean-variance relationship of the distribution selected should reflect that of your group-size data. The most flexible option is the Poisson log normal, where the only restrictions are that the group size mean must be larger than 1, and the variance must be greater than the mean. For the negative binomial, the variance of the group sizes must be between 1.2 and 1.8 times the mean, and the mean must be larger than 3, and for the Poisson, the mean and the variance need to be equal, with a mean of at least 1.
+This simulation study focuses on the group size covariate. Since groups of animals are inherently non-zero in size, the zero-inflated distributions are the more natural choice for simulating group size values. In addition, group size values tend to be over-dispersed, as described above, so we will look to the newly implemented zero-truncated Poisson log-normal distribution. The only restrictions for this distribution are that the group size mean must be larger than 1, and the variance must be greater than the mean (i.e. over-dispersed). The zero-truncated negative binomial distribution is more restrictive and requires that the variance of the group sizes must be between 1.2 and 1.8 times the mean, and the mean must be larger than 3. The zero-truncated Poisson only requires one parameter to be defined as the mean and the variance are equal, and this value must be equal to or great than 1.
 
 The following simulation study will demonstrate:
 
-1.  How to set up a population to include group sizes
+1.  How to set up a population description so that group size values are included in the population data.
 
-2.  The bias resultant from a simulation run for which group size is not considered
+2.  How to define the detectability of the population so that larger groups are more easily detected at greater distances than smaller groups. 
 
-3.  How to correct this bias with a group size covariate
+3.  The bias resulting from ignoring the effects of group size on the probablility of detecting a group at a given distance.
+
+4.  How including group size as a covariate in the detection function model corrects the bias associated with larger groups being more detectable at greater distances than smaller groups. 
 
 ## Region and Population Setup
 
-Let us consider a population of animals which are typically found in groups of about 10:
+Let us consider a population of animals which have a mean group size of 10 and a standard deviation of 3.5 _(LM: note that 3.5^2 is 12.25 so this case of over-dispersion is very mild... is that based on some real-world scenario? I think it is better just to generate values from the actual distribution used in the simulation here can you update that please?)_. We can use the zero-truncated Poisson log-normal to generate count values for this instance of over-dispersion, these are shown in \@ref(fig:gs_values). 
 
-```{r}
-# simulates a set of group sizes to mimic
-# zero-truncation is not necessary as these are just for display
+```{r gs_values, fig.cap="Histogram demonstrating 1000 values randomly generated from a zero-truncated Poisson log-normal distribution with mean=10, sd=3.5."}
+# simulates a set of group sizes to mimic the simulation setup
 true_sizes <- data.frame(sizes = rpois(1000, lambda = 10))
 
 ggplot(true_sizes, aes(x = sizes)) +
   geom_histogram(binwidth = 2, fill = "grey", color = "black") +
   theme_bw() +
-  labs(x = "True Distribution of Group Sizes", y = "Frequency")
+  labs(x = "Group Size", y = "Frequency")
 ```
 
-We will now create a population whose group sizes follow that distribution, with a true number of groups of 400; hence true number of individuals in the population is around 400 times our mean group size of 10, so 4000.
+We will create a population whose group sizes follows this distribution, with a true number of groups of 400; hence true number of individuals in the population is around 400 times our mean group size of 10, so 4000.
 
 ```{r}
 # Region set-up
@@ -294,7 +293,7 @@ scatter.smooth(no_cov_survey.pois@dist.data$distance,
                main="Detected group size as fn of detection distance")
 ```
 
-```{r}
+```{r, eval=FALSE}
 # uses dsims function to run the specified simulations
 no.size.simulation.pois <- run.simulation(no_size.pois, run.parallel = TRUE)
 
@@ -402,8 +401,3 @@ Here we see that the group size covariate corrected the expected group size and 
 
 Using a group size covariate when modelling survey data in which groups of animals are counted is essential for accuracy in estimation of both group size and overall abundance. Using the correct distribution to simulate your group sizes can play an important role in the accuracy of those simulations. Ensuring that your mean-variance relationship in simulation matches reality is crucial for representative simulation work.
 
-# References:
-
-Howe EJ, Buckland ST, Després-Einspenner M-L, Kühl HS. Model selection with overdispersed distance sampling data. Methods Ecol Evol. 2019; 10: 38–47. https://doi.org/10.1111/2041-210X.13082
-
-Segura AGd, Hammond PS, Cañadas A, Raga JA (2007) Comparing cetacean abundance estimates derived from spatial models and design-based line transect methods. Mar Ecol Prog Ser 329:289-299 https://doi.org/10.3354/meps329289
