@@ -22,7 +22,7 @@ ztruncpoislognormal <- function(n, mean = NA, sd = NA, verbose = FALSE) {
   if (mean < 1) {
     stop("Target mean must be larger than 1.", call. = FALSE)
   }
-  
+
   if (var <= mean) {
     stop("Square of the target standard deviation must be larger than the mean.", call. = FALSE)
   }
@@ -59,7 +59,10 @@ ztruncpoislognormal <- function(n, mean = NA, sd = NA, verbose = FALSE) {
       var_zt  <- m2_zt - mean_zt^2
       
       # sets error 
-      err <- (mean_zt - goal_mean)^2 + (var_zt - goal_var)^2
+      # err <- (mean_zt - goal_mean)^2 + (var_zt - goal_var)^2
+      # Variance scale dominates absolute error, sacrificing mean accuracy. 
+      # Using relative error balances the optimization evenly.
+      err <- ((mean_zt - goal_mean) / goal_mean)^2 + ((var_zt - goal_var) / goal_var)^2
       
       if (!is.finite(err)) return(1e20)
       
