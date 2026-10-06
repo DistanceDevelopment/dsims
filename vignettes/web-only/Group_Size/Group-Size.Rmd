@@ -55,21 +55,19 @@ Notes:
 
 - the introduction, background section, and the region and population sections are updated.
 
-- I am framing this in the wrong way. I cant simulate values from the two distributions (ztpois, and ztpln) and say that one is doing well and one isnt, because they will both show the correct results for the populations that I drew from their distributions. ztpois vs ztpln needs to be presented as options for simulating data, options that depend on if the true data are oversdispersed or not.
+- I am framing this in the wrong way. I cant simulate values from the two distributions (ztpois, and ztpln) and say that one is doing well and one isnt, because they will both show the correct results for the populations that I drew from their distributions. ztpois vs ztpln needs to be presented as options for simulating data, options that depend on if the true data are over-dispersed or not.
+
+- UPDATE: I have addressed all of these, I think the current version communicates what we want to say.
 
 # Introduction
 
 This vignette demonstrates the importance of accounting for the effects of group size on detectability when conducting distance sampling analyses. The difference in detectability between large and small groups at varying distances is an important source of bias to address when analyzing organisms that live in groups.
 
-For simulation studies, creating group size distributions that accurately reflect real data trends can be challenging with conventional discrete distributions for a few reasons. First, these distributions often include 0 as a potential value, which group sizes can not, Second, they often have prescribed mean-variance relationships, which can fail to reflect the true mean variance relationship in the data. Over-dispersion is a recurrent issue with group size values in distance sampling data (@goyert_2016, @conn_2012, @crego_2024). The new covariate distributions, which have been added to the `dsims` package from version 1.0.7 onwards, include a zero-truncated negative binomial distribution and a zero-truncated Poisson log-normal distribution, which allow for more flexible mean-variance relationship in the data.
-
-*LM: I'm not sure either of these papers are talking about over-dispersion in cluster sizes sounds more like over-dispersion due to non independence in Howe 2019. Look for better references from Eric's vignettes.*
-
-*I think those references are better now, both are distance sampling papers that discuss modelling group size with overdispersion*
+For simulation studies, creating group size distributions that accurately reflect real data trends can be challenging with conventional discrete distributions for a few reasons. First, these distributions often include 0 as a potential value, which group sizes can not, Second, they often have prescribed mean-variance relationships, which can fail to reflect the true mean variance relationship in the data. Over-dispersion is a recurrent issue with group size values in distance sampling data (@goyert2016, @conn2012, @crego2023). The new covariate distributions, which have been added to the `dsims` package from version 1.0.7 onwards, include a zero-truncated negative binomial distribution and a zero-truncated Poisson log-normal distribution, which allow for more flexible mean-variance relationship in the data.
 
 # Background
 
-```{r loadpack, warning=FALSE, message=FALSE, include=F}
+```{r loadpack, warning=FALSE, message=FALSE}
 library(knitr)
 library(dsims)
 library(Distance)
@@ -120,13 +118,9 @@ The following case study will demonstrate:
 
 8.  the effectiveness of the zero-truncated poisson log normal distribution for modelling over-dispersed group size data as compared to the zero-truncated poisson distribution.
 
-## Distribution Selection
+## Selection of a Group Size Distribution
 
-Species vary significantly in their distribution of group sizes. Those values can also vary within species by season, food availability, or other external factors.
-
-*needs more detail, maybe a few case studies*
-
-To correctly simulate a distribution of group sizes, the right distribution needs to be selected. Let us consider a few examples:
+Species vary significantly in their distribution of group sizes. Those values can also vary within species by season, food availability, or other external factors. To correctly simulate a distribution of group sizes, the right distribution needs to be selected. Let us consider a few examples:
 
 If your study species is a large mammal that typically lives in family groups (lions, elephants, wolves, etc), your distribution of group sizes might look something like this:
 
@@ -138,7 +132,8 @@ eg1 <- eg1 |>
 
 eg1 |>
   ggplot(aes(x = x)) + 
-  geom_histogram() + 
+  geom_histogram(binwidth = 2) + 
+  labs(x = "Group Size", y = "Frequency") +
   theme_bw()
 
 sum_tab <- eg1 |>
@@ -151,7 +146,29 @@ sum_tab |>
 
 Here, distributions like the truncated poisson or truncated negative binomial would be poor choices, as the data is too over-dispersed to be represented well by those distributions. Here, the zero-truncated poisson log-normal distribution would be the best choice.
 
-Was the over-dispersion to be less severe, the truncated negative binomial distribution would be more appropriate.
+In the rare case where group sizes are not over-dispersed or under-dispersed, like the case study of orangutan groups found in @cohen1975, the group size distribution may look like this:
+
+```{r}
+eg2 <- data.frame(x = rtpois(n = 100000, lambda = 20))
+
+# eg2 <- eg2 |>
+#   filter(x > 0)
+
+eg2 |>
+  ggplot(aes(x = x)) + 
+  geom_histogram(binwidth = 2) +  
+  labs(x = "Group Size", y = "Frequency") +
+  theme_bw()
+
+sum_tab <- eg2 |>
+  summarise(Mean = mean(x),
+            Variance = var(x))
+
+sum_tab |>
+  kable(digits = 1)
+```
+
+In this case, and in those where the data are even less variable in relation to the mean, using a truncated poisson or normal distribution respectively would be appropriate.
 
 ## Region and Population Setup
 
@@ -207,7 +224,7 @@ plot(gam.density, region)
 
 Now that the region is constructed, we can consider covariates, the population description object, detectability, the population object, and the survey design.
 
-First we specify within our list of covariates one for group size. In this instance, we will create one using the zero-truncated poisson distribution, and one using the zero-truncated poisson log-normal distribution. The two different objects will be compared on their performance later in this analysis.
+First we specify within our list of covariates one for group size. We will create two populations: one using the zero-truncated poisson log-normal distribution, and one using the zero-truncated poisson distribution. Each of which needs to be specified as an element of a list of covariates.
 
 Next we use those covariate lists, as well as the region and density objects from above, to create population description objects. These include a specification for the number of animals in the study area.
 
@@ -216,24 +233,34 @@ A crucial step in simulation studies where group size is important is the specif
 Population and survey objects are then created using population description, region, and detectability objects. The survey object also requires specification of point or line transects, as well as a truncation distance.
 
 ```{r}
-covariate.list <- list()
+covariate.list.P <- list()
+covariate.list.PLN <- list()
 
-# uses the newly implemented zero-truncated Poisson log normal distribution...
-# function to mimic the display distribution
-covariate.list$size <- list(list(distribution = "ztruncpoislognormal", 
+# Zero-truncated Poisson Log-Normal (Over-dispersed)
+covariate.list.PLN$size <- list(list(distribution = "ztruncpoislognormal", 
                                  mean = 50, 
                                  sd = 30))
 
-# Assign N = 400 groups, simulate group size covariate via 
-# zero-truncated Poisson log normal function
-pop.desc <- make.population.description(region = region,
+# Zero-truncated Poisson (Not over-dispersed)
+covariate.list.P$size <- list(list(distribution = "ztruncpois", 
+                                 mean = 50))
+
+# Assign N = 300 groups, simulate group size covariate via ZT-Poisson
+pop.desc.P <- make.population.description(region = region,
                                         density = gam.density,
-                                        covariates = covariate.list,
+                                        covariates = covariate.list.P,
+                                        N = 300,
+                                        fixed.N = TRUE)
+
+# Assign N = 300 groups, simulate group size covariate via ZT-Poisson Log-Normal
+pop.desc.PLN <- make.population.description(region = region,
+                                        density = gam.density,
+                                        covariates = covariate.list.PLN,
                                         N = 300,
                                         fixed.N = TRUE)
 
 # Define the covariate effect (larger groups = higher detectability)
-cov.params <- list(size = c(0.03))
+cov.params <- list(size = c(0.015))
 
 # We must establish the true detectability with size bias included 
 # so the simulation actually generates biased survey data
@@ -241,8 +268,12 @@ detect <- make.detectability(scale.param = 10,
                              cov.param = cov.params, 
                              truncation = 80)
 
-# uses dsims function to generate a population
-pop <- generate.population(object = pop.desc, 
+# uses dsims function to generate a population for each distribution
+pop.P <- generate.population(object = pop.desc.P, 
+                           detectability = detect, 
+                           region = region)
+
+pop.PLN <- generate.population(object = pop.desc.PLN, 
                            detectability = detect, 
                            region = region)
 
@@ -266,35 +297,39 @@ detmodel.size_no_cov <- make.ds.analysis(dfmodel = ~1,
 
 # Build the simulation using the biased detection process...  
 # but with the unbiased analysis model 
-# uses the zero-truncated Poisson log normal function
-no_size <- make.simulation(reps = nsim, 
+no_size.P <- make.simulation(reps = nsim, 
                            design = design, 
-                           pop = pop.desc,
+                           pop = pop.desc.P,
                            det = detect,
                            ds.analysis = detmodel.size_no_cov)
 
-# Run a single survey to check the data
-# uses the zero-truncated Poisson log normal function
-no_cov_sim <- make.simulation(reps = 1,
-                                   design = design,
-                                   population.description = pop.desc,
-                                   detectability = detect,
-                                   ds.analysis = detmodel.size_no_cov)
+no_size.PLN <- make.simulation(reps = nsim, 
+                           design = design, 
+                           pop = pop.desc.PLN,
+                           det = detect,
+                           ds.analysis = detmodel.size_no_cov)
 
-# uses dsims run survey function to get survey data
-# uses the zero-truncated Poisson log normal function
-no_cov_survey <- run.survey(no_cov_sim)
+# Run a single survey to check the data structure
+no_cov_survey.P <- run.survey(no_size.P)
+no_cov_survey.PLN <- run.survey(no_size.PLN)
 
 # Plot it to view a summary
-plot(no_cov_survey, region)
+plot(no_cov_survey.P, region)
+plot(no_cov_survey.PLN, region)
 ```
 
 ```{r}
-scatter.smooth(no_cov_survey@dist.data$distance,
-               no_cov_survey@dist.data$size,
+scatter.smooth(no_cov_survey.P@dist.data$distance,
+               no_cov_survey.P@dist.data$size,
                xlab="Detection distance",
                ylab="Observed group size",
-               main="Detected group size as fn of detection distance")
+               main="Detected group size as fn of detection distance (P)")
+
+scatter.smooth(no_cov_survey.PLN@dist.data$distance,
+               no_cov_survey.PLN@dist.data$size,
+               xlab="Detection distance",
+               ylab="Observed group size",
+               main="Detected group size as fn of detection distance (PLN)")
 ```
 
 The plot above shows that as the detection distance increases, we see fewer groups, which we expect, but we also see larger groups on average than we do at smaller distances. We expected this, as we specified in the detectability function that larger groups are more visible than smaller groups.
@@ -303,89 +338,166 @@ Since group size is evenly distributed over distance, we will miss the smaller g
 
 ```{r}
 # uses dsims function to run the specified simulations
-no.size.simulation <- run.simulation(no_size, run.parallel = TRUE)
+no.size.simulation.P <- run.simulation(no_size.P, run.parallel = TRUE)
+no.size.simulation.PLN <- run.simulation(no_size.PLN, run.parallel = TRUE)
 ```
 
 ```{r}
 # plots the histogram of expected group sizes
-hist(no.size.simulation@results$expected.size[1,1,1:nsim],
+hist(no.size.simulation.P@results$expected.size[1,1,1:nsim],
+     main="Computed average group size\nNo covariate \nZero-truncated Poisson", 
+     xlab="Group size", xlim = c(40, 70))
+abline(v=unname(covariate.list.P$size[[1]][[2]][1]), lwd=2, lty=3)
+nosize.indiv <- no.size.simulation.P@results$individuals$N[1,1:6,nsim+1]
+
+hist(no.size.simulation.PLN@results$expected.size[1,1,1:nsim],
      main="Computed average group size\nNo covariate \nZero-truncated Poisson Log Normal", 
      xlab="Group size", xlim = c(40, 70))
-abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
-nosize.indiv <- no.size.simulation@results$individuals$N[1,1:6,nsim+1]
+abline(v=unname(covariate.list.PLN$size[[1]][[2]][1]), lwd=2, lty=3)
+nosize.indiv <- no.size.simulation.PLN@results$individuals$N[1,1:6,nsim+1]
 ```
 
 ```{r}
-# hist(no.size.simulation@results$individuals$N,
-#      main="Simulation abundance estimates\n Zero-truncated Poisson Log Normal", 
-#      xlab="Group size", xlim=c(2000, 6000))
+# True values established in our population descriptions
+true_groups <- 300
+true_size <- 50
+true_indiv <- true_groups * true_size
+
+# Function to extract mean simulation results and calculate percentage bias
+extract_results <- function(sim_obj, model_name, dist_name) {
+  est_groups <- mean(sim_obj@results$clusters$N[1, 1, 1:nsim], na.rm = TRUE)
+  est_size <- mean(sim_obj@results$expected.size[1, 1, 1:nsim], na.rm = TRUE)
+  est_indiv <- mean(sim_obj@results$individuals$N[1, 1, 1:nsim], na.rm = TRUE)
+  
+  tibble(
+    Distribution = dist_name,
+    Model = model_name,
+    `Est. Groups` = est_groups,
+    `Groups Bias (%)` = ((est_groups - true_groups) / true_groups) * 100,
+    `Est. Size` = est_size,
+    `Size Bias (%)` = ((est_size - true_size) / true_size) * 100,
+    `Est. Abundance` = est_indiv,
+    `Abun. Bias (%)` = ((est_indiv - true_indiv) / true_indiv) * 100
+  )
+}
+
+# Bind results into a single summary table
+res_table <- bind_rows(
+  extract_results(no.size.simulation.P, "No Covariate (~1)", "ZT-Poisson"),
+  extract_results(no.size.simulation.PLN, "No Covariate (~1)", "ZT-PLN")
+)
+
+# Output formatted table
+res_table |>
+  kable(digits = 1, 
+        caption = "Comparison of Estimation Bias Without Size Covariate")
 ```
 
-Here we see the expected upward bias in group size caused by not including the group size covariate. To resolve this, we need to include the group size covariate in the model.
+When we simulate group sizes using a standard Poisson distribution with a mean of 50, the group sizes are tightly distributed around the mean, as the variance of 50 means a standard deviation of around 7. This lack of variation in group size means that there is not a large enough difference in detectability at increasing distances between the large and small groups to cause a significant bias in the data. Group sizes in the wild are very unlikely to follow this distribution however, most of them follow a distribution better simulated by the zero-truncated Poisson log-normal distribution, as we discussed before. The large positive bias in the zero-truncated Poisson log-normal analysis shows that difference. 
+
+## Including covariate analysis
+
 
 ```{r}
-# creates the model used for simulations using dsims function which 
-# includes the group size covariate
+# creates the model used for simulations which includes the group size covariate
 detmodel.size <- make.ds.analysis(dfmodel = list(~size),
                                   key = "hn",
                                   criteria = "AIC",
                                   truncation = 80)
 
-# sets up the simulation using dsims function
-size.cov <- make.simulation(reps = nsim, 
+# sets up the corrected simulations
+size.cov.P <- make.simulation(reps = nsim, 
                             design = design, 
-                            pop = pop.desc, 
+                            pop = pop.desc.P, 
                             det = detect,
                             ds.analysis = detmodel.size)
 
-# runs simulated survey to get data
-size.cov.survey <- run.survey(size.cov)
+size.cov.PLN <- make.simulation(reps = nsim, 
+                            design = design, 
+                            pop = pop.desc.PLN, 
+                            det = detect,
+                            ds.analysis = detmodel.size)
 
-# specified simulation using the elements above
-sim.test <- make.simulation(reps = 1,
-                                design = design,
-                                population.description = pop.desc,
-                                detectability = detect,
-                                ds.analysis = detmodel.size)
+# Generate a single instance of a survey to check the data
+size.cov.survey.P <- run.survey(size.cov.P)
+size.cov.survey.PLN <- run.survey(size.cov.PLN)
 
-# Generate a single instance of a survey: a population, set of transects
-# and the resulting distance data
-eg.test.survey <- run.survey(sim.test)
-
-# Plot it to view a summary
-plot(eg.test.survey, region)
+# Plot to view a summary
+plot(size.cov.survey.P, region)
 ```
 
 ```{r}
-scatter.smooth(size.cov.survey@dist.data$distance,
-               size.cov.survey@dist.data$size,
-               xlab="Detection distance",
-               ylab="Observed group size",
-               main="Detected group size as fn of detection distance")
+# scatter.smooth(size.cov.survey@dist.data$distance,
+#                size.cov.survey@dist.data$size,
+#                xlab="Detection distance",
+#                ylab="Observed group size",
+#                main="Detected group size as fn of detection distance")
 ```
 
 Here is the same plot from the first run, re-iterating the need for the group size covariate we just added.
 
 ```{r}
 # runs the specified simulation
-runsim.cov <- run.simulation(size.cov, run.parallel = TRUE)
+size.simulation.P <- run.simulation(size.cov.P, run.parallel = TRUE)
+size.simulation.PLN <- run.simulation(size.cov.PLN, run.parallel = TRUE)
 ```
 
 ```{r}
-hist(runsim.cov@results$expected.size[1,1,1:nsim], 
-     main="Computed average group size\nGroup size covariate", 
+# plots the histogram of expected group sizes
+hist(size.simulation.P@results$expected.size[1,1,1:nsim],
+     main="Computed average group size\nIncluding covariate \nZero-truncated Poisson", 
      xlab="Group size", xlim = c(40, 70))
-abline(v=unname(covariate.list$size[[1]][[2]][1]), lwd=2, lty=3)
-indiv <- runsim.cov@results$individuals$N[1,1:6,nsim+1]
+abline(v=unname(covariate.list.P$size[[1]][[2]][1]), lwd=2, lty=3)
+nosize.indiv <- size.simulation.P@results$individuals$N[1,1:6,nsim+1]
+
+hist(size.simulation.PLN@results$expected.size[1,1,1:nsim],
+     main="Computed average group size\nIncluding covariate \nZero-truncated Poisson Log Normal", 
+     xlab="Group size", xlim = c(40, 70))
+abline(v=unname(covariate.list.PLN$size[[1]][[2]][1]), lwd=2, lty=3)
+nosize.indiv <- size.simulation.PLN@results$individuals$N[1,1:6,nsim+1]
 ```
+
+This time when we run the analysis, we see that the estimated group size distribution is centered on the true value, demonstrating the importance of the group size covariate.
 
 ```{r}
-# hist(runsim.cov@results$individuals$N,
-#      main="Simulation abundance estimates", 
-#      xlab="Group size", xlim=c(2000, 6000))
+# True values established in our population descriptions
+true_groups <- 300
+true_size <- 50
+true_indiv <- true_groups * true_size
+
+# Function to extract mean simulation results and calculate percentage bias
+extract_results <- function(sim_obj, model_name, dist_name) {
+  est_groups <- mean(sim_obj@results$clusters$N[1, 1, 1:nsim], na.rm = TRUE)
+  est_size <- mean(sim_obj@results$expected.size[1, 1, 1:nsim], na.rm = TRUE)
+  est_indiv <- mean(sim_obj@results$individuals$N[1, 1, 1:nsim], na.rm = TRUE)
+  
+  tibble(
+    Distribution = dist_name,
+    Model = model_name,
+    `Est. Groups` = est_groups,
+    `Groups Bias (%)` = ((est_groups - true_groups) / true_groups) * 100,
+    `Est. Size` = est_size,
+    `Size Bias (%)` = ((est_size - true_size) / true_size) * 100,
+    `Est. Abundance` = est_indiv,
+    `Abun. Bias (%)` = ((est_indiv - true_indiv) / true_indiv) * 100
+  )
+}
+
+# Bind results into a single summary table
+res_table <- bind_rows(
+  extract_results(no.size.simulation.P, "No Covariate (~1)", "ZT-Poisson"),
+  extract_results(no.size.simulation.PLN, "No Covariate (~1)", "ZT-PLN"),
+  extract_results(size.simulation.P, "Size Covariate (~size)", "ZT-Poisson"),
+  extract_results(size.simulation.PLN, "Size Covariate (~size)", "ZT-PLN")
+)
+
+# Output formatted table
+res_table |>
+  kable(digits = 1, 
+        caption = "Comparison of Estimation Bias With and Without Size Covariate")
 ```
 
-This time when we run the analysis, we see that the group size distribution is as expected, demonstrating the importance of the group size covariate.
+When accounting for the distribution properly in the analysis, by using a group size covariate, the positive bias is largely corrected. The difference is especially noticable in the over-dispersed data, where the abundance bias fell from nearly 10% to just 0.1%.
 
 # Conclusion
 
@@ -398,3 +510,5 @@ Goyert, H. F., Gardner, B., Sollmann, R., Veit, R. R., Gilbert, A. T., Connelly,
 Conn, P. B., Laake, J. L., & Johnson, D. S. (2012). A hierarchical modeling framework for multiple observer transect surveys.
 
 Crego, R. D., Wells, H. B., Connette, G., Stabach, J. A., Soit, N., & Thompson, S. (2024). Monitoring spatiotemporal dynamics of large herbivores across an African rangeland using hierarchical multi‐species distance sampling. *African Journal of Ecology*, *62*(1), e13219.
+
+Joel E. Cohen, The size and demographic composition of social groups of wild orang-utans, Animal Behaviour, Volume 23, Part 3, 1975, Pages 543-550, ISSN 0003-3472.
