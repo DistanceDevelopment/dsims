@@ -15,7 +15,7 @@
 #' @importFrom dplyr tibble
 #' 
 #' 
-ztruncpoislognormal <- function(n, mean = NA, sd = NA, verbose = FALSE) {
+rztruncpoislognormal <- function(n, mean = NA, sd = NA, verbose = FALSE) {
   
   var = sd^2
   

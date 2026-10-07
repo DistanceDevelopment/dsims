@@ -14,7 +14,7 @@
 #' @importFrom stats runif optim
 #' @importFrom dplyr tibble
 #'
-ztruncnbinom <- function(n, mean = NA, sd = NA){
+rztruncnbinom <- function(n, mean = NA, sd = NA){
   
   var = sd^2
   
