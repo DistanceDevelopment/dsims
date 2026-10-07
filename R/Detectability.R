@@ -276,7 +276,7 @@ setMethod(
                                     "normal" = qnorm(int, dist.param$mean, dist.param$sd),
                                     "poisson" = qpois(int, dist.param$lambda),
                                     "lognormal" = qlnorm(int, dist.param$meanlog, dist.param$sdlog),
-                                    "rztpois" = qztpois(int, dist.param$mean),
+                                    "ztruncpois" = qztpois(int, dist.param$mean),
                                     "ztruncnbinom" = qztruncnbinom(int, dist.param$mean, dist.param$sd),
                                     "ztruncpoislognormal" = qztruncpoislognormal(int, dist.param$mean, dist.param$sd)
                                     )
@@ -389,7 +389,6 @@ setMethod(
     }
     invisible(x)
   })
-
 
 
 

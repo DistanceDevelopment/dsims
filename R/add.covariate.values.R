@@ -26,8 +26,8 @@ add.covariate.values <- function(pop.data, covariates){
                              poisson = rpois(n.vals, lambda = params$lambda),
                              ztruncpois = rztpois(n.vals, mean = params$mean),
                              lognormal = rlnorm(n.vals, meanlog = params$meanlog, sdlog = params$sdlog),
-                             ztruncnbinom = ztruncnbinom(n.vals, mean = params$mean, sd = params$sd),
-                             ztruncpoislognormal = ztruncpoislognormal(n.vals, mean = params$mean, sd = params$sd))
+                             ztruncnbinom = rztnbinom(n.vals, mean = params$mean, sd = params$sd),
+                             ztruncpoislognormal = rztpoislognormal(n.vals, mean = params$mean, sd = params$sd))
         list.data[[strata.ids[strat]]][[cov.names[covar]]] <- cov.values
       }
     }
