@@ -24,7 +24,7 @@ Suggests:
     rmarkdown
 Type: Package
 Title: Distance Sampling Simulations
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: c(
   person("Laura", "Marshall", email = "lhm@st-and.ac.uk", role = c("aut", "cre")),
   person("Thomas", "Len", email = "len.thomas@st-andrews.ac.uk", role = "ctb"))
@@ -85,6 +85,7 @@ Collate:
     'get.density.surface.R'
     'message.handler.R'
     'modify.strata.for.analysis.R'
+    'population.generator.R'
     'process.dist.shapes.R'
     'read.line.transects.R'
     'read.point.transects.R'

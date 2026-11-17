@@ -7,6 +7,12 @@ extract.rep.result <- function(results, i){
     ),
     Detection = results$Detection[,,i, drop = FALSE]
   )
+  if(!is.null(results$individuals$true.N)){
+    rep.result$individuals$true.N <- results$individuals$true.N[,,i, drop = FALSE]
+  }
+  if(!is.null(results$truth)){
+    rep.result$truth <- results$truth[,,i, drop = FALSE]
+  }
 
   if(!is.null(results$clusters)){
     rep.result$clusters <- list(
@@ -15,6 +21,9 @@ extract.rep.result <- function(results, i){
       D = results$clusters$D[,,i, drop = FALSE]
     )
     rep.result$expected.size <- results$expected.size[,,i, drop = FALSE]
+    if(!is.null(results$clusters$true.N)){
+      rep.result$clusters$true.N <- results$clusters$true.N[,,i, drop = FALSE]
+    }
   }
 
   rep.result
@@ -25,11 +34,20 @@ apply.rep.result <- function(results, rep.result, i){
   results$individuals$N[,,i] <- rep.result$individuals$N[,,1]
   results$individuals$D[,,i] <- rep.result$individuals$D[,,1]
   results$Detection[,,i] <- rep.result$Detection[,,1]
+  if(!is.null(results$individuals$true.N) && !is.null(rep.result$individuals$true.N)){
+    results$individuals$true.N[,,i] <- rep.result$individuals$true.N[,,1]
+  }
+  if(!is.null(results$truth) && !is.null(rep.result$truth)){
+    results$truth[,,i] <- rep.result$truth[,,1]
+  }
   if(!is.null(results$clusters) && !is.null(rep.result$clusters)){
     results$clusters$summary[,,i] <- rep.result$clusters$summary[,,1]
     results$clusters$N[,,i] <- rep.result$clusters$N[,,1]
     results$clusters$D[,,i] <- rep.result$clusters$D[,,1]
     results$expected.size[,,i] <- rep.result$expected.size[,,1]
+    if(!is.null(results$clusters$true.N) && !is.null(rep.result$clusters$true.N)){
+      results$clusters$true.N[,,i] <- rep.result$clusters$true.N[,,1]
+    }
   }
   results
 }

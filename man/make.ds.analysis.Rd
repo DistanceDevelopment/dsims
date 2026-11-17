@@ -12,7 +12,8 @@ make.ds.analysis(
   er.var = "R2",
   control.opts = list(),
   group.strata = data.frame(),
-  criteria = "AIC"
+  criteria = "AIC",
+  zero.n = c("fail", "zero")
 )
 }
 \arguments{
@@ -46,6 +47,19 @@ second specifies how they should be grouped (into less strata) for the analyses.
 details for more information.}
 
 \item{criteria}{character model selection criteria (AIC, AICc, BIC)}
+
+\item{zero.n}{how to treat a repetition with no detections within the
+truncation distance. "fail" (default) skips the repetition, it is reported
+as a warning and counted as excluded in the summary. "zero" records the
+repetition as a successful estimate of zero: abundance and density
+Estimate = 0, lcl = 0 and se, cv and ucl = NA. The number of detections
+(n = 0), area, covered area and effort are recorded as usual and the
+repetition is flagged in the ZeroDetections column of
+\code{simulation@results$Detection}. Zero detection repetitions are then
+included in the mean, SD, RMSE and bias reported by
+\code{summary()}, while CI coverage only uses repetitions with a defined
+confidence interval. Repetitions with one or more detections where no model
+could be fitted remain failures under both options.}
 }
 \value{
 \code{\link{DS.Analysis-class}} object

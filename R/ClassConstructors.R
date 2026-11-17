@@ -396,6 +396,18 @@ make.detectability <- function(key.function = "hn", scale.param = 25, shape.para
 #' second specifies how they should be grouped (into less strata) for the analyses. See
 #' details for more information.
 #' @param criteria character model selection criteria (AIC, AICc, BIC)
+#' @param zero.n how to treat a repetition with no detections within the
+#' truncation distance. "fail" (default) skips the repetition, it is reported
+#' as a warning and counted as excluded in the summary. "zero" records the
+#' repetition as a successful estimate of zero: abundance and density
+#' Estimate = 0, lcl = 0 and se, cv and ucl = NA. The number of detections
+#' (n = 0), area, covered area and effort are recorded as usual and the
+#' repetition is flagged in the ZeroDetections column of
+#' \code{simulation@@results$Detection}. Zero detection repetitions are then
+#' included in the mean, SD, RMSE and bias reported by
+#' \code{summary()}, while CI coverage only uses repetitions with a defined
+#' confidence interval. Repetitions with one or more detections where no model
+#' could be fitted remain failures under both options.
 #' @return \code{\link{DS.Analysis-class}} object
 #' @export
 #' @importFrom methods new is
@@ -437,8 +449,10 @@ make.ds.analysis <- function(dfmodel = list(~1),
                              er.var = "R2",
                              control.opts = list(),
                              group.strata = data.frame(),
-                             criteria = "AIC"){
+                             criteria = "AIC",
+                             zero.n = c("fail", "zero")){
   # Do some pre-creation input checking / formatting
+  zero.n <- match.arg(zero.n)
   if(length(truncation) == 0){ truncation <- 50}
   if(!is.double(truncation) || length(truncation) > 1){
     stop("Truncation must be supplied as a single numeric value giving the absolute truncation distance.", call. = FALSE)
@@ -477,7 +491,7 @@ make.ds.analysis <- function(dfmodel = list(~1),
   # Allow "uf" for consistency with make.detectability, Distance uses "unif"
   key[key == "uf"] <- "unif"
   # Create class instance
-  ds.analysis <- new(Class = "DS.Analysis", dfmodel = dfmodel, key = key, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria)
+  ds.analysis <- new(Class = "DS.Analysis", dfmodel = dfmodel, key = key, truncation = truncation, cutpoints = cutpoints, er.var = er.var, control.opts = control.opts, group.strata = group.strata, criteria = criteria, zero.n = zero.n)
   return(ds.analysis)
 }
 
@@ -503,6 +517,68 @@ make.ds.analysis <- function(dfmodel = list(~1),
 #'  \link{make.detectability}
 #' @param ds.analysis an objects of class DS.Analysis created by
 #'  a call to \link{make.ds.analysis}
+#' @param population.generator optional function used to generate the
+#'  population in each repetition instead of
+#'  \code{generate.population(simulation)}. Default NULL uses the
+#'  population description. See the 'Population generator' section.
+#' @section Population generator:
+#' A population generator is a \code{function(simulation, rep)} which is
+#' called once per repetition with the simulation object and the repetition
+#' number. It must return either a \code{\link{Population-class}} object or a
+#' list with elements \code{population} (a Population object) and
+#' \code{truth}, a named numeric vector or list with entries \code{N} and/or
+#' \code{D} giving the true abundance / density of the whole target area for
+#' this repetition. This allows, for example, a population to be generated
+#' over a larger study area and only the individuals inside the survey
+#' region (the design region) to be returned, while bias is assessed
+#' against the density of the whole study area.
+#'
+#' \strong{Requirements for the returned population.} It is checked in every
+#' repetition: it must be a Population object whose \code{population} slot is a
+#' data.frame with columns \code{individual}, \code{x}, \code{y},
+#' \code{Region.Label} and \code{scale.param} (plus \code{shape.param} for a
+#' hazard-rate detection function and any covariates used in the
+#' detectability description). Region.Label values must be strata names of
+#' \code{simulation@@design@@region}, all individuals must lie inside the
+#' design region and the detectability slot must be a Detectability object.
+#' The simplest way to get all of these right is to start from a population
+#' made by \code{generate.population()} (with a region covering the study
+#' area) and subset its rows. A population with no individuals is allowed.
+#' The detection function used for the survey is taken from the
+#' population's detectability slot.
+#'
+#' \strong{Random numbers.} The state of the random number generator is saved
+#' before the generator is called and restored afterwards. The generator may
+#' therefore set its own seed (e.g. \code{set.seed(1000 + rep)}) without
+#' changing the transects, detections and analyses of the simulation, which
+#' come from the per-repetition random number streams of dsims. Simulations
+#' that differ only in their design then see identical populations in each
+#' repetition. As the generator does not advance the dsims stream, a
+#' generator which simply returns \code{generate.population(simulation)}
+#' gives the same populations as the default but different transects and
+#' detections.
+#'
+#' \strong{Parallel processing.} \code{run.simulation(run.parallel = TRUE)} sends
+#' the simulation, including the generator, to separate R worker processes
+#' (mirai daemons, these are new R sessions not forks). The generator's
+#' enclosing environment is sent with it unless it is the global environment
+#' or a package namespace. So: (i) any data the generator needs should be
+#' created inside the function or captured in its enclosing environment, for
+#' example by returning the generator from a factory function
+#' (\code{make.gen <- function(study.pop) function(simulation, rep) ...});
+#' objects referenced from the global environment are not available on the
+#' workers; (ii) call functions from other packages with \code{pkg::fun()} (or
+#' load the packages inside the generator), the packages must be installed
+#' for the workers; (iii) keep captured objects small as they are copied to
+#' each worker with every repetition. If the generator fails on a worker the
+#' repetition is skipped and the error is reported in the summary of
+#' warnings and errors.
+#'
+#' \strong{Results.} If the generator returns \code{truth}, it is stored in
+#' \code{simulation@@results$truth} (an array [1, c("N", "D"), reps + 2]) and
+#' \code{summary()} uses it, instead of the population description, as the
+#' truth for the total row of the individual abundance / density tables (see
+#' \code{\link{summary,Simulation-method}}).
 #' @return \code{\link{Simulation-class}} object
 #' @export
 #' @importFrom methods new is
@@ -570,13 +646,23 @@ make.simulation <- function(reps = 10,
                             design = make.design(), 
                             population.description = make.population.description(), 
                             detectability = make.detectability(), 
-                            ds.analysis = make.ds.analysis()){
-
+                            ds.analysis = make.ds.analysis(),
+                            population.generator = NULL){
+  if(!is.null(population.generator) && !is.function(population.generator)){
+    stop("population.generator must be NULL or a function(simulation, rep).", call. = FALSE)
+  }
+  if(is.function(population.generator)){
+    gen.args <- names(formals(population.generator))
+    if(length(gen.args) < 2 && !("..." %in% gen.args)){
+      stop("population.generator must be a function which accepts two arguments: function(simulation, rep).", call. = FALSE)
+    }
+  }
   # Make the results arrays and store in a list
   results <- create.results.arrays(reps,
                                    design@region,
                                    ds.analysis,
-                                   population.description)
+                                   population.description,
+                                   population.generator = population.generator)
   # Create a simulation object
   simulation <- new(Class = "Simulation",
                     reps = reps,
@@ -584,7 +670,8 @@ make.simulation <- function(reps = 10,
                     population.description = population.description,
                     detectability = detectability,
                     ds.analysis = ds.analysis,
-                    results = results)
+                    results = results,
+                    population.generator = population.generator)
   # Check the simulation object
   simulation <- check.simulation(simulation)
   # If it has returned a character this is an error

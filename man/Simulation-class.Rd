@@ -33,6 +33,10 @@ description of the detectability of the population.}
 
 \item{\code{add.options}}{a list to expand simulation options in the future.}
 
+\item{\code{population.generator}}{Object of class \code{"function"} or
+\code{NULL}; an optional function(simulation, rep) used to generate the
+population in each repetition, see \code{\link{make.simulation}}.}
+
 \item{\code{ddf.param.ests}}{Object of class \code{"array"}; stores the
 parameters associated with the detection function.}
 
@@ -98,10 +102,20 @@ for the repetition), 'DeltaCriteria' (the difference in
 information criteria between the best and second best fitting
 models where two or more models were fitted and converged),
 'SuccessfulModels' (the number of models which successfully
-converged). Currently detection functions are pooled across
-all strata so there is only one global value for each
-simulated dataset as well as a mean value and standard
-deviation where appropriate.}
+converged) and 'ZeroDetections' (1 if the repetition had no
+detections within the truncation distance and was recorded as
+an estimate of zero, see the zero.n argument of
+\code{\link{make.ds.analysis}}, 0 otherwise). Currently detection
+functions are pooled across all strata so there is only one
+global value for each simulated dataset as well as a mean value
+and standard deviation where appropriate.
+
+The 'individuals' (and 'clusters') elements also contain
+'true.N', an array [strata, "N", reps + 2] giving the realised
+number of individuals (clusters) in the design region in each
+repetition. If a population generator returned the truth for
+the whole target area (see \code{\link{make.simulation}}) the
+results also contain 'truth', an array [1, c("N", "D"), reps + 2].}
 
 \item{\code{warnings}}{A \code{"list"} to store warnings and error messages encountered
 during runtime.}

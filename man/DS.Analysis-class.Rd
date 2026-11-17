@@ -41,6 +41,11 @@ be grouped (into less strata) for the analyses}
 
 \item{\code{criteria}}{Object of class \code{"character"}; describes
 which model selection criteria to use ("AIC","AICc","BIC").}
+
+\item{\code{zero.n}}{Object of class \code{"character"}; how repetitions with no
+detections within the truncation distance are treated, either "fail"
+(the repetition is skipped) or "zero" (abundance and density are recorded
+as 0). See \code{\link{make.ds.analysis}}.}
 }}
 
 \section{Methods}{

@@ -18,6 +18,12 @@
 #' \code{mirai::daemons(n)} beforehand and stop them with
 #' \code{mirai::daemons(0)} when finished.
 #'
+#' The workers are separate R processes (not forks). A population generator
+#' (see \code{\link{make.simulation}}) is sent to them with its enclosing
+#' environment, but objects in the global environment and packages it uses
+#' are not: see the 'Population generator' section of
+#' \code{\link{make.simulation}}.
+#'
 #' Each repetition uses its own random number stream, so after calling
 #' \code{set.seed} results are identical whether run in serial or in parallel,
 #' regardless of the number of workers.
@@ -86,7 +92,8 @@ run.simulation <- function(simulation, run.parallel = TRUE, max.cores = NA,
   simulation@results <- create.results.arrays(simulation@reps,
                                               simulation@design@region,
                                               simulation@ds.analysis,
-                                              simulation@population.description)
+                                              simulation@population.description,
+                                              population.generator = get.population.generator(simulation))
   #reset the error/warning message
   simulation@warnings$message <- list()
   simulation@warnings$counter <- list()

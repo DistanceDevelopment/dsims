@@ -2,16 +2,11 @@
 add.summary.results <- function(results, model.count, use.max.reps = TRUE){
   strata.names <- dimnames(results$individuals$summary)[[1]]
   reps <- length(dimnames(results$individuals$summary)[[3]])-2
-  #Make backwards compatible
-  if("SuccessfulModels" %in% dimnames(results$Detection)[[2]]){
-    if(use.max.reps){
-      rep.index <- which(results$Detection[1,"SuccessfulModels",1:reps] > 0)
-    }else{
-      rep.index <- which(results$Detection[1,"SuccessfulModels",1:reps] == model.count)
-    }
-  }else{
-    rep.index <- 1:reps
-  }
+  # Repetitions to include (backwards compatible if SuccessfulModels is not
+  # recorded), includes zero detection repetitions (zero.n = "zero")
+  rep.index <- get.rep.index(results$Detection, reps, model.count, use.max.reps)
+  # Truth and realised abundance are summarised over the same repetitions
+  results <- add.summary.truth(results, rep.index)
   reps <- length(rep.index)
   #Summarise results for individuals
   if(reps > 1){
@@ -68,4 +63,30 @@ add.summary.results <- function(results, model.count, use.max.reps = TRUE){
     return(results)
   }
   return(results)
+}
+
+add.summary.truth <- function(results, rep.index){
+  # Adds the mean and sd over the included repetitions to the arrays of the
+  # realised abundance in the design region and the truth supplied by a
+  # population generator
+  summarise <- function(x){
+    if(is.null(x)){
+      return(x)
+    }
+    for(row in seq_len(dim(x)[1])){
+      for(col in seq_len(dim(x)[2])){
+        values <- x[row, col, rep.index]
+        values <- values[!is.na(values)]
+        x[row, col, "mean"] <- if(length(values) > 0) mean(values) else NA
+        x[row, col, "sd"] <- if(length(values) > 1) stats::sd(values) else NA
+      }
+    }
+    x
+  }
+  results$individuals$true.N <- summarise(results$individuals$true.N)
+  if(!is.null(results$clusters)){
+    results$clusters$true.N <- summarise(results$clusters$true.N)
+  }
+  results$truth <- summarise(results$truth)
+  results
 }

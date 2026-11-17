@@ -62,6 +62,10 @@ setMethod(
 
 run.survey.body.LT <- function(object, region){
   population <- object@population
+  # No individuals (e.g. from a population generator): no detections
+  if(nrow(population@population) == 0){
+    return(object)
+  }
   line.transect <- object@transect
   # Find possible detection distances
   poss.distances <- calc.perp.dists(population, line.transect)

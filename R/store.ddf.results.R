@@ -15,6 +15,9 @@ store.ddf.results <- function(detection.results, ddf.results, i, N.in.covered, n
     detection.results[1, "DeltaCriteria", i] <- ddf.results$delta.criteria
   }
   detection.results[1, "SuccessfulModels", i] <- num.successful.models
+  if("ZeroDetections" %in% dimnames(detection.results)[[2]]){
+    detection.results[1, "ZeroDetections", i] <- 0
+  }
   return(detection.results)
 }
 

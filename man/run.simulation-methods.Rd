@@ -59,6 +59,12 @@ simulations (e.g. in a loop) start the daemons once with
 \code{mirai::daemons(n)} beforehand and stop them with
 \code{mirai::daemons(0)} when finished.
 
+The workers are separate R processes (not forks). A population generator
+(see \code{\link{make.simulation}}) is sent to them with its enclosing
+environment, but objects in the global environment and packages it uses
+are not: see the 'Population generator' section of
+\code{\link{make.simulation}}.
+
 Each repetition uses its own random number stream, so after calling
 \code{set.seed} results are identical whether run in serial or in parallel,
 regardless of the number of workers.

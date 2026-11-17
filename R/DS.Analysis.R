@@ -30,6 +30,10 @@
 #' be grouped (into less strata) for the analyses
 #' @slot criteria Object of class \code{"character"}; describes
 #'  which model selection criteria to use ("AIC","AICc","BIC").
+#' @slot zero.n Object of class \code{"character"}; how repetitions with no
+#'  detections within the truncation distance are treated, either "fail"
+#'  (the repetition is skipped) or "zero" (abundance and density are recorded
+#'  as 0). See \code{\link{make.ds.analysis}}.
 #' @section Methods:
 #' \describe{
 #'  \item{\code{run.analysis}}{\code{signature=c(object = "DS.Analysis",
@@ -46,13 +50,14 @@ setClass(Class = "DS.Analysis", representation(dfmodel = "list",
                                                er.var = "character",
                                                control.opts = "list",
                                                group.strata = "data.frame",
-                                               criteria = "character"))
+                                               criteria = "character",
+                                               zero.n = "character"))
 
 #' @importFrom methods validObject is
 setMethod(
   f="initialize",
   signature="DS.Analysis",
-  definition=function(.Object, dfmodel, key, adjustment = list(), truncation, cutpoints, er.var, control.opts, group.strata, criteria){
+  definition=function(.Object, dfmodel, key, adjustment = list(), truncation, cutpoints, er.var, control.opts, group.strata, criteria, zero.n = "fail"){
     # Pre-processing
     #make sure these are characters not factors
     group.strata$design.id <- as.character(group.strata$design.id)
@@ -67,6 +72,7 @@ setMethod(
     .Object@control.opts <- control.opts
     .Object@group.strata <- group.strata
     .Object@criteria <- criteria
+    .Object@zero.n <- zero.n
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
     if(is(valid, "character")){
@@ -82,6 +88,10 @@ setValidity("DS.Analysis",
               # Check criteria
               if(!(object@criteria %in% c("AIC", "BIC", "AICc"))){
                 return("This selection criteria is not currently supported, please select from 'AIC', 'BIC' or 'AICc'.")
+              }
+              # Check zero detection option
+              if(length(object@zero.n) != 1 || !(object@zero.n %in% c("fail", "zero"))){
+                return("zero.n must be either 'fail' or 'zero'.")
               }
               # Check key functions
               if(!all(object@key %in% c("hr", "hn", "unif"))){

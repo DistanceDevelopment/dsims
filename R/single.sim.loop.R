@@ -19,7 +19,20 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   rep.filename <- NA_character_
   if(!load.data){
     #generate population
-    population <- generate.population(simulation)
+    if(is.null(get.population.generator(simulation))){
+      population <- generate.population(simulation)
+    }else{
+      # User supplied population generator, the RNG state is restored
+      # afterwards so the rest of the rep uses the dsims random number stream
+      generated <- run.population.generator(simulation, i)
+      population <- generated$population
+      simulation@results <- store.truth(simulation@results, generated$truth, i)
+      rm(generated)
+    }
+    # Record the realised number of individuals in the design region
+    simulation@results <- store.true.N(simulation@results, population,
+                                       simulation@design@region,
+                                       simulation@ds.analysis@group.strata, i)
     #generate transects
     load.transects <- FALSE
     if(length(transect.path) > 0 && !save.transects){
@@ -128,8 +141,22 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   }else{
     n.in.covered <- length(dists.in.covered)
   }
+  # Check for no detections within the truncation distance when these are to
+  # be recorded as zero estimates
+  zero.detections <- FALSE
+  if(get.zero.n(simulation@ds.analysis) == "zero" && exists("transects", inherits = FALSE)){
+    zero.detections <- count.in.truncation(dist.data, left, right) == 0
+  }
   #analyse survey if there are data to analyse
-  if(nrow(dist.data[!is.na(dist.data$distance),]) > 0){
+  if(zero.detections){
+    warnings <- message.handler(warnings, "There were no detections within the truncation distance, abundance and density recorded as zero (zero.n = 'zero').", i)
+    simulation@results <- store.zero.detection.results(simulation@results,
+                                                       transects,
+                                                       simulation@design@region,
+                                                       simulation@ds.analysis@group.strata,
+                                                       left, right, i)
+    model.results <- NULL
+  }else if(nrow(dist.data[!is.na(dist.data$distance),]) > 0){
     model.results <- analyse.data(simulation@ds.analysis, data.obj = survey, simulation@warnings, i = i)
     warnings <- model.results$warnings
     num.successful.models <- model.results$num.successful.models
