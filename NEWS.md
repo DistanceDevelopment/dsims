@@ -11,6 +11,7 @@ Bug Fixes
 
 * CI coverage in `summary()` was calculated from the first k repetitions rather than the k included repetitions when some repetitions had failed (or with `use.max.reps = FALSE` and some models not converging). It now uses the included repetitions. Results are unchanged when no repetitions are excluded.
 * Surveying a population with no individuals no longer gives warnings from `sf`.
+* With the uniform detection function (`key.function = "uf"` in `make.detectability()`), a repetition in which no individual was within the truncation distance of any transect stopped with "invalid arguments" from `rbinom()` and was skipped. It is now handled like the other keys (a failure with the default `zero.n = "fail"`, an estimate of zero with `zero.n = "zero"`). Previously, skipping these repetitions biased results upwards in sparse scenarios.
 
 Other changes
 
