@@ -138,5 +138,6 @@ test_that("Check cannot get detections greater than truncation", {
   
   survey <- run.survey(sim)
   # Check all distances are less than truncation distance (Issue #76)
-  expect_true(all(survey@dist.data$distance <= 0.5))
+  # (transects without detections are rows with distance NA)
+  expect_true(all(survey@dist.data$distance <= 0.5, na.rm = TRUE))
 })
