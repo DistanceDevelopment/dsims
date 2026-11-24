@@ -222,8 +222,9 @@ launch.daemons <- function(max.cores){
   mirai::daemons(nCores, .compute = "dsims")
   # Daemons start with the default library paths, use this session's instead
   # so they load the same version of dsims
-  mirai::everywhere(.libPaths(lib.paths), lib.paths = .libPaths(),
-                    .min = nCores, .compute = "dsims")
+  # (a pre-built call, so the paths are sent as values)
+  lib.call <- call(".libPaths", .libPaths())
+  mirai::everywhere(lib.call, .min = nCores, .compute = "dsims")
   check.daemon.version("dsims")
   "dsims"
 }
