@@ -21,78 +21,73 @@
 #' @keywords classes
 #' @seealso \code{\link{make.density}}
 #' @export
-setClass("Density", representation(
-  region.name = "character",
-  strata.name = "character",
-  density.surface = "list",
-  x.space = "numeric",
-  y.space = "numeric",
-  units = "character"
-))
+setClass("Density", representation(region.name = "character",
+                                   strata.name = "character",
+                                   density.surface = "list",
+                                   x.space = "numeric",
+                                   y.space = "numeric",
+                                   units = "character"))
 
 #' @importFrom methods validObject is
 setMethod(
-  f = "initialize",
-  signature = "Density",
-  definition = function(.Object, region, strata.name = character(0), density.surface = list(), x.space, y.space, constant = NULL, model.fit = NULL, density.formula = character(0)) {
+  f="initialize",
+  signature="Density",
+  definition=function(.Object, region, strata.name = character(0), density.surface = list(), x.space, y.space, constant = NULL, model.fit = NULL, density.formula = character(0)){
     # Create density surface
-    if (length(density.surface) == 0) {
-      density.surface <- get.density.surface(
-        region = region,
-        x.space = x.space,
-        y.space = y.space,
-        constant = constant,
-        model.fit = model.fit,
-        grid.formula = density.formula
-      )
+    if(length(density.surface) == 0){
+      density.surface <- get.density.surface(region = region,
+                                             x.space = x.space,
+                                             y.space = y.space,
+                                             constant = constant,
+                                             model.fit = model.fit,
+                                             grid.formula = density.formula)
     }
-    # Set slots
+    #Set slots
     .Object@region.name <- region@region.name
     .Object@strata.name <- strata.name
     .Object@density.surface <- list(density.surface)
     .Object@x.space <- x.space
     .Object@y.space <- y.space
     .Object@units <- region@units
-    # Check object is valid
+    #Check object is valid
     valid <- validObject(.Object, test = TRUE)
-    if (is(valid, "character")) {
+    if(is(valid, "character")){
       stop(paste(valid), call. = FALSE)
     }
     # return object
     return(.Object)
   }
 )
-setValidity(
-  "Density",
-  function(object) {
-    # check region object exists and is of the correct class
-    # check strata object exists and is of the correct class
-    # check the density grid was created without problem
+setValidity("Density",
+  function(object){
+    #check region object exists and is of the correct class
+    #check strata object exists and is of the correct class
+    #check the density grid was created without problem
     some.strata.with.grids <- FALSE
     some.strata.with.no.grids <- FALSE
     density.sf <- object@density.surface[[1]]
     strata.names <- object@strata.name
-    for (i in seq(along = object@density.surface)) {
+    for(i in seq(along = object@density.surface)){
       # Get densities for current strata
       densities <- density.sf$density[density.sf$strata == strata.names[i]]
       # Check if there are any negative values for density
-      if (any(densities < 0)) {
+      if(any(densities < 0)){
         return("All density values must be positive!")
       }
       density.sum <- sum(densities)
-      # check there are some cells with non-zero density
-      # if(density.sum == 0){
-      #   return("All strata must have some cells with non-zero density. Check that you have correctly specified your density grid. Large grid spacing may also generate this error.")
-      # }
-      if (length(densities) > 0) {
+      #check there are some cells with non-zero density
+      if(density.sum == 0){
+        return("All strata must have some cells with non-zero density. Check that you have correctly specified your density grid. Large grid spacing may also generate this error.")
+      }
+      if(length(densities) > 0){
         some.strata.with.grids <- TRUE
-      } else {
+      }else{
         some.strata.with.no.grids <- TRUE
       }
     }
-    if (some.strata.with.grids & some.strata.with.no.grids) {
+    if(some.strata.with.grids & some.strata.with.no.grids){
       return("The grid spacing needs to be smaller, not all strata have points in them")
-    } else if (!some.strata.with.grids) {
+    }else if(!some.strata.with.grids){
       return("There has been a problem generating the density grid. You must supply either a valid density surface, constant or valid density gam argument. DSM and formula are not currently suported")
     }
     return(TRUE)
@@ -114,11 +109,11 @@ setValidity(
 #' with columns x, y and density.
 #' @export
 #' @rdname get.densities-methods
-get.densities <- function(density, coords = FALSE) {
+get.densities <- function(density, coords = FALSE){
   dgrid <- density@density.surface[[1]]
-  if (coords) {
+  if(coords){
     return(data.frame(x = dgrid$x, y = dgrid$y, density = dgrid$density))
-  } else {
+  }else{
     return(dgrid$densit)
   }
 }
@@ -133,7 +128,7 @@ get.densities <- function(density, coords = FALSE) {
 #' @return returns the Density object with updated density values
 #' @export
 #' @rdname set.densities-methods
-set.densities <- function(density, densities) {
+set.densities <- function(density, densities){
   density@density.surface[[1]]$density <- densities
   return(density)
 }
@@ -142,24 +137,23 @@ set.densities <- function(density, densities) {
 
 #' @rdname add.hotspot-methods
 #' @export
-setMethod(
-  "add.hotspot", "Density",
-  function(object, centre, sigma, amplitude) {
-    sf.density.df <- object@density.surface[[1]][, c("x", "y", "density")]
-    # Find distances from centre to each point on the density surface
-    dists <- sqrt((sf.density.df$x - centre[1])^2 + (sf.density.df$y - centre[2])^2)
-    # Calculate radial decay
-    additive.values <- (exp(-dists^2 / (2 * sigma^2))) * amplitude
-    # Add to current density values
-    new.densities <- sf.density.df$density + additive.values
-    # Put them back in sf object if they are non-negative
-    if (any(new.densities < 0)) {
-      warning("Adding this high / low spot to the density map would have resulted in negative densities. Object returned unchanged.")
-      return(object)
-    }
-    object@density.surface[[1]]$density <- new.densities
-    return(object)
-  }
+setMethod("add.hotspot","Density",
+          function(object, centre, sigma, amplitude){
+            sf.density.df <- object@density.surface[[1]][,c("x","y","density")]
+            # Find distances from centre to each point on the density surface
+            dists <- sqrt((sf.density.df$x-centre[1])^2 + (sf.density.df$y-centre[2])^2)
+            # Calculate radial decay
+            additive.values <- (exp(-dists^2/(2*sigma^2)))*amplitude
+            # Add to current density values
+            new.densities <- sf.density.df$density + additive.values
+            # Put them back in sf object if they are non-negative
+            if(any(new.densities < 0)){
+              warning("Adding this high / low spot to the density map would have resulted in negative densities. Object returned unchanged.")
+              return(object)
+            }
+            object@density.surface[[1]]$density <- new.densities
+            return(object)
+          }
 )
 
 
@@ -183,13 +177,13 @@ setMethod(
 setMethod(
   f = "plot",
   signature = c("Density"),
-  definition = function(x, y, strata = "all", title = "", scale = 1) {
+  definition = function(x, y, strata = "all", title = "", scale = 1){
     suppressWarnings(invisible(gc()))
     # Extract strata names
     strata.names <- x@strata.name
     # Extract plot data
-    if (is.character(strata)) {
-      if (!strata %in% c(x@strata.name, "all")) {
+    if(is.character(strata)){
+      if(!strata %in% c(x@strata.name, "all")){
         stop("You have provided an unrecognised strata name.", call. = FALSE)
       }
     }
@@ -197,28 +191,27 @@ setMethod(
     density.surface <- x@density.surface[[1]]
     sf.column <- attr(density.surface, "sf_column")
     # Scaling plot
-    density.surface[, sf.column] <- density.surface[, sf.column] * scale
+    density.surface[, sf.column] <- density.surface[, sf.column]*scale
 
-    if (strata == "all") {
-      plot.data <- density.surface[, c("density", sf.column)]
-      if (title == "") {
+    if(strata == "all"){
+      plot.data <- density.surface[,c("density", sf.column)]
+      if(title == ""){
         title <- x@region.name
       }
-    } else if (is.numeric(strata)) {
-      plot.data <- density.surface[density.surface$strata == strata.names[strata], c("density", sf.column)]
-      if (title == "") {
+    }else if(is.numeric(strata)){
+      plot.data <- density.surface[density.surface$strata == strata.names[strata],c("density", sf.column)]
+      if(title == ""){
         title <- strata.names[strata]
       }
-    } else if (is.character(strata)) {
-      plot.data <- density.surface[density.surface$strata == strata, c("density", sf.column)]
-      if (title == "") {
+    }else if(is.character(strata)){
+      plot.data <- density.surface[density.surface$strata == strata,c("density", sf.column)]
+      if(title == ""){
         title <- strata
       }
     }
 
     # Create the plot object
-    ggplot.obj <- ggplot() +
-      theme_bw() +
+    ggplot.obj <- ggplot() + theme_bw() +
       geom_sf(data = plot.data, mapping = aes(fill = density, colour = density)) +
       scale_fill_viridis_c() +
       scale_colour_viridis_c() +
@@ -250,14 +243,14 @@ setMethod(
 #' @exportMethod plot
 setMethod(
   f = "plot",
-  signature = c("Density", "Region"),
-  definition = function(x, y, strata = "all", title = "", scale = 1, line.col = gray(.2)) {
+  signature = c("Density","Region"),
+  definition = function(x, y, strata = "all", title = "", scale = 1, line.col = gray(.2)){
     suppressWarnings(invisible(gc()))
     # Extract strata names
     strata.names <- x@strata.name
     # Extract plot data
-    if (is.character(strata)) {
-      if (!strata %in% c(x@strata.name, "all")) {
+    if(is.character(strata)){
+      if(!strata %in% c(x@strata.name, "all")){
         stop("You have provided an unrecognised strata name.", call. = FALSE)
       }
     }
@@ -265,21 +258,21 @@ setMethod(
     density.surface <- x@density.surface[[1]]
     sf.column <- attr(density.surface, "sf_column")
     # Scaling plot
-    density.surface[, sf.column] <- density.surface[, sf.column] * scale
+    density.surface[, sf.column] <- density.surface[, sf.column]*scale
 
-    if (strata == "all") {
-      plot.data <- density.surface[, c("density", sf.column)]
-      if (title == "") {
+    if(strata == "all"){
+      plot.data <- density.surface[,c("density", sf.column)]
+      if(title == ""){
         title <- x@region.name
       }
-    } else if (is.numeric(strata)) {
-      plot.data <- density.surface[density.surface$strata == strata.names[strata], c("density", sf.column)]
-      if (title == "") {
+    }else if(is.numeric(strata)){
+      plot.data <- density.surface[density.surface$strata == strata.names[strata],c("density", sf.column)]
+      if(title == ""){
         title <- strata.names[strata]
       }
-    } else if (is.character(strata)) {
-      plot.data <- density.surface[density.surface$strata == strata, c("density", sf.column)]
-      if (title == "") {
+    }else if(is.character(strata)){
+      plot.data <- density.surface[density.surface$strata == strata,c("density", sf.column)]
+      if(title == ""){
         title <- strata
       }
     }
@@ -288,12 +281,11 @@ setMethod(
     sf.region <- y@region
     sf.column <- attr(sf.region, "sf_column")
     # Scaling plot
-    sf.region[, sf.column] <- sf.region[, sf.column] * scale
+    sf.region[, sf.column] <- sf.region[, sf.column]*scale
 
     # Create the plot object
-    ggplot.obj <- ggplot() +
-      theme_bw() +
-      geom_sf(data = plot.data, mapping = aes(fill = density, colour = density)) +
+    ggplot.obj <- ggplot() + theme_bw() +
+      geom_sf(data = plot.data, mapping = aes(fill = density, colour=density)) +
       scale_fill_viridis_c() +
       scale_colour_viridis_c() +
       geom_sf(data = sf.region, fill = NA, color = line.col, lwd = 0.2) +
@@ -319,30 +311,28 @@ setMethod(
 setMethod(
   f = "summary",
   signature = "Density",
-  definition = function(object, ...) {
+  definition = function(object, ...){
     density.sf <- object@density.surface[[1]]
     # Get strata names
     strata.name <- unique(density.sf$strata)
     # For each strata
-    for (strat in seq(along = strata.name)) {
+    for(strat in seq(along = strata.name)){
       # Get sf shapes relevant to current strata
-      strat.grid <- density.sf[density.sf$strata == strata.name[strat], ]
+      strat.grid <- density.sf[density.sf$strata == strata.name[strat],]
       # Find the areas and densities of each grid cell
       areas <- sf::st_area(strat.grid)
       # Obtain from sf shape as some grid cells may have been removed
       densities <- strat.grid$density
       # Find average abundance per grid cell
-      N <- areas * densities
+      N <- areas*densities
       # Create strata summary data
-      tmp.data <- data.frame(
-        strata = strata.name[strat],
-        area = sum(areas),
-        ave.N = sum(N),
-        ave.D = sum(N) / sum(areas)
-      )
-      if (strat == 1) {
+      tmp.data <- data.frame(strata = strata.name[strat],
+                             area = sum(areas),
+                             ave.N = sum(N),
+                             ave.D = sum(N)/sum(areas))
+      if(strat == 1){
         density.summary <- tmp.data
-      } else {
+      }else{
         density.summary <- rbind(density.summary, tmp.data)
       }
     }
@@ -350,10 +340,15 @@ setMethod(
     attributes(density.summary$ave.D) <- NULL
 
     # Create a new Density.Summary object
-    density.summary <- new(
-      Class = "Density.Summary",
-      summary = density.summary
-    )
+    density.summary <- new(Class = "Density.Summary",
+                           summary = density.summary)
     return(density.summary)
   }
 )
+
+
+
+
+
+
+
