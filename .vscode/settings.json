@@ -1,8 +1,0 @@
-{
-    "chat.tools.terminal.autoApprove": {
-        "/^cd /home/lhambrec/dsims/dsims && Rscript -e \"library\\(methods\\); tryCatch\\(source\\('R/Detectability\\.R'\\), error=function\\(e\\) cat\\('ERROR:', conditionMessage\\(e\\), '\\\\n'\\)\\); cat\\('Detectability\\.R OK\\\\n'\\)\"$/": {
-            "approve": true,
-            "matchCommandLine": true
-        }
-    }
-}
