@@ -20,13 +20,16 @@ parameter for the detection function.}
 \item{\code{shape.param}}{Object of class \code{"numeric"}; The shape
 parameter for the detection function.}
 
-\item{\code{cov.param}}{Object of class \code{"list"}; Named list of slope
-coefficients (log scale) for individual-level covariates.}
+\item{\code{cov.param}}{Object of class \code{"list"}; Named list of covariate
+effect parameters (log scale) for individual-level covariates. Entries may
+be numeric vectors for continuous/discrete covariates, or data.frames for
+categorical covariates with columns such as \code{strata}, \code{level},
+and \code{param}.}
 
 \item{\code{cov.surface}}{Object of class \code{"list"}; Optional named list of
 raster surfaces (character file paths or terra SpatRaster objects) providing
 spatially-explicit covariate values sampled at each animal's location. Names
-must match numeric entries in \code{cov.param}.}
+must match numeric-vector entries in \code{cov.param}.}
 
 \item{\code{truncation}}{Object of class \code{"numeric"}; The maximum
 distance at which objects may be detected.}
