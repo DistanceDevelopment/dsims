@@ -12,15 +12,22 @@ make.ds.analysis(
   er.var = "R2",
   control.opts = list(),
   group.strata = data.frame(),
-  criteria = "AIC"
+  criteria = "AIC",
+  zero.n = c("fail", "zero")
 )
 }
 \arguments{
 \item{dfmodel}{list of distance sampling model formula specifying the detection function
 (see \code{?Distance::ds} for further details)}
 
-\item{key}{key function to use; "hn" gives half-normal (default) and "hr" gives
-hazard-rate.}
+\item{key}{key function to use; "hn" gives half-normal (default), "hr" gives
+hazard-rate and "unif" (or "uf") gives uniform. The uniform key has no
+parameters, so it assumes all animals within the truncation distance are
+detected (a strip transect estimate) and covariates cannot be included
+(the corresponding dfmodel must be ~1). If the simulated detectability is
+less than 1 within the strip (e.g. \code{make.detectability(key.function = "uf",
+scale.param = 0.9)}) the uniform analysis will underestimate abundance by
+the same proportion, as g(0) < 1 cannot be estimated from the distances.}
 
 \item{truncation}{absolute truncation distance in simulation units matching the
 region units.}
@@ -40,6 +47,19 @@ second specifies how they should be grouped (into less strata) for the analyses.
 details for more information.}
 
 \item{criteria}{character model selection criteria (AIC, AICc, BIC)}
+
+\item{zero.n}{how to treat a repetition with no detections within the
+truncation distance. "fail" (default) skips the repetition, it is reported
+as a warning and counted as excluded in the summary. "zero" records the
+repetition as a successful estimate of zero: abundance and density
+Estimate = 0, lcl = 0 and se, cv and ucl = NA. The number of detections
+(n = 0), area, covered area and effort are recorded as usual and the
+repetition is flagged in the ZeroDetections column of
+\code{simulation@results$Detection}. Zero detection repetitions are then
+included in the mean, SD, RMSE and bias reported by
+\code{summary()}, while CI coverage only uses repetitions with a defined
+confidence interval. Repetitions with one or more detections where no model
+could be fitted remain failures under both options.}
 }
 \value{
 \code{\link{DS.Analysis-class}} object
@@ -92,6 +112,12 @@ ds.analyses <- make.ds.analysis(dfmodel = list(~1, ~size, ~1),
                                 key = c("hn", "hn", "hr"),
                                 truncation = 500,
                                 criteria = "AIC")
+
+# Uniform (strip transect) analysis, e.g. for a camera where every animal
+# within the strip is detected (see make.detectability with key.function = "uf")
+ds.analyses <- make.ds.analysis(dfmodel = ~1,
+                                key = "unif",
+                                truncation = 50)
 
 }
 \seealso{

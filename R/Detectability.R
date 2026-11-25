@@ -15,8 +15,15 @@
 #' parameter for the detection function.
 #' @slot shape.param Object of class \code{"numeric"}; The shape
 #' parameter for the detection function.
-#' @slot cov.param Object of class \code{"numeric"}; The parameter
-#' values associated with the covariates. Not yet implemented
+#' @slot cov.param Object of class \code{"list"}; Named list of covariate
+#' effect parameters (log scale) for individual-level covariates. Entries may
+#' be numeric vectors for continuous/discrete covariates, or data.frames for
+#' categorical covariates with columns such as \code{strata}, \code{level},
+#' and \code{param}.
+#' @slot cov.surface Object of class \code{"list"}; Optional named list of
+#' raster surfaces (character file paths or terra SpatRaster objects) providing
+#' spatially-explicit covariate values sampled at each animal's location. Names
+#' must match numeric-vector entries in \code{cov.param}.
 #' @slot truncation Object of class \code{"numeric"}; The maximum
 #' distance at which objects may be detected.
 #' @keywords classes
@@ -26,12 +33,13 @@ setClass("Detectability", representation(key.function    = "character",
                                          scale.param     = "numeric",
                                          shape.param     = "numeric",
                                          cov.param       = "list",
+                                         cov.surface     = "list",
                                          truncation      = "numeric"))
 #' @importFrom methods validObject is
 setMethod(
   f="initialize",
   signature="Detectability",
-  definition=function(.Object, key.function = "hn", scale.param = 25, shape.param = numeric(0), covariates = character(0), cov.param = list(), truncation = 50){
+  definition=function(.Object, key.function = "hn", scale.param = 25, shape.param = numeric(0), covariates = character(0), cov.param = list(), cov.surface = list(), truncation = 50){
     #Input pre-processing
     # - this needs to be done here as cannot alter object inside validation method
     cov.names <- names(cov.param)
@@ -55,6 +63,7 @@ setMethod(
     .Object@scale.param  <- scale.param
     .Object@shape.param  <- shape.param
     .Object@cov.param    <- cov.param
+    .Object@cov.surface  <- cov.surface
     .Object@truncation   <- truncation
     #Check object is valid
     valid <- validObject(.Object, test = TRUE)
@@ -112,6 +121,35 @@ setValidity("Detectability",
                   }
                 }
               }
+              # Validate cov.surface
+              if(length(object@cov.surface) > 0){
+                surf.names <- names(object@cov.surface)
+                if(is.null(surf.names) || any(surf.names == "")){
+                  return("Not all elements of cov.surface are named. Please provide names matching entries in cov.param.")
+                }
+                cov.param.names <- names(object@cov.param)
+                for(sn in surf.names){
+                  if(!sn %in% cov.param.names){
+                    return(paste0("cov.surface entry '", sn, "' has no matching numeric entry in cov.param. ",
+                                  "Each raster surface needs a corresponding slope in cov.param."))
+                  }
+                  if(is.data.frame(object@cov.param[[sn]])){
+                    return(paste0("cov.param entry '", sn, "' paired with cov.surface must be a numeric slope, not a factor data.frame."))
+                  }
+                  surf <- object@cov.surface[[sn]]
+                  if(!is.character(surf) && !inherits(surf, "SpatRaster")){
+                    return(paste0("cov.surface entry '", sn, "' must be a file path (character) or a terra SpatRaster object."))
+                  }
+                  if(is.character(surf)){
+                    if(length(surf) != 1){
+                      return(paste0("cov.surface entry '", sn, "' must be a single file path."))
+                    }
+                    if(!file.exists(surf)){
+                      return(paste0("cov.surface raster file does not exist: '", surf, "'."))
+                    }
+                  }
+                }
+              }
               return(TRUE)
             }
 )
@@ -159,7 +197,9 @@ setMethod(
     cov.names <- names(object@cov.param)
     # Check if there are covariates in detectability that are not in pop.desc
     pop.covs <- names(pop.desc@covariates)
-    if(any(!cov.names %in% pop.covs)){
+    surface.covs <- names(object@cov.surface)
+    missing.covs <- setdiff(cov.names, c(pop.covs, surface.covs))
+    if(length(missing.covs) > 0){
       stop("You have defined detectability for covariates that are not included in the population description.", call. = FALSE)
     }
     # set mfrow storing old settings
@@ -187,7 +227,21 @@ setMethod(
       for(cov in seq(along = object@cov.param)){
         cov.params <- object@cov.param[[cov]]
         cov.dist <- pop.desc@covariates[[cov.names[cov]]]
-        if(is(object@cov.param[[cov]], "data.frame")){
+        if(is.null(cov.dist) && cov.names[cov] %in% surface.covs){
+          param.type <- "surface"
+          no.cov.strata <- max(1, length(cov.params))
+          cov.surface <- object@cov.surface[[cov.names[cov]]]
+          if(is.character(cov.surface)){
+            cov.surface <- terra::rast(cov.surface)
+          }
+          surf.values <- terra::values(cov.surface)[,1]
+          surf.values <- surf.values[!is.na(surf.values)]
+          if(length(surf.values) == 0){
+            quantiles <- c(0, 0, 0)
+          }else{
+            quantiles <- as.numeric(quantile(surf.values, c(0.025, 0.5, 0.975)))
+          }
+        }else if(is(object@cov.param[[cov]], "data.frame")){
           param.type = "categorical"
           no.cov.strata <- ifelse(is.null(cov.params$strata), 1, length(unique(cov.params$strata)))
         }else if(is(cov.dist[[1]], "data.frame")){
@@ -201,6 +255,8 @@ setMethod(
           plot.title <- paste("Covariate: ", cov.names[cov], " (factor)", sep = "")
         }else if(param.type == "discrete"){
           plot.title <- paste("Covariate: ", cov.names[cov], " (discrete)", sep = "")
+        }else if(param.type == "surface"){
+          plot.title <- paste("Covariate: ", cov.names[cov], " (raster)", sep = "")
         }else{
           plot.title <- paste("Covariate: ", cov.names[cov], " (continuous)", sep = "")
         }
@@ -277,6 +333,9 @@ setMethod(
                                     "poisson" = qpois(int, dist.param$lambda),
                                     "lognormal" = qlnorm(int, dist.param$meanlog, dist.param$sdlog))
               }
+            }else if(param.type == "surface"){
+              # quantiles were already computed from the raster values
+              quantiles <- quantiles
             }
             # get adjustment paramters
             if(length(cov.params) == no.strata){
@@ -315,6 +374,8 @@ setMethod(
           desc.ints <- "min,max"
         }else if(param.type == "continuous"){
           desc.ints <- "95%ints"
+        }else if(param.type == "surface"){
+          desc.ints <- "raster 95%ints"
         }
         if(param.type == "categorical"){
           no.levels <- length(unique(cov.params$level))

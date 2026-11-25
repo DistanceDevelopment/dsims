@@ -92,6 +92,11 @@ setValidity("Population.Description",
     if(length(object@N) > 0 & sum(object@N) <= 0){
       return("You must provide a positive, non-zero abundance")
     }
+    # Fractional values would be rounded up when generating the population
+    # while the true abundance would remain fractional
+    if(object@gen.by.N && any(abs(object@N - round(object@N)) > 1e-8)){
+      return("Population size N must be a whole number in each strata when fixed.N = TRUE, please round the values of N.")
+    }
     return(TRUE)
   }
 )

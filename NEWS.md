@@ -1,3 +1,43 @@
+# dsims 1.2.0
+
+Enhancements
+
+* `make.simulation()` has a new argument `population.generator`, a `function(simulation, rep)` which is called in each repetition instead of `generate.population(simulation)`. It returns a `Population` object or `list(population = <Population>, truth = list(N = , D = ))`. This allows, for example, a population to be drawn over a whole study area in every repetition with only the individuals inside the survey region (the design region) being surveyed. The returned population is checked (class, required columns, strata names and that all individuals lie inside the design region) and an informative error is given if a check fails. The random number generator state is saved before the generator is called and restored afterwards, so the generator can use its own seed stream (e.g. one which depends only on `rep`): simulations which differ only in their design then see identical populations in each repetition, and the transects, detections and analyses are unaffected by the random numbers the generator uses. The generator works with `run.simulation(run.parallel = TRUE)`; see the 'Population generator' section of `?make.simulation` for the requirements.
+* If the population generator returns `truth`, the per-repetition true N and/or D of the whole target area are stored in `simulation@results$truth` (array `[1, c("N", "D"), reps + 2]`) and `summary()` uses them, instead of the population description, for the truth, percent bias, RMSE and CI coverage of the total abundance / density. The printed summary shows the source of the truth (also stored in the new `truth.source` slot of `Simulation.Summary`).
+* The realised number of individuals in the design region is now stored for every repetition in `simulation@results$individuals$true.N` (and `simulation@results$clusters$true.N` for clusters), with one row per stratum as in the other results arrays.
+* `make.ds.analysis()` has a new argument `zero.n = c("fail", "zero")`. With `"zero"` a repetition with no detections within the truncation distance is recorded as a successful estimate of zero (N and D Estimate = 0, lcl = 0, se, cv and ucl = NA, with n = 0 and the area, covered area and effort recorded as usual) and flagged in the new `ZeroDetections` column of `simulation@results$Detection`. `summary()` includes these repetitions in the mean, SD, RMSE and bias (CI coverage only uses repetitions with a defined confidence interval) and reports their number. Repetitions with detections where no model could be fitted remain failures. The default `"fail"` keeps the previous behaviour.
+
+Bug Fixes
+
+* CI coverage in `summary()` was calculated from the first k repetitions rather than the k included repetitions when some repetitions had failed (or with `use.max.reps = FALSE` and some models not converging). It now uses the included repetitions. Results are unchanged when no repetitions are excluded.
+* Surveying a population with no individuals no longer gives warnings from `sf`.
+* With the uniform detection function (`key.function = "uf"` in `make.detectability()`), a repetition in which no individual was within the truncation distance of any transect stopped with "invalid arguments" from `rbinom()` and was skipped. It is now handled like the other keys (a failure with the default `zero.n = "fail"`, an estimate of zero with `zero.n = "zero"`). Previously, skipping these repetitions biased results upwards in sparse scenarios.
+
+Other changes
+
+* `simulation@results$Detection` has an additional column, `ZeroDetections` (0 for repetitions analysed as usual). With `population.generator` and `zero.n` left at their defaults, simulation results are otherwise identical to dsims 1.1.0 for the same seed.
+
+# dsims 1.1.0
+
+Enhancements
+
+* Parallel processing now uses the mirai package. Repetitions are distributed to workers as they become free, and workers start faster than with the previous cluster setup.
+* Simulations are now run in parallel by default (`run.parallel = TRUE`). The default number of workers is `parallelly::availableCores(omit = 1)`, which respects limits set by HPC schedulers and containers. Daemons set up by the user with `mirai::daemons()` (including remote / HPC daemons) are used if present.
+* Each repetition uses its own random number stream, so after `set.seed()` results are identical whether run in serial or in parallel, regardless of the number of workers.
+* A repetition that fails with an error no longer stops the simulation; it is skipped and reported in the summary of warnings and errors.
+* The progress counter is now shown when running in parallel and includes the elapsed and estimated remaining time.
+* `make.ds.analysis()` now accepts `key = "unif"` (or `"uf"`) to fit a uniform detection function, giving the strip transect estimate n / covered area. Covariates cannot be used with the uniform key. Previously only "hn" and "hr" were allowed although the documentation listed uniform.
+
+Bug Fixes
+
+* Fractional values of `N` with `fixed.N = TRUE` were silently rounded up when generating each stratum's population, while the unrounded `N` was used as the true abundance. With many small strata this inflated the simulated population relative to the truth. `make.population.description()` now stops if `N` is not a whole number when `fixed.N = TRUE`.
+
+Breaking Changes
+
+* Results from simulations run with a given seed will differ from those obtained with previous versions of dsims, as the random number streams have changed.
+* `N` must be whole numbers when `fixed.N = TRUE` (see Bug Fixes).
+* Worker processes now appear as `mirai::daemon(...)` rather than PSOCK workers (`workRSOCK`), which affects scripts that monitor the worker processes.
+
 # dsims 1.0.6
 
 Bug Fixes

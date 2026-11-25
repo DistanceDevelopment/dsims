@@ -269,7 +269,7 @@ test_that("Factor level covariates", {
   
   pop.data <- data.frame(individual, x, y, Region.Label, size, sex)
   
-  check.scale.params <- calculate.scale.param(pop.data, detect, region)
+  check.scale.params <- dsims:::calculate.scale.param(pop.data, detect, region)
   
   ind1.scale <- exp(log(0.08) + log(1.02)*size[1] + log(1.5))
   ind2.scale <- exp(log(0.08) + log(1.02)*size[2] + log(1.5))

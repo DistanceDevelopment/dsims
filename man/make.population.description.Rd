@@ -20,7 +20,8 @@ make.population.description(
 \item{covariates}{Named list with one named entry per individual-level covariate. Cluster sizes can be defined here, it must be named 'size'. The distribution of covariate values can either be defined by specifying a particular distribution and its parameters or as a discrete distribution in a dataframe. Dataframes should have columns level and prob (and optionally strata) specifying the covariates levels, probabilities and strata if they are strata specific. Distributions can be defined as lists with named entries distribution and the relevant parameters as specified in details. A list of distributions can be provided with one for each strata.}
 
 \item{N}{the number of individuals / clusters in a population with one value per
-strata. Total population size is 1000 by default.}
+strata. Total population size is 1000 by default. When \code{fixed.N = TRUE}
+the values must be whole numbers.}
 
 \item{fixed.N}{a logical value. If TRUE the population is generated from the value(s)
 of N otherwise it is generated from the values in the density grid.}

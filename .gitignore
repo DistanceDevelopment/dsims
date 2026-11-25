@@ -21,3 +21,6 @@ doc
 Meta
 /doc/
 /Meta/
+bench/lib_*/
+bench/results.csv
+bench/benchmark.log

@@ -10,6 +10,17 @@ the simulation results. This is returned when \code{summary(Simulation)}
 is called. If it is not assigned to a variable the object will be
 displayed via the \code{show} method.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{truth.source}}{named character vector (N, D) giving the source of the
+true values used in the summary tables (the population description or a
+per-repetition truth from a population generator).}
+
+\item{\code{zero.detection.reps}}{the number of included repetitions recorded as
+zero detections (only when the analysis uses \code{zero.n = "zero"}).}
+}}
+
 \section{Methods}{
 
 \describe{

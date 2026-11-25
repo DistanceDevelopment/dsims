@@ -9,7 +9,8 @@ make.simulation(
   design = make.design(),
   population.description = make.population.description(),
   detectability = make.detectability(),
-  ds.analysis = make.ds.analysis()
+  ds.analysis = make.ds.analysis(),
+  population.generator = NULL
 )
 }
 \arguments{
@@ -26,6 +27,11 @@ created by a call to \link{make.population.description}}
 
 \item{ds.analysis}{an objects of class DS.Analysis created by
 a call to \link{make.ds.analysis}}
+
+\item{population.generator}{optional function used to generate the
+population in each repetition instead of
+\code{generate.population(simulation)}. Default NULL uses the
+population description. See the 'Population generator' section.}
 }
 \value{
 \code{\link{Simulation-class}} object
@@ -46,6 +52,67 @@ The \code{make.simulation} function is now set up so that by
  default (with the exception of specifying point transects rather than
   line) it can run a simple simulation example. See examples.
 }
+\section{Population generator}{
+
+A population generator is a \code{function(simulation, rep)} which is
+called once per repetition with the simulation object and the repetition
+number. It must return either a \code{\link{Population-class}} object or a
+list with elements \code{population} (a Population object) and
+\code{truth}, a named numeric vector or list with entries \code{N} and/or
+\code{D} giving the true abundance / density of the whole target area for
+this repetition. This allows, for example, a population to be generated
+over a larger study area and only the individuals inside the survey
+region (the design region) to be returned, while bias is assessed
+against the density of the whole study area.
+
+\strong{Requirements for the returned population.} It is checked in every
+repetition: it must be a Population object whose \code{population} slot is a
+data.frame with columns \code{individual}, \code{x}, \code{y},
+\code{Region.Label} and \code{scale.param} (plus \code{shape.param} for a
+hazard-rate detection function and any covariates used in the
+detectability description). Region.Label values must be strata names of
+\code{simulation@design@region}, all individuals must lie inside the
+design region and the detectability slot must be a Detectability object.
+The simplest way to get all of these right is to start from a population
+made by \code{generate.population()} (with a region covering the study
+area) and subset its rows. A population with no individuals is allowed.
+The detection function used for the survey is taken from the
+population's detectability slot.
+
+\strong{Random numbers.} The state of the random number generator is saved
+before the generator is called and restored afterwards. The generator may
+therefore set its own seed (e.g. \code{set.seed(1000 + rep)}) without
+changing the transects, detections and analyses of the simulation, which
+come from the per-repetition random number streams of dsims. Simulations
+that differ only in their design then see identical populations in each
+repetition. As the generator does not advance the dsims stream, a
+generator which simply returns \code{generate.population(simulation)}
+gives the same populations as the default but different transects and
+detections.
+
+\strong{Parallel processing.} \code{run.simulation(run.parallel = TRUE)} sends
+the simulation, including the generator, to separate R worker processes
+(mirai daemons, these are new R sessions not forks). The generator's
+enclosing environment is sent with it unless it is the global environment
+or a package namespace. So: (i) any data the generator needs should be
+created inside the function or captured in its enclosing environment, for
+example by returning the generator from a factory function
+(\code{make.gen <- function(study.pop) function(simulation, rep) ...});
+objects referenced from the global environment are not available on the
+workers; (ii) call functions from other packages with \code{pkg::fun()} (or
+load the packages inside the generator), the packages must be installed
+for the workers; (iii) keep captured objects small as they are copied to
+each worker with every repetition. If the generator fails on a worker the
+repetition is skipped and the error is reported in the summary of
+warnings and errors.
+
+\strong{Results.} If the generator returns \code{truth}, it is stored in
+\code{simulation@results$truth} (an array [1, c("N", "D"), reps + 2]) and
+\code{summary()} uses it, instead of the population description, as the
+truth for the total row of the individual abundance / density tables (see
+\code{\link{summary,Simulation-method}}).
+}
+
 \examples{
 # Create a basic rectangular study area
 region <- make.region()

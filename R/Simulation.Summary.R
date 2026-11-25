@@ -8,6 +8,11 @@
 #' @name Simulation.Summary-class
 #' @title S4 Class "Simulation.Summary"
 #' @docType class
+#' @slot truth.source named character vector (N, D) giving the source of the
+#'  true values used in the summary tables (the population description or a
+#'  per-repetition truth from a population generator).
+#' @slot zero.detection.reps the number of included repetitions recorded as
+#'  zero detections (only when the analysis uses \code{zero.n = "zero"}).
 #' @keywords classes
 #' @section Methods:
 #' \describe{
@@ -28,14 +33,16 @@ setClass("Simulation.Summary", representation(region.name = "character",
                                               design.summary = "list",
                                               detectability.summary = "list",
                                               analysis.summary = "list",
-                                              include.glossary = "logical"))
+                                              include.glossary = "logical",
+                                              truth.source = "character",
+                                              zero.detection.reps = "numeric"))
 
 
 #' @importFrom methods validObject
 setMethod(
   f="initialize",
   signature="Simulation.Summary",
-  definition=function(.Object, region.name, strata.name, total.reps, failures, use.max.reps, individuals, clusters = list(), expected.size = data.frame(NULL), population.covars, detection, model.selection, design.summary = list(), detectability.summary = list(), analysis.summary = list(), include.glossary = FALSE){
+  definition=function(.Object, region.name, strata.name, total.reps, failures, use.max.reps, individuals, clusters = list(), expected.size = data.frame(NULL), population.covars, detection, model.selection, design.summary = list(), detectability.summary = list(), analysis.summary = list(), include.glossary = FALSE, truth.source = character(0), zero.detection.reps = numeric(0)){
     #Set slots
     .Object@region.name     <- region.name
     .Object@strata.name     <- strata.name
@@ -52,6 +59,8 @@ setMethod(
     .Object@detectability.summary <- detectability.summary
     .Object@analysis.summary <- analysis.summary
     .Object@include.glossary <- include.glossary
+    .Object@truth.source <- truth.source
+    .Object@zero.detection.reps <- zero.detection.reps
     #Check object is valid
     validObject(.Object)
     # return object
@@ -96,6 +105,11 @@ setMethod(
       cat("\nNo. Excluded Repetitions: NA", fill = TRUE)
     }else{
       cat("\nNo. Excluded Repetitions: ", object@failures, fill = TRUE)
+    }
+    # Objects created with earlier versions of dsims do not have these slots
+    zero.reps <- if(methods::.hasSlot(object, "zero.detection.reps")) object@zero.detection.reps else numeric(0)
+    if(length(zero.reps) > 0 && !not.run){
+      cat("No. Zero Detection Repetitions (included as estimates of 0): ", zero.reps, fill = TRUE)
     }
     use.max.reps <- object@use.max.reps
     if(use.max.reps){
@@ -197,6 +211,13 @@ setMethod(
     # Check to see if simulation has been run
     if(!not.run && !run.no.results){
       cat("\nSummary for Individuals\n")
+      truth.source <- if(methods::.hasSlot(object, "truth.source")) object@truth.source else character(0)
+      if(length(truth.source) > 0){
+        cat("\nSource of the true values (Truth):", fill = TRUE)
+        for(quantity in names(truth.source)){
+          cat("   ", quantity, ": ", truth.source[[quantity]], fill = TRUE, sep = "")
+        }
+      }
       if(length(object@clusters) == 0){
         cat("\nSummary Statistics\n\n")
         print(object@individuals$summary)

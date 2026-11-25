@@ -24,6 +24,9 @@
 #'  description of the detectability of the population.
 #' @slot ds.analysis Object of class \code{"DS.Analysis"}
 #' @slot add.options a list to expand simulation options in the future.
+#' @slot population.generator Object of class \code{"function"} or
+#'  \code{NULL}; an optional function(simulation, rep) used to generate the
+#'  population in each repetition, see \code{\link{make.simulation}}.
 #' @slot ddf.param.ests Object of class \code{"array"}; stores the
 #'  parameters associated with the detection function.
 #' @slot results A \code{"list"} with elements 'individuals' (and
@@ -88,10 +91,20 @@
 #' information criteria between the best and second best fitting
 #' models where two or more models were fitted and converged),
 #' 'SuccessfulModels' (the number of models which successfully
-#' converged). Currently detection functions are pooled across
-#' all strata so there is only one global value for each
-#' simulated dataset as well as a mean value and standard
-#' deviation where appropriate.
+#' converged) and 'ZeroDetections' (1 if the repetition had no
+#' detections within the truncation distance and was recorded as
+#' an estimate of zero, see the zero.n argument of
+#' \code{\link{make.ds.analysis}}, 0 otherwise). Currently detection
+#' functions are pooled across all strata so there is only one
+#' global value for each simulated dataset as well as a mean value
+#' and standard deviation where appropriate.
+#'
+#' The 'individuals' (and 'clusters') elements also contain
+#' 'true.N', an array [strata, "N", reps + 2] giving the realised
+#' number of individuals (clusters) in the design region in each
+#' repetition. If a population generator returned the truth for
+#' the whole target area (see \code{\link{make.simulation}}) the
+#' results also contain 'truth', an array [1, c("N", "D"), reps + 2].
 #'
 #' @slot warnings A \code{"list"} to store warnings and error messages encountered
 #'  during runtime.
@@ -114,6 +127,8 @@
 #' @rdname Simulation-class
 #' @importClassesFrom dssd Region
 #' @seealso \code{\link{make.simulation}}
+setClassUnion("functionOrNULL", c("function", "NULL"))
+
 setClass("Simulation", representation(reps = "numeric",
                                       design = "Survey.Design",
                                       population.description = "Population.Description",
@@ -122,14 +137,15 @@ setClass("Simulation", representation(reps = "numeric",
                                       add.options = "list",
                                       ddf.param.ests = "array",
                                       results = "list",
-                                      warnings = "list"))
+                                      warnings = "list",
+                                      population.generator = "functionOrNULL"))
 
 #' @importFrom methods validObject is
 #' @importFrom dssd make.design
 setMethod(
   f="initialize",
   signature="Simulation",
-  definition=function(.Object, reps = 10, single.transect.set = FALSE, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis(), results = list()){
+  definition=function(.Object, reps = 10, single.transect.set = FALSE, design = make.design(), population.description = make.population.description(), detectability = make.detectability(), ds.analysis = make.ds.analysis(), results = list(), population.generator = NULL){
     #Set slots
     .Object@reps            <- reps
     .Object@design          <- design
@@ -138,6 +154,7 @@ setMethod(
     .Object@ds.analysis     <- ds.analysis
     .Object@results         <- results
     .Object@warnings        <- list()
+    .Object@population.generator <- population.generator
     #Consistency check
     .Object <- simulation.consistency.check(.Object)
     #Check object is valid
@@ -335,15 +352,15 @@ histogram.N.ests <- function(x, use.max.reps = FALSE, N.ests = "individuals", ..
   # Find the number of rows
   total.row <- dim(x@results$individuals$N)[1]
   # UExtract the estimates
+  # Includes zero detection repetitions (zero.n = "zero")
+  rep.index <- get.rep.index(x@results$Detection, x@reps,
+                             length(x@ds.analysis@dfmodel), use.max.reps)
   if(use.max.reps){
-    rep.index <- which(x@results$Detection[1,"SuccessfulModels",1:x@reps] > 0)
     N.ind.ests <- x@results$individuals$N[total.row, "Estimate", rep.index]
     if(clusters){
       N.cls.ests <- x@results$clusters$N[total.row, "Estimate", rep.index]
     }
   }else{
-    model.count <- length(x@ds.analysis@dfmodel)
-    rep.index <- which(x@results$Detection[1,"SuccessfulModels",1:x@reps] == model.count)
     N.ind.ests <- x@results$individuals$N[total.row, "Estimate", rep.index]
     if(clusters){
       N.cls.ests <- x@results$clusters$N[total.row, "Estimate", rep.index]
@@ -387,6 +404,27 @@ histogram.N.ests <- function(x, use.max.reps = FALSE, N.ests = "individuals", ..
 #'  explanation of the summary should be displayed
 #' @param use.max.reps by default this is FALSE meaning that only simulation repetitions where all models converged for that data set are included. By setting this to TRUE any repetition where one or more models converged will be included in the summary results.
 #' @param ... no additional arguments currently implemented
+#' @details
+#' \strong{Source of the true values.} By default the true abundance and
+#' density (the Truth column used for percent.bias, RMSE and CI coverage) come
+#' from the population description. If the simulation has a population
+#' generator (see \code{\link{make.simulation}}) which returned a
+#' per-repetition truth (N and/or D for the whole target area), this is used
+#' instead for the total row of the individual abundance / density tables
+#' (the only row of an unstratified region): Truth is then the mean truth over
+#' the included repetitions, percent.bias is
+#' (mean estimate - mean truth) / mean truth * 100, RMSE is
+#' sqrt(mean((estimate_i - truth_i)^2)) and the CI coverage counts
+#' repetitions where lcl_i < truth_i < ucl_i. Strata rows then have no truth
+#' (NA). The source of the truth is shown in the printed summary and stored
+#' in the truth.source slot.
+#'
+#' \strong{Zero detection repetitions.} If the analysis was created with
+#' \code{zero.n = "zero"} the repetitions with no detections within the
+#' truncation distance are included (as estimates of 0) in the mean
+#' estimates, SD, RMSE and bias. CI coverage only uses repetitions with a
+#' defined confidence interval, so excludes them. Their number is shown in
+#' the printed summary and stored in the zero.detection.reps slot.
 #' @rdname summary.Simulation-methods
 #' @importFrom stats na.omit qlnorm qnorm
 #' @importFrom methods slotNames slot show is
@@ -407,10 +445,9 @@ setMethod(
     #These will use max iters by default
     results <- object@results
     # Update summary stats depending on use.max.reps option
-    if(use.max.reps){
-      rep.index <- which(object@results$Detection[1,"SuccessfulModels",1:reps] > 0)
-    }else{
-      rep.index <- which(object@results$Detection[1,"SuccessfulModels",1:reps] == model.count)
+    # Includes zero detection repetitions when zero.n = "zero"
+    rep.index <- get.rep.index(object@results$Detection, reps, model.count, use.max.reps)
+    if(!use.max.reps){
       results <- add.summary.results(results = results,
                                      model.count = model.count,
                                      use.max.reps = use.max.reps)
@@ -631,9 +668,9 @@ setMethod(
     zero.n <- array(NA, dim = c(included.reps, length(true.N.individuals)))
     for(strat in seq(along = true.N.individuals)){
       for(i in seq(along = rep.index)){
-        capture[i, strat] <- ifelse(results$individuals$N[strat, "lcl", i] < true.N.individuals[strat] & results$individuals$N[strat, "ucl", i] > true.N.individuals[strat], TRUE, FALSE)
-        capture.D[i, strat] <- ifelse(results$individuals$D[strat, "lcl", i] < true.D.individuals[strat] & results$individuals$D[strat, "ucl", i] > true.D.individuals[strat], TRUE, FALSE)
-        zero.n[i, strat] <- ifelse(results$individuals$summary[strat, "n", i] == 0, TRUE, FALSE)
+        capture[i, strat] <- ifelse(results$individuals$N[strat, "lcl", rep.index[i]] < true.N.individuals[strat] & results$individuals$N[strat, "ucl", rep.index[i]] > true.N.individuals[strat], TRUE, FALSE)
+        capture.D[i, strat] <- ifelse(results$individuals$D[strat, "lcl", rep.index[i]] < true.D.individuals[strat] & results$individuals$D[strat, "ucl", rep.index[i]] > true.D.individuals[strat], TRUE, FALSE)
+        zero.n[i, strat] <- ifelse(results$individuals$summary[strat, "n", rep.index[i]] == 0, TRUE, FALSE)
       }
     }
     #Calculates the percentage of times the true value is within the confidence intervals
@@ -693,6 +730,29 @@ setMethod(
                                CI.coverage.prob = percent.capture.D/100,
                                mean.se = results$individuals$D[,"se","mean"],
                                sd.of.means = results$individuals$D[,"Estimate","sd"])
+    # Use the per-repetition truth supplied by a population generator for the
+    # total row if available
+    truth.source <- c(N = "population description", D = "population description")
+    for(quantity in c("N", "D")){
+      rep.truth <- get.rep.truth(results, quantity, reps, rep.index)
+      if(is.null(rep.truth)){
+        next
+      }
+      tab <- if(quantity == "N") individual.N else individual.D
+      tab <- apply.rep.truth(tab, results$individuals[[quantity]], rep.truth, rep.index)
+      if(quantity == "N") individual.N <- tab else individual.D <- tab
+      truth.source[quantity] <- if(nrow(tab) > 1){
+        "per-repetition truth from population.generator (total row only, mean over included repetitions)"
+      }else{
+        "per-repetition truth from population.generator (mean over included repetitions)"
+      }
+    }
+    # Count the zero detection repetitions included
+    zero.detection.reps <- numeric(0)
+    if(get.zero.n(object@ds.analysis) == "zero" &&
+       "ZeroDetections" %in% dimnames(results$Detection)[[2]]){
+      zero.detection.reps <- sum(results$Detection[1, "ZeroDetections", rep.index] == 1, na.rm = TRUE)
+    }
 
     if(!is.null(results$clusters)){
       capture <- array(NA, dim = c(included.reps, length(true.N.clusters)))
@@ -700,9 +760,9 @@ setMethod(
       zero.n <- array(NA, dim = c(included.reps, length(true.N.clusters)))
       for(strat in seq(along = true.N.clusters)){
         for(i in seq(along = rep.index)){
-          capture[i, strat] <- ifelse(results$clusters$N[strat, "lcl", i] < true.N.clusters[strat] & results$clusters$N[strat, "ucl", i] > true.N.clusters[strat], TRUE, FALSE)
-          capture.D[i, strat] <- ifelse(results$clusters$D[strat, "lcl", i] < true.D.clusters[strat] & results$clusters$D[strat, "ucl", i] > true.D.clusters[strat], TRUE, FALSE)
-          zero.n[i, strat] <- ifelse(results$clusters$summary[strat, "n", i] == 0, TRUE, FALSE)
+          capture[i, strat] <- ifelse(results$clusters$N[strat, "lcl", rep.index[i]] < true.N.clusters[strat] & results$clusters$N[strat, "ucl", rep.index[i]] > true.N.clusters[strat], TRUE, FALSE)
+          capture.D[i, strat] <- ifelse(results$clusters$D[strat, "lcl", rep.index[i]] < true.D.clusters[strat] & results$clusters$D[strat, "ucl", rep.index[i]] > true.D.clusters[strat], TRUE, FALSE)
+          zero.n[i, strat] <- ifelse(results$clusters$summary[strat, "n", rep.index[i]] == 0, TRUE, FALSE)
         }
       }
       percent.capture <- (apply(capture, 2, sum, na.rm = TRUE)/nrow(na.omit(capture)))*100
@@ -791,11 +851,51 @@ setMethod(
                      model.selection = tab.model.selection,
                      design.summary = design.parameters,
                      detectability.summary = detectability.summary,
-                     analysis.summary = analysis.summary)
+                     analysis.summary = analysis.summary,
+                     truth.source = truth.source,
+                     zero.detection.reps = zero.detection.reps)
 
     return(summary.x)
   }
 )
+
+get.rep.truth <- function(results, quantity, reps, rep.index){
+  # Returns the per-repetition truth (vector over all reps) for N or D stored
+  # from a population generator, or NULL if there is none for the included
+  # repetitions
+  if(is.null(results$truth) || !(quantity %in% dimnames(results$truth)[[2]])){
+    return(NULL)
+  }
+  rep.truth <- results$truth[1, quantity, seq_len(reps)]
+  if(all(is.na(rep.truth[rep.index]))){
+    return(NULL)
+  }
+  rep.truth
+}
+
+apply.rep.truth <- function(tab, estimates, rep.truth, rep.index){
+  # Replaces the truth based columns of the total (last) row of an abundance
+  # or density summary table using a truth which varies by repetition. Bias,
+  # RMSE and coverage are calculated over the included repetitions where both
+  # the estimate and the truth are available. The other rows have no truth.
+  total <- nrow(tab)
+  truth <- rep.truth[rep.index]
+  est <- estimates[total, "Estimate", rep.index]
+  lcl <- estimates[total, "lcl", rep.index]
+  ucl <- estimates[total, "ucl", rep.index]
+  ok <- !is.na(truth) & !is.na(est)
+  mean.truth <- mean(truth[ok])
+  tab$Truth[total] <- mean.truth
+  tab$percent.bias[total] <- (mean(est[ok]) - mean.truth) / mean.truth * 100
+  tab$RMSE[total] <- sqrt(mean((est[ok] - truth[ok])^2))
+  # Coverage only over repetitions with a defined confidence interval
+  ci.ok <- ok & !is.na(lcl) & !is.na(ucl)
+  tab$CI.coverage.prob[total] <- if(any(ci.ok)) mean(lcl[ci.ok] < truth[ci.ok] & ucl[ci.ok] > truth[ci.ok]) else NA
+  if(total > 1){
+    tab[-total, c("Truth", "percent.bias", "RMSE", "CI.coverage.prob")] <- NA
+  }
+  tab
+}
 
 
 

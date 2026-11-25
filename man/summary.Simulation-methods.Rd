@@ -22,3 +22,25 @@ Object of class Simulation.Summary
 \description{
 Provides a summary of the simulation results.
 }
+\details{
+\strong{Source of the true values.} By default the true abundance and
+density (the Truth column used for percent.bias, RMSE and CI coverage) come
+from the population description. If the simulation has a population
+generator (see \code{\link{make.simulation}}) which returned a
+per-repetition truth (N and/or D for the whole target area), this is used
+instead for the total row of the individual abundance / density tables
+(the only row of an unstratified region): Truth is then the mean truth over
+the included repetitions, percent.bias is
+(mean estimate - mean truth) / mean truth * 100, RMSE is
+sqrt(mean((estimate_i - truth_i)^2)) and the CI coverage counts
+repetitions where lcl_i < truth_i < ucl_i. Strata rows then have no truth
+(NA). The source of the truth is shown in the printed summary and stored
+in the truth.source slot.
+
+\strong{Zero detection repetitions.} If the analysis was created with
+\code{zero.n = "zero"} the repetitions with no detections within the
+truncation distance are included (as estimates of 0) in the mean
+estimates, SD, RMSE and bias. CI coverage only uses repetitions with a
+defined confidence interval, so excludes them. Their number is shown in
+the printed summary and stored in the zero.detection.reps slot.
+}

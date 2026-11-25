@@ -6,7 +6,7 @@
 \usage{
 run.simulation(
   simulation,
-  run.parallel = FALSE,
+  run.parallel = TRUE,
   max.cores = NA,
   counter = TRUE,
   transect.path = character(0),
@@ -16,12 +16,14 @@ run.simulation(
 \arguments{
 \item{simulation}{\code{\link{Simulation-class}} object}
 
-\item{run.parallel}{logical option to use multiple processors}
+\item{run.parallel}{logical option to use multiple processors (default
+TRUE). Ignored if only one core is available.}
 
 \item{max.cores}{integer maximum number of cores to use, if not specified then
 one less than the number available will be used.}
 
-\item{counter}{logical indicates if you would like to see the progress counter.}
+\item{counter}{logical indicates if you would like to see the progress
+counter, which also shows the elapsed and estimated remaining time.}
 
 \item{transect.path}{character gives the pathway to a folder of shapefiles or
 the path to a single shapefile (.shp file) which give the transects which should
@@ -38,11 +40,40 @@ the \code{\link{Simulation-class}} object which now includes
 the results
 }
 \description{
-Runs the simulation and returns the simulation object with results. If
-running in parallel and max.cores is not specified it will default to using
-one less than the number of cores / threads on your machine. For example
-code see \code{\link{make.simulation}}
+Runs the simulation and returns the simulation object with results. By
+default the repetitions are run in parallel using one less than the number
+of cores available on your machine. For example code see
+\code{\link{make.simulation}}
 }
+\section{Parallel processing}{
+
+Repetitions are distributed to worker processes using the mirai package,
+with each worker picking up a new repetition as soon as it finishes one.
+The number of workers defaults to
+\code{parallelly::availableCores(omit = 1)}, which respects limits set by
+HPC schedulers and containers. If you have already started mirai daemons
+(e.g. \code{mirai::daemons(8)}, or remote / HPC daemons) these are used
+instead and are left running afterwards. Otherwise workers are started and
+stopped on every call, which takes a few seconds; when running many short
+simulations (e.g. in a loop) start the daemons once with
+\code{mirai::daemons(n)} beforehand and stop them with
+\code{mirai::daemons(0)} when finished.
+
+The workers are separate R processes (not forks). A population generator
+(see \code{\link{make.simulation}}) is sent to them with its enclosing
+environment, but objects in the global environment and packages it uses
+are not: see the 'Population generator' section of
+\code{\link{make.simulation}}.
+
+Each repetition uses its own random number stream, so after calling
+\code{set.seed} results are identical whether run in serial or in parallel,
+regardless of the number of workers.
+
+If a repetition fails with an error the simulation carries on; the
+repetition is skipped and the error is reported in the summary of warnings
+and errors.
+}
+
 \seealso{
 \code{\link{make.simulation}}
 }

@@ -1,15 +1,12 @@
-#' @importFrom utils flush.console
 #' @importFrom methods new is
 #' @importFrom mrds dht
 #single.simulation.loop <- function(i, object){
-single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), counter, in.parallel = FALSE, transect.path = character(0), save.transects = FALSE, progress.file = character(0), debug = FALSE){
+single.sim.loop <- function(i, simulation, save.data, load.data, data.path = character(0), transect.path = character(0), save.transects = FALSE, debug = FALSE){
   # Input: i - integer representing the loop number
   #        simulation - an simulation of class Simulation
   #        save.data - logical whether to save the data
   #        load.data - logical whether to load the data
   #        data.path - where to load/save the data
-  #        counter - whether to display a progress counter
-  #        in.parallel - whether it is being run in parallel
   #        transect.path - vector of shapefile paths for each iteration or 
   #           locations to save them to (latter not yet implemented)
   #        save.transects - logical whether to save the transects 
@@ -19,33 +16,23 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   # Output: list of simulation results and warnings
   #
   warnings <- simulation@warnings
-  # Display/write to file the progress of the simulation
-  if(counter){
-    if(length(progress.file) == 0 && !in.parallel){
-      # Write to terminal
-      message("\r", i, " out of ", simulation@reps,  " reps     \r", appendLF = FALSE)  
-    }else if(length(progress.file) > 0){
-      # Calculate progress as an integer %
-      progress <- round(i/simulation@reps*100)
-      # Check if being run in parallel
-      if(in.parallel){
-        #If so load file to check if progress should be updated 
-        old.progress <- try(scan(progress.file, what=integer()), silent = TRUE)
-        if(inherits(old.progress,"integer")){
-          #Only update if this is the latest progress (when running in parallel things may not be processed in exactly the right order)
-          if(progress > old.progress){
-            try(cat(progress, file = progress.file), silent = TRUE) 
-          } 
-        }
-      }else{
-        cat(progress, file = progress.file)  
-      }
-    }
-  }
-  flush.console()
+  rep.filename <- NA_character_
   if(!load.data){
     #generate population
-    population <- generate.population(simulation)
+    if(is.null(get.population.generator(simulation))){
+      population <- generate.population(simulation)
+    }else{
+      # User supplied population generator, the RNG state is restored
+      # afterwards so the rest of the rep uses the dsims random number stream
+      generated <- run.population.generator(simulation, i)
+      population <- generated$population
+      simulation@results <- store.truth(simulation@results, generated$truth, i)
+      rm(generated)
+    }
+    # Record the realised number of individuals in the design region
+    simulation@results <- store.true.N(simulation@results, population,
+                                       simulation@design@region,
+                                       simulation@ds.analysis@group.strata, i)
     #generate transects
     load.transects <- FALSE
     if(length(transect.path) > 0 && !save.transects){
@@ -72,9 +59,11 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
       warnings <- transects$warnings
       transects <- transects$transects
       if(is.null(transects)){
-        return(list(results = simulation@results, warnings = warnings))
+        rep.result <- extract.rep.result(simulation@results, i)
+        return(list(rep.result = rep.result, warnings = warnings, filename = rep.filename))
       }
       simulation@results$filename[i] <- filename
+      rep.filename <- filename
     }else{
       transects <- generate.transects(simulation)
       if(save.transects){
@@ -152,8 +141,22 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
   }else{
     n.in.covered <- length(dists.in.covered)
   }
+  # Check for no detections within the truncation distance when these are to
+  # be recorded as zero estimates
+  zero.detections <- FALSE
+  if(get.zero.n(simulation@ds.analysis) == "zero" && exists("transects", inherits = FALSE)){
+    zero.detections <- count.in.truncation(dist.data, left, right) == 0
+  }
   #analyse survey if there are data to analyse
-  if(nrow(dist.data[!is.na(dist.data$distance),]) > 0){
+  if(zero.detections){
+    warnings <- message.handler(warnings, "There were no detections within the truncation distance, abundance and density recorded as zero (zero.n = 'zero').", i)
+    simulation@results <- store.zero.detection.results(simulation@results,
+                                                       transects,
+                                                       simulation@design@region,
+                                                       simulation@ds.analysis@group.strata,
+                                                       left, right, i)
+    model.results <- NULL
+  }else if(nrow(dist.data[!is.na(dist.data$distance),]) > 0){
     model.results <- analyse.data(simulation@ds.analysis, data.obj = survey, simulation@warnings, i = i)
     warnings <- model.results$warnings
     num.successful.models <- model.results$num.successful.models
@@ -228,6 +231,9 @@ single.sim.loop <- function(i, simulation, save.data, load.data, data.path = cha
                 survey = survey,
                 warnings = warnings))
   }
-  return(list(results = simulation@results, warnings = warnings))
+  rep.result <- extract.rep.result(simulation@results, i)
+  return(list(rep.result = rep.result,
+              warnings = warnings,
+              filename = rep.filename))
 }
 

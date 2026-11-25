@@ -7,7 +7,9 @@ simulate.detections <- function(poss.distances, detectability){
                   # Hazard rate
                   "hr" = 1-exp(-(poss.distances$distance/poss.distances$scale.param)^-poss.distances$shape.param),
                   # Uniform
-                  "uf" = poss.distances$scale.param
+                  # (numeric(0) when no individuals are within the truncation
+                  # distance of any transect, poss.distances then has no columns)
+                  "uf" = if(is.null(poss.distances$scale.param)) numeric(0) else poss.distances$scale.param
                   )
   detected <- rbinom(length(probs), 1, probs)
   dist.data <- poss.distances[detected == 1,]

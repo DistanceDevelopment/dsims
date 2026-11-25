@@ -28,7 +28,15 @@ check.simulation <- function(object){
       }
     }
   }
-
+  # Check that cov.surface names all have corresponding cov.param entries
+  surf.names <- names(detect@cov.surface)
+  if(length(surf.names) > 0){
+    for(sn in surf.names){
+      if(!sn %in% cov.names){
+        return(paste0("cov.surface entry '", sn, "' does not have a matching numeric entry in cov.param."))
+      }
+    }
+  }
   # DESIGN CHECKS
   design <- object@design
   if(any(design@edge.protocol == "plus")){

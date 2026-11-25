@@ -1,4 +1,39 @@
 #' @importFrom methods is
+#' @importFrom terra rast extract
+get.dsims.runtime.cache <- function(){
+  cache <- getOption("dsims.runtime.cache")
+  if(is.null(cache) || !is.environment(cache)){
+    cache <- new.env(parent = emptyenv())
+    options(dsims.runtime.cache = cache)
+  }
+  cache
+}
+
+get.surface.cache.entry <- function(sn, surf){
+  cache <- get.dsims.runtime.cache()
+  if(is.character(surf)){
+    cache.key <- paste0("file::", normalizePath(surf, mustWork = FALSE))
+  }else{
+    surf.ext <- terra::ext(surf)
+    ext.vec <- c(surf.ext$xmin, surf.ext$xmax, surf.ext$ymin, surf.ext$ymax)
+    cache.key <- paste0("mem::", sn, "::", terra::ncell(surf), "::",
+                        paste(ext.vec, collapse = ":"))
+  }
+
+  if(exists(cache.key, envir = cache, inherits = FALSE)){
+    return(get(cache.key, envir = cache, inherits = FALSE))
+  }
+
+  # Cache only the raster handle: for a file-backed raster, values are read at
+  # the animal locations on demand (terra::extract), so memory stays small even
+  # for large rasters with many parallel workers. Caching terra::values() held
+  # the whole raster in memory in every worker.
+  surf.obj <- if(is.character(surf)) terra::rast(surf) else surf
+  entry <- list(rast = surf.obj)
+  assign(cache.key, entry, envir = cache)
+  entry
+}
+
 calculate.scale.param <- function(pop.data, detectability, region){
 # This function calculates the scale parameters including any covariate effects
 # and adds these values to the population dataframe which is then returned. Also
@@ -32,6 +67,25 @@ calculate.scale.param <- function(pop.data, detectability, region){
       detectability@shape.param <- rep(shape[1], strata.no)
     }
   }
+  # Extract raster surface values at each animal's location and append as columns.
+  # This must happen before the covariate-name check so the columns are present.
+  if(length(detectability@cov.surface) > 0){
+    surf.names <- names(detectability@cov.surface)
+    pts <- cbind(pop.data$x, pop.data$y)
+    for(sn in surf.names){
+      surf <- detectability@cov.surface[[sn]]
+      cache.entry <- get.surface.cache.entry(sn, surf)
+      vals <- terra::extract(cache.entry$rast, pts)[, 1]
+      if(any(is.na(vals))){
+        warning(paste0("NA raster values for surface covariate '", sn,
+                       "' at some animal locations (outside raster extent). ",
+                       "Replacing with global raster mean."),
+                call. = FALSE, immediate. = TRUE)
+        vals[is.na(vals)] <- mean(vals, na.rm = TRUE)
+      }
+      pop.data[[sn]] <- vals
+    }
+  }
   # Check the covariate names in detectability are present in the population
   pop.cov.names <- names(pop.data)
   detect.cov.names <- names(detectability@cov.param)
@@ -44,7 +98,7 @@ calculate.scale.param <- function(pop.data, detectability, region){
   for(cov in seq(along = detectability@cov.param)){
     current.cov <- detectability@cov.param[[cov]]
     if(!is(current.cov, "data.frame")){
-      if(length(current.cov == 1)){
+      if(length(current.cov) == 1){
         # repeat it for the number of strata
         detectability@cov.param[[cov]] <- rep(current.cov, strata.no)
       }else if(length(current.cov) != strata.no){
